@@ -1,0 +1,38 @@
+# depslib dependency file v1.0
+1413709960 source:/home/sandesh/cs101_proj/NumCpp/functions.cpp
+	"functions.h"
+
+1413709962 /home/sandesh/cs101_proj/NumCpp/functions.h
+	"parser.hpp"
+	<cmath>
+	<map>
+
+1413716381 /home/sandesh/cs101_proj/NumCpp/parser.hpp
+	"misc.h"
+	"functions.h"
+	<string>
+	<queue>
+	<map>
+	<vector>
+	<stack>
+	<iterator>
+	<algorithm>
+	<cctype>
+	<iostream>
+	<cstdlib>
+
+1413717514 /home/sandesh/cs101_proj/NumCpp/misc.h
+	<string>
+
+1413732971 source:/home/sandesh/cs101_proj/NumCpp/main.cpp
+	<iostream>
+	"parser.hpp"
+
+1413717977 source:/home/sandesh/cs101_proj/NumCpp/misc.cpp
+	<string>
+	<iostream>
+
+1413732421 source:/home/sandesh/cs101_proj/NumCpp/parser.cpp
+	"parser.hpp"
+	"functions.h"
+
