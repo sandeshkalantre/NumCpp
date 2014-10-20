@@ -3,8 +3,6 @@
 
 #include <string>
 
-
-
 bool is_operator(const char c);
 bool is_lparen(const char c);
 bool is_rparen(const char c);

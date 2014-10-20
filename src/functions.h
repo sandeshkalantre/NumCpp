@@ -1,6 +1,10 @@
 #include "parser.hpp"
 #include <cmath>
-#include <map>
+
+//defines the standard functions and loads them in map_functions
+void def_functions();
+//defines the standard variables and loads then in map_variables
+void def_variables();
 
 namespace std_functions
 {

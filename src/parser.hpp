@@ -19,16 +19,13 @@
 //DECIDE WHETHER TO USE stof or atof
 #include <cstdlib>
 
-
-
-
 class Token;
 class Parser;
 class Function;
 
+//the extern maps which will store our variables and functions
 extern std::map<std::string, Function> map_functions;
 extern std::map<std::string, double> map_variables;
-
 
 class Token
 {
@@ -89,14 +86,18 @@ class Token
     public:
         //string storing the token
         std::string token;
+
         //stores the token type
         TOKEN_TYPE token_type;
+
         //stores the operator id in case of an operator
         //NOTANOPERATOR = 0 otherwise
         OPERATOR_ID operator_id;
+
         //stores the operator precedence level in case of an operator
         //LEVEL0 = 0 otherwise
         OPERATOR_PRECEDENCE operator_precedence;
+
         //stores the operator associativity
         //NONE = 0 otherwise
         OPERATOR_ASSOCIATIVITY operator_associativity;
@@ -113,7 +114,6 @@ class Token
 
         std::string::iterator get_token(std::string expr, std::string::iterator it_expr);
 };
-
 
 class Parser
 {
@@ -140,41 +140,48 @@ class Parser
         double eval_rpn(std::queue<Token> expr_rpn);
 };
 
-
 class Function
 {
-
+    friend class Token;
+    friend class Parser;
+    //data
     public:
         //name of the function
         std::string function_name;
+
         //number of the arguments of the function
         //default number of arguments is zero
         int num_arguments;
-    public:
-        //the vector of arguments
-        std::vector<std::string> s_arguments;
-        //the unordered map of argument names and their values
-        std::map<std::string, double> map_arguments;
-        //the rpn form of the definition of the function
-        std::queue<Token> function_rpn;
+
         //stores whether the function is a standard function;
         bool standard;
+
+    private:
+        //the vector of arguments
+        std::vector<std::string> s_arguments;
+
+        //the unordered map of argument names and their values
+        std::map<std::string, double> map_arguments;
+
+        //the rpn form of the definition of the function
+        std::queue<Token> function_rpn;
+
+    //functions
     public:
+        //the constructor for the class Functions
         Function();
+    private:
+        //stores the rpn in function_rpn given the rpn as the argument
         void store_rpn(std::queue<Token> rpn);
+
         //this has to written differently than eval_rpn as d_arguments are the variables
         //and not the variables in map_variables
         double evaluate(std::vector<double> d_arguments);
-	double std_evaluate(std::vector<double> d_arguments);
+
+        //this function is called by evaluate if the function being evaluated is
+        //a standard function as stored in bool standard
+        double std_evaluate(std::vector<double> d_arguments);
 };
-
-
-
-
-
-
-
-
 
 #endif
 
