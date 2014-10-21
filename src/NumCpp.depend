@@ -76,3 +76,40 @@
 	"parser.hpp"
 	"functions.h"
 
+1413904690 source:/users/cs101/140260002/NumCpp/src/functions.cpp
+	"functions.h"
+
+1413904690 /users/cs101/140260002/NumCpp/src/functions.h
+	"parser.hpp"
+	<cmath>
+
+1413904690 /users/cs101/140260002/NumCpp/src/parser.hpp
+	"misc.h"
+	"functions.h"
+	<string>
+	<queue>
+	<map>
+	<vector>
+	<stack>
+	<iterator>
+	<algorithm>
+	<cctype>
+	<iostream>
+	<cstdlib>
+
+1413904690 /users/cs101/140260002/NumCpp/src/misc.h
+	<string>
+
+1413904690 source:/users/cs101/140260002/NumCpp/src/main.cpp
+	<iostream>
+	"parser.hpp"
+	"functions.h"
+
+1413904690 source:/users/cs101/140260002/NumCpp/src/misc.cpp
+	<string>
+	<iostream>
+
+1413904690 source:/users/cs101/140260002/NumCpp/src/parser.cpp
+	"parser.hpp"
+	"functions.h"
+

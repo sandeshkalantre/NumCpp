@@ -40,6 +40,8 @@
 		<Unit filename="misc.h" />
 		<Unit filename="parser.cpp" />
 		<Unit filename="parser.hpp" />
+		<Unit filename="routine.cpp" />
+		<Unit filename="routines.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />
