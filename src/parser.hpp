@@ -102,6 +102,9 @@ class Token
         //NONE = 0 otherwise
         OPERATOR_ASSOCIATIVITY operator_associativity;
 
+        //stores the name of the routine
+        ROUTINE_NAME routine_name;
+
     //constructor for the Token class
     public:
         Token();

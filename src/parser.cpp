@@ -76,6 +76,9 @@ enum Token::OPERATOR_ASSOCIATIVITY Token::get_operator_associativity(const char 
 
 std::string::iterator Token::get_token(std::string expr,std::string::iterator it_expr)
 {
+    //clear the token string
+    token.clear();
+
     if(*it_expr == ';')
     {
         token_type = SEMICOLON;
@@ -92,13 +95,14 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
     //checks whether the token is a define keyword
     //which the parser uses so as to know that the user is defining
     //a variable or function
-    if(is_define(*it_expr,*(it_expr+1),*(it_expr+2),*(it_expr+3),*(it_expr+4),*(it_expr+5),*(it_expr+6)))
+    /*if(is_define(*it_expr,*(it_expr+1),*(it_expr+2),*(it_expr+3),*(it_expr+4),*(it_expr+5),*(it_expr+6)))
     {
 
         token_type = DEFINE;
         it_expr += 6;
         return it_expr;
     }
+    */
 
 
     if(is_equal_sign(*it_expr))
@@ -172,6 +176,19 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
         {
             token += *it_expr;
             it_expr++;
+        }
+        //std::cout<<token<<std::endl;
+
+        if(is_define(token))
+        {
+            token_type = DEFINE;
+            return it_expr;
+        }
+
+        if(is_routine(token))
+        {
+            token_type = ROUTINE;
+            return it_expr;
         }
 
         //check whether this is a variable or a function
