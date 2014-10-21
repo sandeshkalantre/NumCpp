@@ -12,6 +12,7 @@ int main()
 {
     def_functions();
     def_variables();
+    def_routines();
     Parser parser;
     while(true)
     {

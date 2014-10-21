@@ -187,11 +187,12 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
             return it_expr;
         }
 
-        if(is_routine(token))
+        if(is_routine1(token))
         {
             token_type = ROUTINE;
             return it_expr;
         }
+
 
         //check whether this is a variable or a function
         //function has a left parentheses

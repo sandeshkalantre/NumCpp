@@ -86,13 +86,7 @@ class Token
             RIGHT
         };
 
-        enum ROUTINE_NAME
-        {
-            INTEGRATE,
-            DIFFERENTIATE
-        };
-
-    //data
+         //data
     public:
         //string storing the token
         std::string token;
@@ -111,6 +105,8 @@ class Token
         //stores the operator associativity
         //NONE = 0 otherwise
         OPERATOR_ASSOCIATIVITY operator_associativity;
+
+
 
     //constructor for the Token class
     public:
@@ -152,6 +148,7 @@ class Parser
 
 class Function
 {
+    friend class Routine;
     friend class Token;
     friend class Parser;
     //data
@@ -180,7 +177,7 @@ class Function
     public:
         //the constructor for the class Functions
         Function();
-    private:
+    public:
         //stores the rpn in function_rpn given the rpn as the argument
         void store_rpn(std::queue<Token> rpn);
 
@@ -195,6 +192,7 @@ class Function
 
 class Routine
 {
+    friend class Function;
     public:
         //name of routine
         std::string routine_name;
