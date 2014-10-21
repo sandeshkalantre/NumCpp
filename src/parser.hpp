@@ -3,6 +3,7 @@
 
 #include "misc.h"
 #include "functions.h"
+#include "routines.h"
 #include <string>
 #include <queue>
 //#include <unordered_map>
@@ -22,10 +23,12 @@
 class Token;
 class Parser;
 class Function;
+class Routine;
 
-//the extern maps which will store our variables and functions
+//the extern maps which will store our variables and functions and routines
 extern std::map<std::string, Function> map_functions;
 extern std::map<std::string, double> map_variables;
+extern std::map<std::string, Routine> map_routines;
 
 class Token
 {
@@ -52,6 +55,7 @@ class Token
             DEFINE,
             //this sign denotes define/assignment of the variable/function
             EQUAL_SIGN,
+            ROUTINE,
             UNKNOWN
         };
 
@@ -82,6 +86,12 @@ class Token
             RIGHT
         };
 
+        enum ROUTINE_NAME
+        {
+            INTEGRATE,
+            DIFFERENTIATE
+        };
+
     //data
     public:
         //string storing the token
@@ -101,9 +111,6 @@ class Token
         //stores the operator associativity
         //NONE = 0 otherwise
         OPERATOR_ASSOCIATIVITY operator_associativity;
-
-        //stores the name of the routine
-        ROUTINE_NAME routine_name;
 
     //constructor for the Token class
     public:
@@ -184,6 +191,20 @@ class Function
         //this function is called by evaluate if the function being evaluated is
         //a standard function as stored in bool standard
         double std_evaluate(std::vector<double> d_arguments);
+};
+
+class Routine
+{
+    public:
+        //name of routine
+        std::string routine_name;
+        //number of arguments excluding the function_name
+        int num_arguments;
+
+    public:
+        double evaluate(std::string function_name, std::vector<double> arguments);
+
+
 };
 
 #endif

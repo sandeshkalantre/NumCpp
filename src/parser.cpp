@@ -1,5 +1,7 @@
 #include "parser.hpp"
 #include "functions.h"
+#include "routines.h"
+#include "misc.h"
 
 //Token class constructor
 Token::Token()
@@ -459,9 +461,9 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
             operator_stack.pop();
 
             //is the top of the operator stack it a function
-            //then this RPAREN marks the end of the arguments of the function
-            //the function so must be pushed to the output queue
-            if(operator_stack.top().token_type == Token::FUNCTION)
+            //then this RPAREN marks the end of the arguments of the function/routine
+            //the function/routine so must be pushed to the output queue
+            if(operator_stack.top().token_type == Token::FUNCTION || operator_stack.top().token_type == Token::ROUTINE)
             {
                 expr_rpn.push(operator_stack.top());
                 operator_stack.pop();
@@ -491,7 +493,7 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
 {
     std::stack<double> number_stack;
     //this is used as argument to routines
-    std::string last_function_name;
+    std::string routine_function_name;
 
 
 
@@ -571,9 +573,24 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
 
         if(expr_rpn.front().token_type == Token::FUNCTION)
         {
-            //ERROR HANDLING TO ENSURE THAT THE FUNCTION EXISTS ON THE Map_functions
 
-            //stores the poped arguments from the number_stack
+			//ERROR HANDLING TO ENSURE THAT THE FUNCTION EXISTS ON THE Map_functions
+
+			Token temp_token;
+			temp_token = expr_rpn.front();
+			expr_rpn.pop();
+			if(expr_rpn.front().token_type == Token::ROUTINE)
+			{
+				routine_function_name = temp_token.token;
+				continue;
+			}
+			else
+			{
+				expr_rpn.push(temp_token);
+			}
+
+
+		    //stores the poped arguments from the number_stack
             std::vector<double> arguments;
 
             //WRITE ERROR HANDLING IF THERE ARE NOT ENOUGH ARGUMENTS ON THE number_stack
@@ -594,19 +611,17 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
 
         if(expr_rpn.front().token_type == Token::ROUTINE)
         {
-            if(expr_rpn.front().routine_name == Token::INTEGRATE)
+			std::vector<double> arguments;
+            for(int i = 0; i < map_routines[expr_rpn.front().token].num_arguments; i++)
             {
-                std::vector<double> arguments;
-                for(int i = 0; i < map_routines[expr_rpn.front().token].num_arguments; i++)
-                {
-                    arguments.push_back(number_stack.top());
-                    number_stack.pop();
-                }
-                //the arguments have to be reversed as they are stored in rpn in reverse order
-                std::reverse(arguments.begin(),arguments.end());
-
-                std::string function_name = ;
+				arguments.push_back(number_stack.top());
+                number_stack.pop();
             }
+            //the arguments have to be reversed as they are stored in rpn in reverse order
+            std::reverse(arguments.begin(),arguments.end());
+
+            number_stack.push(map_routines[expr_rpn.front().token].evaluate(routine_function_name,arguments));
+            expr_rpn.pop();
 
         }
     }
@@ -839,7 +854,21 @@ double Function::evaluate(std::vector<double> d_arguments)
     return 0;
 }
 
+double Routine::evaluate(std::string function_name,std::vector<double> arguments)
+{
+	if(routine_name.compare("integrate") == 0)
+	{
+		return routines::integrate(function_name,arguments[0],arguments[1]);
+	}
 
+	if(routine_name.compare("differentiate") == 0)
+	{
+		return routines::differentiate(function_name,arguments[0]);
+	}
+
+	//returns 0 as default
+	return 0;
+}
 
 
 

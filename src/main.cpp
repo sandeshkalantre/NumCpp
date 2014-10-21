@@ -1,11 +1,12 @@
 #include <iostream>
 #include "parser.hpp"
 #include "functions.h"
+#include "routines.h"
 using namespace std;
 
 std::map<std::string, Function> map_functions;
 std::map<std::string, double> map_variables;
-
+std::map<std::string, Routine> map_routines;
 
 int main()
 {

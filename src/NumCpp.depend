@@ -76,3 +76,54 @@
 	"parser.hpp"
 	"functions.h"
 
+1413902166 source:/users/cs101/140260012/NumCpp/src/functions.cpp
+	"functions.h"
+
+1413902166 /users/cs101/140260012/NumCpp/src/functions.h
+	"parser.hpp"
+	<cmath>
+
+1413909015 /users/cs101/140260012/NumCpp/src/parser.hpp
+	"misc.h"
+	"functions.h"
+	"routines.h"
+	<string>
+	<queue>
+	<map>
+	<vector>
+	<stack>
+	<iterator>
+	<algorithm>
+	<cctype>
+	<iostream>
+	<cstdlib>
+
+1413902180 /users/cs101/140260012/NumCpp/src/misc.h
+	<string>
+
+1413909159 source:/users/cs101/140260012/NumCpp/src/main.cpp
+	<iostream>
+	"parser.hpp"
+	"functions.h"
+	"routines.h"
+
+1413902180 source:/users/cs101/140260012/NumCpp/src/misc.cpp
+	<string>
+	<iostream>
+
+1413902166 source:/users/cs101/140260012/NumCpp/src/variables.cpp
+	"parser.hpp"
+
+1413909200 /users/cs101/140260012/NumCpp/src/routines.h
+	<iostream>
+	"parser.hpp"
+
+1413909174 source:/users/cs101/140260012/NumCpp/src/parser.cpp
+	"parser.hpp"
+	"functions.h"
+	"routines.h"
+	"misc.h"
+
+1413909056 source:/users/cs101/140260012/NumCpp/src/routines.cpp
+	"routines.h"
+
