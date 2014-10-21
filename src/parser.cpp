@@ -272,6 +272,7 @@ void Parser::parse(std::string expr)
                 {
                     function.num_arguments++;
                     function.s_arguments.push_back(token.token);
+                    //std::cout<<function.s_arguments[0];//<<function.s_arguments[1];
                     function.map_arguments[token.token] = 0;
                 }
                 else
@@ -557,6 +558,8 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
                 arguments.push_back(number_stack.top());
                 number_stack.pop();
             }
+            //the arguments have to be reversed as they are stored in rpn in reverse order
+            std::reverse(arguments.begin(),arguments.end());
             //std::cout<<"arg"<<arguments[0];
 
             number_stack.push(map_functions[expr_rpn.front().token].evaluate(arguments));
