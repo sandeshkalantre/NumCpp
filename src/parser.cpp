@@ -404,6 +404,11 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
             operator_stack.push(token);
         }
 
+        if(token.token_type == Token::ROUTINE)
+        {
+            operator_stack.push(token);
+        }
+
         if(token.token_type == Token::COMMA)
         {
             //THROW SOME ERRORS HERE IF NO LPAREN IS ENCOUNTERED
@@ -485,6 +490,8 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
 double Parser::eval_rpn(std::queue<Token> expr_rpn)
 {
     std::stack<double> number_stack;
+    //this is used as argument to routines
+    std::string last_function_name;
 
 
 
@@ -582,6 +589,24 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
             number_stack.push(map_functions[expr_rpn.front().token].evaluate(arguments));
 
             expr_rpn.pop();
+
+        }
+
+        if(expr_rpn.front().token_type == Token::ROUTINE)
+        {
+            if(expr_rpn.front().routine_name == Token::INTEGRATE)
+            {
+                std::vector<double> arguments;
+                for(int i = 0; i < map_routines[expr_rpn.front().token].num_arguments; i++)
+                {
+                    arguments.push_back(number_stack.top());
+                    number_stack.pop();
+                }
+                //the arguments have to be reversed as they are stored in rpn in reverse order
+                std::reverse(arguments.begin(),arguments.end());
+
+                std::string function_name = ;
+            }
 
         }
     }
