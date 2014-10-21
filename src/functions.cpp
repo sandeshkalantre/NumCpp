@@ -22,14 +22,49 @@ namespace std_functions
     {
         return (int)a % (int)b;
     }
-    double factorial(double a, double b)
+    double factorial(double a)
     {
-        //change this to factorial
-        return a + b;
+        //if the number is negative then 1 is returned
+        int num = (int) a;
+        int result = 1;
+        while(num > 0)
+        {
+            result *= num;
+            num--;
+        }
+        return result;
     }
     double power(double a, double b)
     {
         return pow(a , b);
+    }
+    double sin(double a)
+    {
+        return std::sin(a);
+    }
+    double cos(double a)
+    {
+        return std::cos(a);
+    }
+    double tan(double a)
+    {
+        return std::tan(a);
+    }
+    double asin(double a)
+    {
+        return std::asin(a);
+    }
+    double acos(double a)
+    {
+        return std::acos(a);
+    }
+    double atan(double a)
+    {
+        return std::atan(a);
+    }
+    double atan2(double a, double b)
+    {
+        return std::atan2(a, b);
     }
 }
 
@@ -69,7 +104,7 @@ void def_functions()
 
     Function FACTORIAL;
     FACTORIAL.function_name = "FACTORIAL";
-    FACTORIAL.num_arguments = 2;
+    FACTORIAL.num_arguments = 1;
     FACTORIAL.standard = true;
     map_functions[FACTORIAL.function_name] = FACTORIAL;
 
@@ -79,6 +114,47 @@ void def_functions()
     POWER.standard = true;
     map_functions[POWER.function_name] = POWER;
 
+    Function SIN;
+    SIN.function_name = "sin";
+    SIN.num_arguments = 1;
+    SIN.standard = true;
+    map_functions[SIN.function_name] = SIN;
+
+    Function COS;
+    COS.function_name = "cos";
+    COS.num_arguments = 1;
+    COS.standard = true;
+    map_functions[COS.function_name] = COS;
+
+    Function TAN;
+    TAN.function_name = "tan";
+    TAN.num_arguments = 1;
+    TAN.standard = true;
+    map_functions[TAN.function_name] = TAN;
+
+    Function ASIN;
+    ASIN.function_name = "asin";
+    ASIN.num_arguments = 1;
+    ASIN.standard = true;
+    map_functions[ASIN.function_name] = ASIN;
+
+    Function ACOS;
+    ACOS.function_name = "acos";
+    ACOS.num_arguments = 1;
+    ACOS.standard = true;
+    map_functions[ACOS.function_name] = ACOS;
+
+    Function ATAN;
+    ATAN.function_name = "atan";
+    ATAN.num_arguments = 1;
+    ATAN.standard = true;
+    map_functions[ATAN.function_name] = ATAN;
+
+    Function ATAN2;
+    ATAN2.function_name = "atan2";
+    ATAN2.num_arguments = 2;
+    ATAN2.standard = true;
+    map_functions[ATAN2.function_name] = ATAN2;
     return;
 }
 

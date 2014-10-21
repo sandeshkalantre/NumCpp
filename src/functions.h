@@ -12,7 +12,16 @@ namespace std_functions
     double subtract(double a, double b);
     double multiply(double a, double b);
     double divide(double a, double b);
+    //modulus is some keyword so modulus1 is used as the name
     double modulus1(double a, double b);
-    double factorial(double a, double b);
+    double factorial(double a);
     double power(double a, double b);
+    double sin(double a);
+    double cos(double a);
+    double tan(double a);
+    double asin(double a);
+    double acos(double a);
+    double atan(double a);
+    double atan2(double a, double b);
+
 }

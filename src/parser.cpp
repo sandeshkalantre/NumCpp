@@ -1,8 +1,6 @@
 #include "parser.hpp"
 #include "functions.h"
 
-
-
 //Token class constructor
 Token::Token()
 {
@@ -310,7 +308,9 @@ void Parser::parse(std::string expr)
     it_expr = expr.begin();
     //std::cout<<"here at math_parse"<<expr;
     math_parse(expr, it_expr);
-
+    //std::cout<<expr_rpn.front().token;
+    //expr_rpn.pop();
+    //std::cout<<expr_rpn.front().token;
     std::cout<<eval_rpn(expr_rpn)<<std::endl;
 
     /*if(token.token_type == Token::VARIABLE)
@@ -434,6 +434,15 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
             }
             //pop the LPAREN
             operator_stack.pop();
+
+            //is the top of the operator stack it a function
+            //then this RPAREN marks the end of the arguments of the function
+            //the function so must be pushed to the output queue
+            if(operator_stack.top().token_type == Token::FUNCTION)
+            {
+                expr_rpn.push(operator_stack.top());
+                operator_stack.pop();
+            }
         }
 
 		if(token.token_type == Token::SEMICOLON)
@@ -476,50 +485,60 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
         }
         if(expr_rpn.front().token_type == Token::OPERATOR)
         {
-            //WRITE SOME ERROR HANDLING TO CHECK THAT THERE ATLEAST TWO ELEMENTS ON THE STACK
+            if(expr_rpn.front().operator_id != Token::FACTORIAL)
+            {
+                //WRITE SOME ERROR HANDLING TO CHECK THAT THERE ATLEAST TWO ELEMENTS ON THE STACK
+                //store the top two elements as components of a vector
+                std::vector<double>top_two (2);
 
-            //store the top two elements as components of a vector
-            std::vector<double>top_two (2);
-            top_two[1] = number_stack.top();
-            number_stack.pop();
-            top_two[0] = number_stack.top();
-            number_stack.pop();
+                top_two[1] = number_stack.top();
+                number_stack.pop();
+                top_two[0] = number_stack.top();
+                number_stack.pop();
 
-            if(expr_rpn.front().operator_id == Token::PLUS)
-            {
-                number_stack.push(map_functions["ADD"].evaluate(top_two));
-                expr_rpn.pop();
+                if(expr_rpn.front().operator_id == Token::PLUS)
+                {
+                    number_stack.push(map_functions["ADD"].evaluate(top_two));
+                    expr_rpn.pop();
+                }
+                if(expr_rpn.front().operator_id == Token::MINUS)
+                {
+                    number_stack.push(map_functions["SUBTRACT"].evaluate(top_two));
+                    expr_rpn.pop();
+                }
+                if(expr_rpn.front().operator_id == Token::MULTIPLY)
+                {
+                    number_stack.push(map_functions["MULTIPLY"].evaluate(top_two));
+                    expr_rpn.pop();
+                }
+                if(expr_rpn.front().operator_id == Token::DIVIDE)
+                {
+                    number_stack.push(map_functions["DIVIDE"].evaluate(top_two));
+                    expr_rpn.pop();
+                }
+                if(expr_rpn.front().operator_id == Token::MODULUS)
+                {
+                    number_stack.push(map_functions["MODULUS"].evaluate(top_two));
+                    expr_rpn.pop();
+                }
+                if(expr_rpn.front().operator_id == Token::POWER)
+                {
+                    number_stack.push(map_functions["POWER"].evaluate(top_two));
+                    expr_rpn.pop();
+                }
+
             }
-            if(expr_rpn.front().operator_id == Token::MINUS)
+            //FACTORIAL has to handled differently since it is a unary operator
+            else
             {
-                number_stack.push(map_functions["SUBTRACT"].evaluate(top_two));
-                expr_rpn.pop();
-            }
-            if(expr_rpn.front().operator_id == Token::MULTIPLY)
-            {
-                number_stack.push(map_functions["MULTIPLY"].evaluate(top_two));
-                expr_rpn.pop();
-            }
-            if(expr_rpn.front().operator_id == Token::DIVIDE)
-            {
-                //std::cout<<top_two[0]<<top_two[1]<<std::endl;
-                number_stack.push(map_functions["DIVIDE"].evaluate(top_two));
-                expr_rpn.pop();
-            }
-            if(expr_rpn.front().operator_id == Token::MODULUS)
-            {
-                number_stack.push(map_functions["MODULUS"].evaluate(top_two));
-                expr_rpn.pop();
-            }
-            if(expr_rpn.front().operator_id == Token::FACTORIAL)
-            {
-                number_stack.push(map_functions["FACTORIAL"].evaluate(top_two));
-                expr_rpn.pop();
-            }
-            if(expr_rpn.front().operator_id == Token::POWER)
-            {
-                number_stack.push(map_functions["POWER"].evaluate(top_two));
-                expr_rpn.pop();
+                std::vector<double> top (1);
+                top[0] = number_stack.top();
+                number_stack.pop();
+                if(expr_rpn.front().operator_id == Token::FACTORIAL)
+                {
+                    number_stack.push(map_functions["FACTORIAL"].evaluate(top));
+                    expr_rpn.pop();
+                }
             }
 
         }
@@ -596,8 +615,7 @@ double Function::std_evaluate(std::vector<double> d_arguments)
     }
     if(function_name == "FACTORIAL")
     {
-        //change this to factorial
-        return std_functions::factorial(d_arguments[0], d_arguments[1]);
+        return std_functions::factorial(d_arguments[0]);
     }
     if(function_name == "POWER")
     {
@@ -606,6 +624,34 @@ double Function::std_evaluate(std::vector<double> d_arguments)
     if(function_name == "MODULUS")
     {
         return std_functions::modulus1(d_arguments[0], d_arguments[1]);
+    }
+    if(function_name == "sin")
+    {
+        return std_functions::sin(d_arguments[0]);
+    }
+    if(function_name == "cos")
+    {
+        return std_functions::cos(d_arguments[0]);
+    }
+    if(function_name == "tan")
+    {
+        return std_functions::tan(d_arguments[0]);
+    }
+    if(function_name == "asin")
+    {
+        return std_functions::asin(d_arguments[0]);
+    }
+    if(function_name == "acos")
+    {
+        return std_functions::acos(d_arguments[0]);
+    }
+    if(function_name == "atan")
+    {
+        return std_functions::atan(d_arguments[0]);
+    }
+    if(function_name == "atan2")
+    {
+        return std_functions::atan2(d_arguments[0],d_arguments[1]);
     }
 
     //by deafult it returns zero
@@ -659,48 +705,56 @@ double Function::evaluate(std::vector<double> d_arguments)
         if(function_rpn.front().token_type == Token::OPERATOR)
         {
             //WRITE SOME ERROR HANDLING TO CHECK THAT THERE ATLEAST TWO ELEMENTS ON THE STACK
+            if(function_rpn.front().operator_id != Token::FACTORIAL)
+            {
+                //store the top two elements as compenets of a vector
+                std::vector<double>top_two (2);
+                top_two[1] = number_stack.top();
+                number_stack.pop();
+                top_two[0] = number_stack.top();
+                number_stack.pop();
 
-            //store the top two elements as compenets of a vector
-            std::vector<double>top_two (2);
-            top_two[1] = number_stack.top();
-            number_stack.pop();
-            top_two[0] = number_stack.top();
-            number_stack.pop();
-
-            if(function_rpn.front().operator_id == Token::PLUS)
-            {
-                number_stack.push(map_functions["ADD"].evaluate(top_two));
-                function_rpn.pop();
+                if(function_rpn.front().operator_id == Token::PLUS)
+                {
+                    number_stack.push(map_functions["ADD"].evaluate(top_two));
+                    function_rpn.pop();
+                }
+                if(function_rpn.front().operator_id == Token::MINUS)
+                {
+                    number_stack.push(map_functions["SUBTRACT"].evaluate(top_two));
+                    function_rpn.pop();
+                }
+                if(function_rpn.front().operator_id == Token::MULTIPLY)
+                {
+                    number_stack.push(map_functions["MULTIPLY"].evaluate(top_two));
+                    function_rpn.pop();
+                }
+                if(function_rpn.front().operator_id == Token::DIVIDE)
+                {
+                    number_stack.push(map_functions["DIVIDE"].evaluate(top_two));
+                    function_rpn.pop();
+                }
+                if(function_rpn.front().operator_id == Token::MODULUS)
+                {
+                    number_stack.push(map_functions["MODULUS"].evaluate(top_two));
+                    function_rpn.pop();
+                }
+                if(function_rpn.front().operator_id == Token::POWER)
+                {
+                    number_stack.push(map_functions["POWER"].evaluate(top_two));
+                    function_rpn.pop();
+                }
             }
-            if(function_rpn.front().operator_id == Token::MINUS)
+            else
             {
-                number_stack.push(map_functions["SUBTRACT"].evaluate(top_two));
-                function_rpn.pop();
-            }
-            if(function_rpn.front().operator_id == Token::MULTIPLY)
-            {
-                number_stack.push(map_functions["MULTIPLY"].evaluate(top_two));
-                function_rpn.pop();
-            }
-            if(function_rpn.front().operator_id == Token::DIVIDE)
-            {
-                number_stack.push(map_functions["DIVIDE"].evaluate(top_two));
-                function_rpn.pop();
-            }
-            if(function_rpn.front().operator_id == Token::MODULUS)
-            {
-                number_stack.push(map_functions["MODULUS"].evaluate(top_two));
-                function_rpn.pop();
-            }
-            if(function_rpn.front().operator_id == Token::FACTORIAL)
-            {
-                number_stack.push(map_functions["FACTORIAL"].evaluate(top_two));
-                function_rpn.pop();
-            }
-            if(function_rpn.front().operator_id == Token::POWER)
-            {
-                number_stack.push(map_functions["POWER"].evaluate(top_two));
-                function_rpn.pop();
+                std::vector<double> top (1);
+                top[0] = number_stack.top();
+                number_stack.pop();
+                if(function_rpn.front().operator_id == Token::FACTORIAL)
+                {
+                    number_stack.push(map_functions["FACTORIAL"].evaluate(top));
+                    function_rpn.pop();
+                }
             }
 
         }

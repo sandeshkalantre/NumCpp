@@ -4,7 +4,7 @@
 //checks whether the char is an operator
 bool is_operator(const char c)
 {
-    return (c == '+' || c == '-' || c == '*' || c == '/' || c == '%' ||c == '^' ||c == '!');
+    return (c == '+' || c == '-' || c == '*' || c == '/' || c == '%' ||c == '^' || c == '!');
 }
 
 //checks whether the char is a left parentheses
