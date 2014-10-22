@@ -2,6 +2,7 @@
 #include "functions.h"
 #include "routines.h"
 #include "misc.h"
+#include "errors.h"
 
 //Token class constructor
 Token::Token()
@@ -21,6 +22,8 @@ enum Token::OPERATOR_ID Token::get_operator_id(const char c)
     }
     if(c == '-')
     {
+        //UNARY_MINUS is determined while parsing in Parser::math_parse
+        //by default all minus signs denote subtraction
         return MINUS;
     }
     if(c == '*')
@@ -48,7 +51,7 @@ enum Token::OPERATOR_ID Token::get_operator_id(const char c)
 
 enum Token::OPERATOR_PRECEDENCE Token::get_operator_precedence(const char c)
 {
-    if(c == '+'|| c == '-')
+    if(c == '+' || c == '-')
     {
         return LEVEL1;
     }
@@ -81,6 +84,7 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
     //clear the token string
     token.clear();
 
+    //check for a semicolon
     if(*it_expr == ';')
     {
         token_type = SEMICOLON;
@@ -94,27 +98,16 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
         it_expr++;
     }
 
-    //checks whether the token is a define keyword
-    //which the parser uses so as to know that the user is defining
-    //a variable or function
-    /*if(is_define(*it_expr,*(it_expr+1),*(it_expr+2),*(it_expr+3),*(it_expr+4),*(it_expr+5),*(it_expr+6)))
-    {
-
-        token_type = DEFINE;
-        it_expr += 6;
-        return it_expr;
-    }
-    */
-
-
+    //check for an equal('=') sign
     if(is_equal_sign(*it_expr))
     {
         token_type = EQUAL_SIGN;
+        token += *it_expr;
         it_expr++;
         return it_expr;
     }
 
-    //checks if the char is a function argument separator ','
+    //checks if the char is a function argument separator comma ','
     if(is_comma(*it_expr))
     {
         token_type = COMMA;
@@ -179,20 +172,22 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
             token += *it_expr;
             it_expr++;
         }
-        //std::cout<<token<<std::endl;
 
+        //checks whether the token is a define keyword
+        //which the parser uses so as to know that the user is defining
+        //a variable or function
         if(is_define(token))
         {
             token_type = DEFINE;
             return it_expr;
         }
 
+        //checks whether the token is the name of a routine
         if(is_routine(token))
         {
             token_type = ROUTINE;
             return it_expr;
         }
-
 
         //check whether this is a variable or a function
         //function has a left parentheses
@@ -203,11 +198,10 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
             it_expr++;
         }
 
-        //check if it is a function as a function will have left parentheses
+        //check if it is a function as a function will have  a left parentheses
         if(is_lparen(*it_expr))
         {
             token_type = FUNCTION;
-            //it_expr++;
         }
         else
         {
@@ -218,7 +212,7 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
 
     //if no token type was matched
     token_type = UNKNOWN;
-    //WRITE SOME ERROR HANDLING HERE
+    std::cout<<UNKNOWN_TOKEN<<std::endl;
 
     return it_expr;
 }
@@ -234,10 +228,13 @@ void Parser::parse(std::string expr)
     Token token;
     it_expr = token.get_token(expr, it_expr);
 
+    //return if the token is UNKNOWN
+    if(token.token_type == Token::UNKNOWN)
+    {
+        return;
+    }
     //DEFINITIONS
     //store a variable or a function
-
-
     if(token.token_type == Token::DEFINE)
     {
         //once it is define we check whether we are defining
@@ -325,11 +322,11 @@ void Parser::parse(std::string expr)
     }
 
     //EVALUATIONS
-    //variable/function evaluation
+    //variable/function/routine evaluation
     it_expr = expr.begin();
-    //std::cout<<"here at math_parse"<<expr;
     math_parse(expr, it_expr);
 
+    //DEBUG:PRINT THE RPN AFTER PARSING
     /*
     while(!expr_rpn.empty())
     {
@@ -341,65 +338,18 @@ void Parser::parse(std::string expr)
 
     std::cout<<eval_rpn(expr_rpn)<<std::endl;
 
-    /*if(token.token_type == Token::VARIABLE)
-    {
-        //checks if the variable has been defined in the map
-        if(map_variables.find(token.token) != map_variables.end())
-        {
-            std::cout<<map_variables[token.token]<<std::endl;
-        }
-        else
-        {
-            std::cout<<token.token<<" has not been defined."<<std::endl;
-        }
-    }
-
-    if(token.token_type == Token::FUNCTION)
-    {
-        //checks if the function has been defined in the map
-        if(map_functions.find(token.token) != map_functions.end())
-        {
-            std::vector<double> d_arguments;
-            while(token.token_type != Token::RPAREN)
-            {
-                it_expr = token.get_token(expr, it_expr);
-                if(token.token_type == Token::NUMBER)
-                {
-                    d_arguments.push_back(atof(token.token.c_str()));
-                }
-                else
-                {
-                    //ERROR HANDLING HERE IF NOT ALL ARGUMENTS ARE NUMBERS
-                }
-            }
-            std::cout<<map_functions[token.token].evaluate(d_arguments)<<std::endl;
-        }
-        else
-        {
-            std::cout<<token.token<<" has not been defined."<<std::endl;
-        }
-    }
-    //expression evaluation
-    */
     return;
 
 }
-
-
-
-
-
-
-
-
-
-
 
 void Parser::math_parse(std::string expr,std::string::iterator it_expr)
 {
     //the stack of operators and functions
     std::stack<Token> operator_stack;
+    //this is needed to decide whether minus denotes subtraction
+    //or is a unary minus
     Token previous_token;
+
 	while(true)
     {
         Token token;
@@ -499,6 +449,11 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
 		if(token.token_type == Token::SEMICOLON)
 		{
 			break;
+		}
+
+		if(token.token_type == Token::UNKNOWN)
+		{
+            return;
 		}
 
 
@@ -665,6 +620,11 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
             number_stack.push(map_routines[expr_rpn.front().token].evaluate(routine_function_name,arguments));
             expr_rpn.pop();
 
+        }
+
+        if(expr_rpn.front().token_type == Token::UNKNOWN)
+        {
+            return 0;
         }
     }
 

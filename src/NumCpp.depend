@@ -36,7 +36,7 @@
 	"parser.hpp"
 	"functions.h"
 
-1413978778 source:/home/sandesh/NumCpp/src/main.cpp
+1414001979 source:/home/sandesh/NumCpp/src/main.cpp
 	<iostream>
 	"parser.hpp"
 	"functions.h"
@@ -75,11 +75,12 @@
 1413979778 source:/home/sandesh/NumCpp/src/functions.cpp
 	"functions.h"
 
-1413957331 source:/home/sandesh/NumCpp/src/parser.cpp
+1414003428 source:/home/sandesh/NumCpp/src/parser.cpp
 	"parser.hpp"
 	"functions.h"
 	"routines.h"
 	"misc.h"
+	"errors.h"
 
 1413902166 source:/users/cs101/140260012/NumCpp/src/functions.cpp
 	"functions.h"
@@ -138,4 +139,6 @@
 
 1413917143 source:/home/sandesh/NumCpp/src/routines.cpp
 	"routines.h"
+
+1414003085 /home/sandesh/NumCpp/src/errors.h
 
