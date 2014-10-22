@@ -14,6 +14,8 @@ int main()
     def_variables();
     def_routines();
     Parser parser;
+
+
     while(true)
     {
         parser = Parser();
@@ -21,6 +23,9 @@ int main()
         string::iterator it_expr;
         cout<<">";
         getline(cin,expr);
+        expr += ";";
+        //it_expr++;
+        //*(it_expr) = ';';
         it_expr = expr.begin();
         if(expr == ";"){return 0;}
         parser.parse(expr);

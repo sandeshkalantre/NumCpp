@@ -10,6 +10,10 @@ namespace std_functions
     {
         return a - b;
     }
+    double unary_minus(double a)
+    {
+        return (-1 * a);
+    }
     double multiply(double a, double b)
     {
         return a * b;
@@ -83,6 +87,12 @@ void def_functions()
     SUBTRACT.num_arguments = 2;
     SUBTRACT.standard = true;
     map_functions[SUBTRACT.function_name] = SUBTRACT;
+
+    Function UNARY_MINUS;
+    UNARY_MINUS.function_name = "UNARY_MINUS";
+    UNARY_MINUS.num_arguments = 1;
+    UNARY_MINUS.standard = true;
+    map_functions[UNARY_MINUS.function_name] = UNARY_MINUS;
 
     Function MULTIPLY;
     MULTIPLY.function_name = "MULTIPLY";

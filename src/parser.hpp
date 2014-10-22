@@ -62,7 +62,7 @@ class Token
         enum OPERATOR_ID
         {
             NOTANOPERATOR,
-            PLUS,MINUS,
+            PLUS,MINUS,UNARY_MINUS,
             MULTIPLY,DIVIDE,MODULUS,
             POWER,
             FACTORIAL
@@ -75,8 +75,10 @@ class Token
             LEVEL1,
             //*,/,%
             LEVEL2,
+            //unary minus
+            LEVEL3,
             //^,!
-            LEVEL3
+            LEVEL4
         };
 
         enum OPERATOR_ASSOCIATIVITY

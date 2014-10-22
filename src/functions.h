@@ -10,6 +10,7 @@ namespace std_functions
 {
     double add(double a, double b);
     double subtract(double a, double b);
+    double unary_minus(double a);
     double multiply(double a, double b);
     double divide(double a, double b);
     //modulus is some keyword so modulus1 is used as the name

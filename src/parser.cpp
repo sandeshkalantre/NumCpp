@@ -58,7 +58,7 @@ enum Token::OPERATOR_PRECEDENCE Token::get_operator_precedence(const char c)
     }
     if(c == '^' || c == '!')
     {
-        return LEVEL3;
+        return LEVEL4;
     }
     return LEVEL0;
 }
@@ -187,7 +187,7 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
             return it_expr;
         }
 
-        if(is_routine1(token))
+        if(is_routine(token))
         {
             token_type = ROUTINE;
             return it_expr;
@@ -329,9 +329,16 @@ void Parser::parse(std::string expr)
     it_expr = expr.begin();
     //std::cout<<"here at math_parse"<<expr;
     math_parse(expr, it_expr);
-    //std::cout<<expr_rpn.front().token;
-    //expr_rpn.pop();
-    //std::cout<<expr_rpn.front().token;
+
+    /*
+    while(!expr_rpn.empty())
+    {
+        std::cout<<expr_rpn.front().token;
+        expr_rpn.pop();
+    }
+    std::cout<<std::endl;
+    */
+
     std::cout<<eval_rpn(expr_rpn)<<std::endl;
 
     /*if(token.token_type == Token::VARIABLE)
@@ -392,10 +399,12 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
 {
     //the stack of operators and functions
     std::stack<Token> operator_stack;
+    Token previous_token;
 	while(true)
     {
         Token token;
         it_expr = token.get_token(expr,it_expr);
+        previous_token = token;
 
 		if(token.token_type == Token::NUMBER || token.token_type == Token::VARIABLE)
         {
@@ -423,6 +432,20 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
         }
         if(token.token_type == Token::OPERATOR)
 		{
+            if(token.operator_id == Token::MINUS)
+            {
+                //handling the unary minus
+                if(previous_token.token_type == Token::NUMBER || previous_token.token_type == Token::VARIABLE || previous_token.token_type == Token::FUNCTION || previous_token.token_type == Token::ROUTINE)
+                {
+                    //do nothing as the token by default is stored as a binary minus/subtract
+                }
+                else
+                {
+                    token.operator_associativity = Token::RIGHT;
+                    token.operator_precedence = Token::LEVEL3;
+                    token.operator_id = Token::UNARY_MINUS;
+                }
+            }
 
             while(!operator_stack.empty() && operator_stack.top().token_type == Token::OPERATOR)
             {
@@ -464,11 +487,13 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
             //is the top of the operator stack it a function
             //then this RPAREN marks the end of the arguments of the function/routine
             //the function/routine so must be pushed to the output queue
-            if(operator_stack.top().token_type == Token::FUNCTION || operator_stack.top().token_type == Token::ROUTINE)
+            if(!operator_stack.empty() && (operator_stack.top().token_type == Token::FUNCTION || operator_stack.top().token_type == Token::ROUTINE))
             {
                 expr_rpn.push(operator_stack.top());
                 operator_stack.pop();
             }
+
+
         }
 
 		if(token.token_type == Token::SEMICOLON)
@@ -500,6 +525,7 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
 
     while(!expr_rpn.empty())
     {
+        //std::cout<<"here am i"<<std::endl;
         if(expr_rpn.front().token_type == Token::NUMBER)
         {
             number_stack.push(atof(expr_rpn.front().token.c_str()));
@@ -513,7 +539,7 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
         }
         if(expr_rpn.front().token_type == Token::OPERATOR)
         {
-            if(expr_rpn.front().operator_id != Token::FACTORIAL)
+            if(expr_rpn.front().operator_id != Token::FACTORIAL && expr_rpn.front().operator_id != Token::UNARY_MINUS)
             {
                 //WRITE SOME ERROR HANDLING TO CHECK THAT THERE ATLEAST TWO ELEMENTS ON THE STACK
                 //store the top two elements as components of a vector
@@ -528,31 +554,38 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
                 {
                     number_stack.push(map_functions["ADD"].evaluate(top_two));
                     expr_rpn.pop();
+                    continue;
                 }
                 if(expr_rpn.front().operator_id == Token::MINUS)
                 {
                     number_stack.push(map_functions["SUBTRACT"].evaluate(top_two));
                     expr_rpn.pop();
+                    continue;
                 }
+
                 if(expr_rpn.front().operator_id == Token::MULTIPLY)
                 {
                     number_stack.push(map_functions["MULTIPLY"].evaluate(top_two));
                     expr_rpn.pop();
+                    continue;
                 }
                 if(expr_rpn.front().operator_id == Token::DIVIDE)
                 {
                     number_stack.push(map_functions["DIVIDE"].evaluate(top_two));
                     expr_rpn.pop();
+                    continue;
                 }
                 if(expr_rpn.front().operator_id == Token::MODULUS)
                 {
                     number_stack.push(map_functions["MODULUS"].evaluate(top_two));
                     expr_rpn.pop();
+                    continue;
                 }
                 if(expr_rpn.front().operator_id == Token::POWER)
                 {
                     number_stack.push(map_functions["POWER"].evaluate(top_two));
                     expr_rpn.pop();
+                    continue;
                 }
 
             }
@@ -566,7 +599,15 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
                 {
                     number_stack.push(map_functions["FACTORIAL"].evaluate(top));
                     expr_rpn.pop();
+                    continue;
                 }
+                if(expr_rpn.front().operator_id == Token::UNARY_MINUS)
+                {
+                    number_stack.push(map_functions["UNARY_MINUS"].evaluate(top));
+                    expr_rpn.pop();
+                    continue;
+                }
+
             }
 
         }
@@ -665,6 +706,11 @@ double Function::std_evaluate(std::vector<double> d_arguments)
     if(function_name == "SUBTRACT")
     {
         return std_functions::subtract(d_arguments[0], d_arguments[1]);
+    }
+    if(function_name == "UNARY_MINUS")
+    {
+        //std::cout<<"HETE";
+        return std_functions::unary_minus(d_arguments[0]);
     }
     if(function_name == "MULTIPLY")
     {
@@ -766,7 +812,7 @@ double Function::evaluate(std::vector<double> d_arguments)
         if(function_rpn.front().token_type == Token::OPERATOR)
         {
             //WRITE SOME ERROR HANDLING TO CHECK THAT THERE ATLEAST TWO ELEMENTS ON THE STACK
-            if(function_rpn.front().operator_id != Token::FACTORIAL)
+            if(function_rpn.front().operator_id != Token::FACTORIAL && function_rpn.front().operator_id != Token::UNARY_MINUS)
             {
                 //store the top two elements as compenets of a vector
                 std::vector<double>top_two (2);
@@ -779,31 +825,37 @@ double Function::evaluate(std::vector<double> d_arguments)
                 {
                     number_stack.push(map_functions["ADD"].evaluate(top_two));
                     function_rpn.pop();
+                    continue;
                 }
                 if(function_rpn.front().operator_id == Token::MINUS)
                 {
                     number_stack.push(map_functions["SUBTRACT"].evaluate(top_two));
                     function_rpn.pop();
+                    continue;
                 }
                 if(function_rpn.front().operator_id == Token::MULTIPLY)
                 {
                     number_stack.push(map_functions["MULTIPLY"].evaluate(top_two));
                     function_rpn.pop();
+                    continue;
                 }
                 if(function_rpn.front().operator_id == Token::DIVIDE)
                 {
                     number_stack.push(map_functions["DIVIDE"].evaluate(top_two));
                     function_rpn.pop();
+                    continue;
                 }
                 if(function_rpn.front().operator_id == Token::MODULUS)
                 {
                     number_stack.push(map_functions["MODULUS"].evaluate(top_two));
                     function_rpn.pop();
+                    continue;
                 }
                 if(function_rpn.front().operator_id == Token::POWER)
                 {
                     number_stack.push(map_functions["POWER"].evaluate(top_two));
                     function_rpn.pop();
+                    continue;
                 }
             }
             else
@@ -815,6 +867,13 @@ double Function::evaluate(std::vector<double> d_arguments)
                 {
                     number_stack.push(map_functions["FACTORIAL"].evaluate(top));
                     function_rpn.pop();
+                    continue;
+                }
+                if(function_rpn.front().operator_id == Token::UNARY_MINUS)
+                {
+                    number_stack.push(map_functions["UNARY_MINUS"].evaluate(top));
+                    function_rpn.pop();
+                    continue;
                 }
             }
 

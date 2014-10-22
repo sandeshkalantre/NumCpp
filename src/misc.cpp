@@ -1,7 +1,6 @@
 #include<string>
 #include<iostream>
 
-
 //checks whether the char is an operator
 bool is_operator(const char c)
 {
@@ -48,7 +47,7 @@ bool is_equal_sign(const char c)
 }
 
 //checks whether the token is the name of a routine
-bool is_routine1(std::string token)
+bool is_routine(std::string token)
 {
     if(token.compare("integrate") == 0)
     {
