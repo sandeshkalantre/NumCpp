@@ -76,3 +76,40 @@
 	"parser.hpp"
 	"functions.h"
 
+1414055939 source:c:\users\sanjana\documents\github\numcpp\numcpp\src\main.cpp
+	<iostream>
+	"parser.hpp"
+	"functions.h"
+
+1414055940 c:\users\sanjana\documents\github\numcpp\numcpp\src\parser.hpp
+	"misc.h"
+	"functions.h"
+	<string>
+	<queue>
+	<map>
+	<vector>
+	<stack>
+	<iterator>
+	<algorithm>
+	<cctype>
+	<iostream>
+	<cstdlib>
+
+1414055939 c:\users\sanjana\documents\github\numcpp\numcpp\src\misc.h
+	<string>
+
+1414055939 c:\users\sanjana\documents\github\numcpp\numcpp\src\functions.h
+	"parser.hpp"
+	<cmath>
+
+1414055939 source:c:\users\sanjana\documents\github\numcpp\numcpp\src\misc.cpp
+	<string>
+	<iostream>
+
+1414055939 source:c:\users\sanjana\documents\github\numcpp\numcpp\src\parser.cpp
+	"parser.hpp"
+	"functions.h"
+
+1414055939 source:c:\users\sanjana\documents\github\numcpp\numcpp\src\functions.cpp
+	"functions.h"
+
