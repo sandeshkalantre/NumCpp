@@ -1,6 +1,7 @@
 #include <iostream>
 #include "parser.hpp"
 #include "functions.h"
+#include "variables.h"
 #include "routines.h"
 using namespace std;
 
@@ -47,4 +48,3 @@ int main()
 
     return 0;
 }
-

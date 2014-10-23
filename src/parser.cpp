@@ -38,6 +38,10 @@ enum Token::OPERATOR_ID Token::get_operator_id(const char c)
     {
         return MODULUS;
     }
+    if(c == 'e' || c == 'E')
+    {
+        return E;
+    }
     if(c == '^')
     {
         return POWER;
@@ -55,7 +59,7 @@ enum Token::OPERATOR_PRECEDENCE Token::get_operator_precedence(const char c)
     {
         return LEVEL1;
     }
-    if(c == '*' || c == '/' || c == '%')
+    if(c == '*' || c == '/' || c == '%' || c == 'e' || c == 'E')
     {
         return LEVEL2;
     }
@@ -68,7 +72,7 @@ enum Token::OPERATOR_PRECEDENCE Token::get_operator_precedence(const char c)
 
 enum Token::OPERATOR_ASSOCIATIVITY Token::get_operator_associativity(const char c)
 {
-    if(c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '!')
+    if(c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '!' || c == 'e' || c == 'E')
     {
         return LEFT;
     }
@@ -84,18 +88,19 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
     //clear the token string
     token.clear();
 
+    //skip over whitespaces
+    while(std::isspace(*it_expr))
+    {
+        it_expr++;
+    }
+
     //check for a semicolon
     if(*it_expr == ';')
     {
         token_type = SEMICOLON;
         token += *it_expr;
-        return it_expr;
-    }
-
-    //skip over whitespaces
-    if(std::isspace(*it_expr))
-    {
         it_expr++;
+        return it_expr;
     }
 
     //check for an equal('=') sign
@@ -220,6 +225,7 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
 //constructor for the class Parser
 Parser::Parser()
 {
+
 }
 
 void Parser::parse(std::string expr)
@@ -353,8 +359,8 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
 	while(true)
     {
         Token token;
-        it_expr = token.get_token(expr,it_expr);
         previous_token = token;
+        it_expr = token.get_token(expr,it_expr);
 
 		if(token.token_type == Token::NUMBER || token.token_type == Token::VARIABLE)
         {
@@ -385,7 +391,9 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
             if(token.operator_id == Token::MINUS)
             {
                 //handling the unary minus
-                if(previous_token.token_type == Token::NUMBER || previous_token.token_type == Token::VARIABLE || previous_token.token_type == Token::FUNCTION || previous_token.token_type == Token::ROUTINE)
+                if(previous_token.token_type == Token::NIL || previous_token.token_type == Token::NUMBER
+                || previous_token.token_type == Token::VARIABLE || previous_token.token_type == Token::FUNCTION
+                || previous_token.token_type == Token::ROUTINE)
                 {
                     //do nothing as the token by default is stored as a binary minus/subtract
                 }
@@ -456,7 +464,6 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
             return;
 		}
 
-
     }
 
     //if there are still operators on the stack,pop them to the output
@@ -475,8 +482,6 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
     std::stack<double> number_stack;
     //this is used as argument to routines
     std::string routine_function_name;
-
-
 
     while(!expr_rpn.empty())
     {
@@ -536,6 +541,12 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
                     expr_rpn.pop();
                     continue;
                 }
+                if(expr_rpn.front().operator_id == Token::E)
+                {
+                    number_stack.push(map_functions["E"].evaluate(top_two));
+                    expr_rpn.pop();
+                    continue;
+                }
                 if(expr_rpn.front().operator_id == Token::POWER)
                 {
                     number_stack.push(map_functions["POWER"].evaluate(top_two));
@@ -544,7 +555,7 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
                 }
 
             }
-            //FACTORIAL has to handled differently since it is a unary operator
+            //unary operators
             else
             {
                 std::vector<double> top (1);
@@ -566,7 +577,6 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
             }
 
         }
-
 
         if(expr_rpn.front().token_type == Token::FUNCTION)
         {
@@ -640,9 +650,6 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
     return 0;
 }
 
-
-
-
 Function::Function()
 {
     function_name = "NIL";
@@ -679,6 +686,10 @@ double Function::std_evaluate(std::vector<double> d_arguments)
     if(function_name == "DIVIDE")
     {
         return std_functions::divide(d_arguments[0], d_arguments[1]);
+    }
+    if(function_name == "E")
+    {
+        return std_functions::scientific(d_arguments[0], d_arguments[1]);
     }
     if(function_name == "FACTORIAL")
     {
@@ -724,7 +735,6 @@ double Function::std_evaluate(std::vector<double> d_arguments)
     //by deafult it returns zero
     return 0;
 }
-
 
 double Function::evaluate(std::vector<double> d_arguments)
 {
@@ -805,9 +815,9 @@ double Function::evaluate(std::vector<double> d_arguments)
                     function_rpn.pop();
                     continue;
                 }
-                if(function_rpn.front().operator_id == Token::MODULUS)
+                if(function_rpn.front().operator_id == Token::E)
                 {
-                    number_stack.push(map_functions["MODULUS"].evaluate(top_two));
+                    number_stack.push(map_functions["E"].evaluate(top_two));
                     function_rpn.pop();
                     continue;
                 }
@@ -889,27 +899,6 @@ double Routine::evaluate(std::string function_name,std::vector<double> arguments
 	//returns 0 as default
 	return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

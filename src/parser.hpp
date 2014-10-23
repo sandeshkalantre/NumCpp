@@ -4,6 +4,7 @@
 #include "misc.h"
 #include "functions.h"
 #include "routines.h"
+#include <cmath>
 #include <string>
 #include <queue>
 //#include <unordered_map>
@@ -14,7 +15,6 @@
 #include <algorithm>
 #include <cctype>
 #include <iostream>
-
 //for atof function
 //stof requires C++11
 //DECIDE WHETHER TO USE stof or atof
@@ -63,6 +63,7 @@ class Token
         {
             NOTANOPERATOR,
             PLUS,MINUS,UNARY_MINUS,
+            E,//denotes scientific notation
             MULTIPLY,DIVIDE,MODULUS,
             POWER,
             FACTORIAL
@@ -73,7 +74,7 @@ class Token
             LEVEL0,
             //+ and -
             LEVEL1,
-            //*,/,%
+            //*,/,%,e
             LEVEL2,
             //unary minus
             LEVEL3,

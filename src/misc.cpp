@@ -1,10 +1,9 @@
-#include<string>
-#include<iostream>
+#include "misc.h"
 
 //checks whether the char is an operator
 bool is_operator(const char c)
 {
-    return (c == '+' || c == '-' || c == '*' || c == '/' || c == '%' ||c == '^' || c == '!');
+    return (c == '+' || c == '-' || c == '*' || c == '/' || c == '%' ||c == '^' || c == '!' || c == 'e' || c == 'E');
 }
 
 //checks whether the char is a left parentheses

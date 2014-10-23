@@ -14,7 +14,7 @@ namespace routines
         //evaluate the value of the function just at the given point
         double fx= map_functions[function_name].evaluate(arguments);
         //evaluate the value of the function just to the right of the given point
-        arguments[0] = a+h;
+        arguments[0] = a + h;
         double fx1 = map_functions[function_name].evaluate(arguments);
         double slope = (fx1 - fx )/ h;
         return slope;
