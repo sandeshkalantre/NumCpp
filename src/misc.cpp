@@ -61,3 +61,16 @@ bool is_routine(std::string token)
         return false;
     }
 }
+
+//checks whether the token is showrpn keyword
+bool is_showrpn(std::string token)
+{
+    if(token.compare("showrpn") == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}

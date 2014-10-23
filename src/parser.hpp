@@ -56,6 +56,8 @@ class Token
             //this sign denotes define/assignment of the variable/function
             EQUAL_SIGN,
             ROUTINE,
+            //keyword to denote showing of an RPN
+            SHOW_RPN,
             UNKNOWN
         };
 
@@ -76,9 +78,9 @@ class Token
             LEVEL1,
             //*,/,%,e
             LEVEL2,
-            //unary minus
-            LEVEL3,
             //^,!
+            LEVEL3,
+            //unary minus
             LEVEL4
         };
 

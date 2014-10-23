@@ -65,7 +65,7 @@ enum Token::OPERATOR_PRECEDENCE Token::get_operator_precedence(const char c)
     }
     if(c == '^' || c == '!')
     {
-        return LEVEL4;
+        return LEVEL3;
     }
     return LEVEL0;
 }
@@ -184,6 +184,13 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
         if(is_define(token))
         {
             token_type = DEFINE;
+            return it_expr;
+        }
+
+        //checks whether the token is show rpn keyword
+        if(is_showrpn(token))
+        {
+            token_type =SHOW_RPN;
             return it_expr;
         }
 
@@ -327,6 +334,65 @@ void Parser::parse(std::string expr)
         }
     }
 
+    //SHOW_RPN keyword
+    if(token.token_type == Token::SHOW_RPN)
+    {
+        std::string::iterator it_expr_lparen = it_expr;
+        it_expr = token.get_token(expr,it_expr);
+        //the next token must be an LPAREN
+
+        if(token.token_type == Token::LPAREN)
+        {
+
+            it_expr = token.get_token(expr,it_expr);
+            //if the argument is a function name,then will show
+            //the stored rpn of the function
+            if(token.token_type == Token::FUNCTION)
+            {
+                //check whether the function indeed exists on map_functions
+                if(map_functions.find(token.token) != map_functions.end())
+                {
+                    if(map_functions[token.token].standard == true)
+                    {
+                        std::cout<<"RPN of standard functions is not stored."<<std::endl;
+                    }
+                    else
+                    {
+                        //copy the rpn queue stored in the function
+                        std::queue<Token> function_rpn_temp = map_functions[token.token].function_rpn;
+                        while(!function_rpn_temp.empty())
+                        {
+                            std::cout<<function_rpn_temp.front().token;
+                            function_rpn_temp.pop();
+                        }
+                        std::cout<<std::endl;
+                    }
+
+                }
+                else
+                {
+                    //THROW AN ERROR THAT THE FUNCTION HAS NOT BEEN DEFINED
+                }
+                return;
+            }
+
+
+            //if the argument is not a function then it is an expression
+
+            math_parse(expr,it_expr_lparen);
+            std::queue<Token> expr_rpn_temp = expr_rpn;
+            while(!expr_rpn_temp.empty())
+            {
+                std::cout<<expr_rpn_temp.front().token;
+                expr_rpn_temp.pop();
+            }
+            std::cout<<std::endl;
+            return;
+        }
+
+
+    }
+
     //EVALUATIONS
     //variable/function/routine evaluation
     it_expr = expr.begin();
@@ -358,7 +424,7 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
 
 	while(true)
     {
-        Token token;
+        Token token = Token();
         previous_token = token;
         it_expr = token.get_token(expr,it_expr);
 
@@ -391,7 +457,7 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
             if(token.operator_id == Token::MINUS)
             {
                 //handling the unary minus
-                if(previous_token.token_type == Token::NIL || previous_token.token_type == Token::NUMBER
+                if(previous_token.token_type == Token::NUMBER
                 || previous_token.token_type == Token::VARIABLE || previous_token.token_type == Token::FUNCTION
                 || previous_token.token_type == Token::ROUTINE)
                 {
@@ -400,7 +466,7 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
                 else
                 {
                     token.operator_associativity = Token::RIGHT;
-                    token.operator_precedence = Token::LEVEL3;
+                    token.operator_precedence = Token::LEVEL4;
                     token.operator_id = Token::UNARY_MINUS;
                 }
             }
