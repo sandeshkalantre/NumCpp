@@ -35,9 +35,9 @@ void def_routines()
     map_routines[INTEGRATE.routine_name] = INTEGRATE;
 
     Routine DIFFERENTIATE;
-    INTEGRATE.routine_name = "differentiate";
-    INTEGRATE.num_arguments = 1;
-    map_routines[INTEGRATE.routine_name] = INTEGRATE;
+    DIFFERENTIATE.routine_name = "differentiate";
+    DIFFERENTIATE.num_arguments = 1;
+    map_routines[DIFFERENTIATE.routine_name] = DIFFERENTIATE;
 
     return;
 }

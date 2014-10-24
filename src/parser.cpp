@@ -345,6 +345,19 @@ void Parser::parse(std::string expr)
         {
 
             it_expr = token.get_token(expr,it_expr);
+
+            //if the argument is not a function then it is an expression
+
+            math_parse(expr,it_expr_lparen);
+            std::queue<Token> expr_rpn_temp = expr_rpn;
+            while(!expr_rpn_temp.empty())
+            {
+                std::cout<<expr_rpn_temp.front().token;
+                expr_rpn_temp.pop();
+            }
+            std::cout<<std::endl;
+
+
             //if the argument is a function name,then will show
             //the stored rpn of the function
             if(token.token_type == Token::FUNCTION)
@@ -377,16 +390,7 @@ void Parser::parse(std::string expr)
             }
 
 
-            //if the argument is not a function then it is an expression
 
-            math_parse(expr,it_expr_lparen);
-            std::queue<Token> expr_rpn_temp = expr_rpn;
-            while(!expr_rpn_temp.empty())
-            {
-                std::cout<<expr_rpn_temp.front().token;
-                expr_rpn_temp.pop();
-            }
-            std::cout<<std::endl;
             return;
         }
 
@@ -649,17 +653,15 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
 
 			//ERROR HANDLING TO ENSURE THAT THE FUNCTION EXISTS ON THE Map_functions
 
-			Token temp_token;
-			temp_token = expr_rpn.front();
-			expr_rpn.pop();
-			if(expr_rpn.front().token_type == Token::ROUTINE)
+			std::queue<Token> temp_expr_rpn;
+			temp_expr_rpn = expr_rpn;
+
+			temp_expr_rpn.pop();
+			if(temp_expr_rpn.front().token_type == Token::ROUTINE)
 			{
-				routine_function_name = temp_token.token;
+				routine_function_name = expr_rpn.front().token;
+				expr_rpn.pop();
 				continue;
-			}
-			else
-			{
-				expr_rpn.push(temp_token);
 			}
 
 
@@ -673,8 +675,8 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
                 number_stack.pop();
             }
             //the arguments have to be reversed as they are stored in rpn in reverse order
-            std::reverse(arguments.begin(),arguments.end());
-            //std::cout<<"arg"<<arguments[0];
+            //std::reverse(arguments.begin(),arguments.end());
+            //if(arguments.empty()){std::cout<<"arg";}
 
             number_stack.push(map_functions[expr_rpn.front().token].evaluate(arguments));
 
