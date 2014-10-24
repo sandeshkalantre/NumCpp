@@ -23,7 +23,7 @@ namespace std_functions
         if(b == 0)
         {
             std::cout<<"Divide by zero error."<<std::endl;
-            return 0;
+            return NAN;
         }
         return a / b;
     }
@@ -41,7 +41,7 @@ namespace std_functions
         if(a < 0)
         {
             std::cout<<"Factorial of negative number does not exist.Use gamma(x)."<<std::endl;
-            return 0;
+            return NAN;
         }
         int num = (int) a;
         int result = 1;
