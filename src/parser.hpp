@@ -3,6 +3,8 @@
 
 #include "misc.h"
 #include "functions.h"
+#include "routines.h"
+#include <cmath>
 #include <string>
 #include <queue>
 //#include <unordered_map>
@@ -13,7 +15,6 @@
 #include <algorithm>
 #include <cctype>
 #include <iostream>
-
 //for atof function
 //stof requires C++11
 //DECIDE WHETHER TO USE stof or atof
@@ -22,10 +23,12 @@
 class Token;
 class Parser;
 class Function;
+class Routine;
 
-//the extern maps which will store our variables and functions
+//the extern maps which will store our variables and functions and routines
 extern std::map<std::string, Function> map_functions;
 extern std::map<std::string, double> map_variables;
+extern std::map<std::string, Routine> map_routines;
 
 class Token
 {
@@ -52,13 +55,17 @@ class Token
             DEFINE,
             //this sign denotes define/assignment of the variable/function
             EQUAL_SIGN,
+            ROUTINE,
+            //keyword to denote showing of an RPN
+            SHOW_RPN,
             UNKNOWN
         };
 
         enum OPERATOR_ID
         {
             NOTANOPERATOR,
-            PLUS,MINUS,
+            PLUS,MINUS,UNARY_MINUS,
+            E,//denotes scientific notation
             MULTIPLY,DIVIDE,MODULUS,
             POWER,
             FACTORIAL
@@ -69,10 +76,12 @@ class Token
             LEVEL0,
             //+ and -
             LEVEL1,
-            //*,/,%
+            //*,/,%,e
             LEVEL2,
             //^,!
-            LEVEL3
+            LEVEL3,
+            //unary minus
+            LEVEL4
         };
 
         enum OPERATOR_ASSOCIATIVITY
@@ -82,7 +91,7 @@ class Token
             RIGHT
         };
 
-    //data
+         //data
     public:
         //string storing the token
         std::string token;
@@ -101,6 +110,8 @@ class Token
         //stores the operator associativity
         //NONE = 0 otherwise
         OPERATOR_ASSOCIATIVITY operator_associativity;
+
+
 
     //constructor for the Token class
     public:
@@ -142,6 +153,7 @@ class Parser
 
 class Function
 {
+    friend class Routine;
     friend class Token;
     friend class Parser;
     //data
@@ -170,7 +182,7 @@ class Function
     public:
         //the constructor for the class Functions
         Function();
-    private:
+    public:
         //stores the rpn in function_rpn given the rpn as the argument
         void store_rpn(std::queue<Token> rpn);
 
@@ -181,6 +193,21 @@ class Function
         //this function is called by evaluate if the function being evaluated is
         //a standard function as stored in bool standard
         double std_evaluate(std::vector<double> d_arguments);
+};
+
+class Routine
+{
+    friend class Function;
+    public:
+        //name of routine
+        std::string routine_name;
+        //number of arguments excluding the function_name
+        int num_arguments;
+
+    public:
+        double evaluate(std::string function_name, std::vector<double> arguments);
+
+
 };
 
 #endif

@@ -10,21 +10,39 @@ namespace std_functions
     {
         return a - b;
     }
+    double unary_minus(double a)
+    {
+        return (-1 * a);
+    }
     double multiply(double a, double b)
     {
         return a * b;
     }
     double divide(double a, double b)
     {
+        if(b == 0)
+        {
+            std::cout<<"Divide by zero error."<<std::endl;
+            return NAN;
+        }
         return a / b;
     }
     double modulus1(double a, double b)
     {
         return (int)a % (int)b;
     }
+    double scientific(double a, double b)
+    {
+        return a * pow(10 , b);
+    }
     double factorial(double a)
     {
-        //if the number is negative then 1 is returned
+        //if the number is negative
+        if(a < 0)
+        {
+            std::cout<<"Factorial of negative number does not exist.Use gamma(x)."<<std::endl;
+            return NAN;
+        }
         int num = (int) a;
         int result = 1;
         while(num > 0)
@@ -84,6 +102,12 @@ void def_functions()
     SUBTRACT.standard = true;
     map_functions[SUBTRACT.function_name] = SUBTRACT;
 
+    Function UNARY_MINUS;
+    UNARY_MINUS.function_name = "UNARY_MINUS";
+    UNARY_MINUS.num_arguments = 1;
+    UNARY_MINUS.standard = true;
+    map_functions[UNARY_MINUS.function_name] = UNARY_MINUS;
+
     Function MULTIPLY;
     MULTIPLY.function_name = "MULTIPLY";
     MULTIPLY.num_arguments = 2;
@@ -101,6 +125,12 @@ void def_functions()
     MODULUS.num_arguments = 2;
     MODULUS.standard = true;
     map_functions[MODULUS.function_name] = MODULUS;
+
+    Function E;
+    E.function_name = "E";
+    E.num_arguments = 2;
+    E.standard = true;
+    map_functions[E.function_name] = E;
 
     Function FACTORIAL;
     FACTORIAL.function_name = "FACTORIAL";
@@ -155,6 +185,7 @@ void def_functions()
     ATAN2.num_arguments = 2;
     ATAN2.standard = true;
     map_functions[ATAN2.function_name] = ATAN2;
+
     return;
 }
 
