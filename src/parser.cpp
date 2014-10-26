@@ -425,26 +425,30 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
     //this is needed to decide whether minus denotes subtraction
     //or is a unary minus
     Token previous_token;
+    Token token = Token();
 
 	while(true)
     {
-        Token token = Token();
+
         previous_token = token;
         it_expr = token.get_token(expr,it_expr);
 
 		if(token.token_type == Token::NUMBER || token.token_type == Token::VARIABLE)
         {
             expr_rpn.push(token);
+            continue;
         }
 
         if(token.token_type == Token::FUNCTION)
         {
             operator_stack.push(token);
+            continue;
         }
 
         if(token.token_type == Token::ROUTINE)
         {
             operator_stack.push(token);
+            continue;
         }
 
         if(token.token_type == Token::COMMA)
@@ -455,6 +459,7 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
                 expr_rpn.push(operator_stack.top());
                 operator_stack.pop();
             }
+            continue;
         }
         if(token.token_type == Token::OPERATOR)
 		{
@@ -494,11 +499,13 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
             }
 
             operator_stack.push(token);
+            continue;
         }
 
         if(token.token_type == Token::LPAREN)
         {
             operator_stack.push(token);
+            continue;
         }
 
         if(token.token_type == Token::RPAREN)
@@ -520,7 +527,7 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
                 expr_rpn.push(operator_stack.top());
                 operator_stack.pop();
             }
-
+            continue;
 
         }
 
@@ -576,8 +583,10 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
                 std::vector<double>top_two (2);
 
                 top_two[1] = number_stack.top();
+                //std::cout<<number_stack.top();
                 number_stack.pop();
                 top_two[0] = number_stack.top();
+                //std::cout<<number_stack.top();
                 number_stack.pop();
 
                 if(expr_rpn.front().operator_id == Token::PLUS)
@@ -675,7 +684,7 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
                 number_stack.pop();
             }
             //the arguments have to be reversed as they are stored in rpn in reverse order
-            //std::reverse(arguments.begin(),arguments.end());
+            std::reverse(arguments.begin(),arguments.end());
             //if(arguments.empty()){std::cout<<"arg";}
 
             number_stack.push(map_functions[expr_rpn.front().token].evaluate(arguments));

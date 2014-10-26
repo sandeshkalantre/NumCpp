@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdio>
 #include "parser.hpp"
 #include "functions.h"
 #include "variables.h"
@@ -28,13 +29,14 @@ int main()
         string::iterator it_expr;
 
         //the prompt
-        cout<<">";
+        cout<<">>>";
         getline(cin,expr);
 
         //break if a single ; on a line is entered marking the end of the program
         //or if "exit()" is entered
-        if(expr == ";" || expr.compare("exit()") == 0)
+        if(expr == ";" || expr.compare("exit()") == 0 || cin.eof())
         {
+            cout<<"Bye.";
             return 0;
         }
 
