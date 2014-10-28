@@ -24,17 +24,21 @@ class Token;
 class Parser;
 class Function;
 class Routine;
+class ndArray;
 
 //the extern maps which will store our variables and functions and routines
 extern std::map<std::string, Function> map_functions;
 extern std::map<std::string, double> map_variables;
 extern std::map<std::string, Routine> map_routines;
+extern std::map<std::string, ndArray> map_ndarrays;
+
 
 class Token
 {
     //allow Parser and Function to have access to Token_type and other variables
     friend class Parser;
     friend class Function;
+    friend class ndArray;
 
     //enumerated types which define important token characteristics such as token_type
     //operator_id,precedence and associativity.
@@ -44,10 +48,13 @@ class Token
             NIL,
             NUMBER,
             VARIABLE,
+            NDARRAY,
             OPERATOR,
             FUNCTION,
             LPAREN,
             RPAREN,
+            SQ_LPAREN,
+            SQ_RPAREN,
             COMMA,
             SEMICOLON,
             //this type is used when the string "define" is used on the output
@@ -208,6 +215,26 @@ class Routine
         double evaluate(std::string function_name, std::vector<double> arguments);
 
 
+};
+
+class ndArray
+{
+    friend class Token;
+    public:
+        ndArray();
+        //name of the vector
+        std::string array_name;
+        //number of dimensions
+        int dim;
+        //vector of size of dimensions
+        std::vector<int> dim_size;
+
+        std::map<std::vector<int>,double> array;
+
+        void store_value(std::vector<int> index,double value);
+        double return_value(std::vector<int> index);
+        void show();
+        void array_def_parse(std::string expr,std::string::iterator it_expr);
 };
 
 #endif

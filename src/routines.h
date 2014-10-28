@@ -6,6 +6,8 @@
 
 //defines the routines
 void def_routines();
+//defines the arrays
+void def_ndarrays();
 
 namespace routines
 {

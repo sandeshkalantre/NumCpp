@@ -12,12 +12,23 @@ bool is_lparen(const char c)
     return (c == '(');
 }
 
+//checks whether the char is a square left parentheses
+bool is_sq_lparen(const char c)
+{
+    return (c == '[');
+}
+
 //checks whether the char is a right parentheses
 bool is_rparen(const char c)
 {
     return (c == ')');
 }
 
+//checks whether the char is a square right parentheses
+bool is_sq_rparen(const char c)
+{
+    return (c == ']');
+}
 //checks if the char is function argument separator ','
 bool is_comma(const char c)
 {

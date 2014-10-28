@@ -43,3 +43,13 @@ void def_routines()
     return;
 }
 
+void def_ndarrays()
+{
+    ndArray array_test;
+    array_test.array_name = "YOLO";
+    array_test.dim = 1;
+    map_ndarrays[array_test.array_name] = array_test;
+
+    return;
+
+}

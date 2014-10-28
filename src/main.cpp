@@ -10,6 +10,7 @@ using namespace std;
 std::map<std::string, Function> map_functions;
 std::map<std::string, double> map_variables;
 std::map<std::string, Routine> map_routines;
+std::map<std::string, ndArray> map_ndarrays;
 
 int main()
 {
@@ -17,6 +18,7 @@ int main()
     def_functions();
     def_variables();
     def_routines();
+    def_ndarrays();
 
     //create a Parser object
     Parser parser;
