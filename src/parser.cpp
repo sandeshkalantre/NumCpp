@@ -219,6 +219,12 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
             token_type = ROUTINE;
             return it_expr;
         }
+        //checks whether the token is the keyword linspace
+        if(is_linspace(token))
+        {
+            token_type = LINSPACE;
+            return it_expr;
+        }
 
         //check whether this is a variable or a function
         //function has a left parentheses
@@ -390,22 +396,42 @@ void Parser::parse(std::string expr)
             it_expr = token.get_token(expr,it_expr);
             //RAISE AN ERORR IF NOT
 
-            /*
+            //checks whether the array is defined using a linspace
+            std::string::iterator it_expr_temp = it_expr;
             it_expr = token.get_token(expr,it_expr);
-
-            while(!(token.token_type == Token::SQ_RPAREN))
+            if(token.token_type == Token::LINSPACE)
             {
-                //std::cout<<"here";
-                it_expr = token.get_token(expr,it_expr);
-                if(token.token_type == Token::COMMA)
+                if(array.dim != 1)
                 {
-                    continue;
+                    //LINSPACE IS A 1D object
+                    //What IS THE USER TRYING TO DEFINE
                 }
-                array.store_value(index,atof(token.token.c_str()));
-                (index[0])++;
+                double start,end;
+                int num_points = array.dim_size[0];
+                //next token is an LPAREN
+                std::string::iterator it_expr_lparen = it_expr;
+                it_expr = token.get_token(expr,it_expr);
+                if(token.token_type == Token::LPAREN)
+                {
+                    math_parse(expr,it_expr_lparen);
+                    std::stack<double> number_stack = eval_rpn_num_stack(expr_rpn);
+                    end = number_stack.top();
+                    number_stack.pop();
+
+                    start = number_stack.top();
+                    number_stack.pop();
+
+                }
+
+                array.define_linspace(start,end,num_points);
+                map_ndarrays[array.array_name] = array;
+                return;
+
             }
-            //array.show();
-            */
+            else
+            {
+                it_expr = it_expr_temp;
+            }
 
 
             //std::vector<int> index(array.dim,0);
@@ -823,6 +849,181 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
     }
     //return 0 by default
     return 0;
+}
+
+std::stack<double> Parser::eval_rpn_num_stack(std::queue<Token> expr_rpn)
+{
+    std::stack<double> number_stack;
+    //this is used as argument to routines
+    std::string routine_function_name;
+
+    while(!expr_rpn.empty())
+    {
+        //std::cout<<"here am i"<<std::endl;
+        if(expr_rpn.front().token_type == Token::NUMBER)
+        {
+            number_stack.push(atof(expr_rpn.front().token.c_str()));
+            expr_rpn.pop();
+            continue;
+        }
+        if(expr_rpn.front().token_type == Token::VARIABLE)
+        {
+
+            number_stack.push(map_variables[expr_rpn.front().token]);
+            expr_rpn.pop();
+            continue;
+        }
+
+        if(expr_rpn.front().token_type == Token::NDARRAY)
+        {
+            //std::cout<<expr_rpn.front().token;
+            map_ndarrays[expr_rpn.front().token].show();
+            expr_rpn.pop();
+            continue;
+        }
+
+
+        if(expr_rpn.front().token_type == Token::OPERATOR)
+        {
+            if(expr_rpn.front().operator_id != Token::FACTORIAL && expr_rpn.front().operator_id != Token::UNARY_MINUS)
+            {
+                //WRITE SOME ERROR HANDLING TO CHECK THAT THERE ATLEAST TWO ELEMENTS ON THE STACK
+                //store the top two elements as components of a vector
+                std::vector<double>top_two (2);
+
+                top_two[1] = number_stack.top();
+                //std::cout<<number_stack.top();
+                number_stack.pop();
+                top_two[0] = number_stack.top();
+                //std::cout<<number_stack.top();
+                number_stack.pop();
+
+                if(expr_rpn.front().operator_id == Token::PLUS)
+                {
+                    number_stack.push(map_functions["ADD"].evaluate(top_two));
+                    expr_rpn.pop();
+                    continue;
+                }
+                if(expr_rpn.front().operator_id == Token::MINUS)
+                {
+                    number_stack.push(map_functions["SUBTRACT"].evaluate(top_two));
+                    expr_rpn.pop();
+                    continue;
+                }
+
+                if(expr_rpn.front().operator_id == Token::MULTIPLY)
+                {
+                    number_stack.push(map_functions["MULTIPLY"].evaluate(top_two));
+                    expr_rpn.pop();
+                    continue;
+                }
+                if(expr_rpn.front().operator_id == Token::DIVIDE)
+                {
+                    number_stack.push(map_functions["DIVIDE"].evaluate(top_two));
+                    expr_rpn.pop();
+                    continue;
+                }
+                if(expr_rpn.front().operator_id == Token::MODULUS)
+                {
+                    number_stack.push(map_functions["MODULUS"].evaluate(top_two));
+                    expr_rpn.pop();
+                    continue;
+                }
+                if(expr_rpn.front().operator_id == Token::E)
+                {
+                    number_stack.push(map_functions["E"].evaluate(top_two));
+                    expr_rpn.pop();
+                    continue;
+                }
+                if(expr_rpn.front().operator_id == Token::POWER)
+                {
+                    number_stack.push(map_functions["POWER"].evaluate(top_two));
+                    expr_rpn.pop();
+                    continue;
+                }
+
+            }
+            //unary operators
+            else
+            {
+                std::vector<double> top (1);
+                top[0] = number_stack.top();
+                number_stack.pop();
+                if(expr_rpn.front().operator_id == Token::FACTORIAL)
+                {
+                    number_stack.push(map_functions["FACTORIAL"].evaluate(top));
+                    expr_rpn.pop();
+                    continue;
+                }
+                if(expr_rpn.front().operator_id == Token::UNARY_MINUS)
+                {
+                    number_stack.push(map_functions["UNARY_MINUS"].evaluate(top));
+                    expr_rpn.pop();
+                    continue;
+                }
+
+            }
+
+        }
+
+        if(expr_rpn.front().token_type == Token::FUNCTION)
+        {
+
+			//ERROR HANDLING TO ENSURE THAT THE FUNCTION EXISTS ON THE Map_functions
+
+			std::queue<Token> temp_expr_rpn;
+			temp_expr_rpn = expr_rpn;
+
+			temp_expr_rpn.pop();
+			if(temp_expr_rpn.front().token_type == Token::ROUTINE)
+			{
+				routine_function_name = expr_rpn.front().token;
+				expr_rpn.pop();
+				continue;
+			}
+
+
+		    //stores the poped arguments from the number_stack
+            std::vector<double> arguments;
+
+            //WRITE ERROR HANDLING IF THERE ARE NOT ENOUGH ARGUMENTS ON THE number_stack
+            for(int i = 0; i < map_functions[expr_rpn.front().token].num_arguments; i++)
+            {
+                arguments.push_back(number_stack.top());
+                number_stack.pop();
+            }
+            //the arguments have to be reversed as they are stored in rpn in reverse order
+            std::reverse(arguments.begin(),arguments.end());
+            //if(arguments.empty()){std::cout<<"arg";}
+
+            number_stack.push(map_functions[expr_rpn.front().token].evaluate(arguments));
+
+            expr_rpn.pop();
+            continue;
+
+        }
+
+        if(expr_rpn.front().token_type == Token::ROUTINE)
+        {
+			std::vector<double> arguments;
+            for(int i = 0; i < map_routines[expr_rpn.front().token].num_arguments; i++)
+            {
+				arguments.push_back(number_stack.top());
+                number_stack.pop();
+            }
+            //the arguments have to be reversed as they are stored in rpn in reverse order
+            std::reverse(arguments.begin(),arguments.end());
+
+            number_stack.push(map_routines[expr_rpn.front().token].evaluate(routine_function_name,arguments));
+            expr_rpn.pop();
+            continue;
+
+        }
+
+
+    }
+    return number_stack;
+
 }
 
 Function::Function()
@@ -1261,6 +1462,18 @@ void ndArray::array_def_parse(std::string expr,std::string::iterator it_expr)
 
     }
     return;
+}
+
+void ndArray::define_linspace(double start,double end,int num_points)
+{
+    std::vector<int> index(dim,0);
+    for(;index[0] < dim_size[0];index[0]++)
+    {
+        double value = start + ((end - start)/num_points)*index[0];
+        store_value(index,value);
+    }
+    return;
+
 }
 
 

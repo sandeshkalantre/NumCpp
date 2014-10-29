@@ -14,5 +14,6 @@ bool is_define(std::string token);
 bool is_equal_sign(const char c);
 bool is_routine(std::string token);
 bool is_showrpn(std::string token);
+bool is_linspace(std::string token);
 
 #endif

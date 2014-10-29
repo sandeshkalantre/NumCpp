@@ -85,3 +85,17 @@ bool is_showrpn(std::string token)
         return false;
     }
 }
+
+//checks whether the token is linspace keyword
+bool is_linspace(std::string token)
+{
+    if(token.compare("linspace") == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+

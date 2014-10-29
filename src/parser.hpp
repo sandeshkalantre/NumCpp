@@ -65,6 +65,8 @@ class Token
             ROUTINE,
             //keyword to denote showing of an RPN
             SHOW_RPN,
+            //keyword to define a linspace array
+            LINSPACE,
             UNKNOWN
         };
 
@@ -156,6 +158,9 @@ class Parser
 
         //evaluates the rpn
         double eval_rpn(std::queue<Token> expr_rpn);
+        //evaluates the rpn to return a number stack
+        //used in defintions
+        std::stack<double> eval_rpn_num_stack(std::queue<Token> expr_rpn);
 };
 
 class Function
@@ -235,6 +240,7 @@ class ndArray
         double return_value(std::vector<int> index);
         void show();
         void array_def_parse(std::string expr,std::string::iterator it_expr);
+        void define_linspace(double start,double end,int num_points);
 };
 
 #endif
