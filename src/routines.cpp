@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include <iostream>
 #include <string>
 #include <vector>
@@ -15,10 +16,37 @@ double diff1 (std::string function_name, double a)
     double fx1 = map_functions[function_name].evaluate(arguments);
     double slope = (fx1 - fx )/ h;
     return slope;
+=======
+#include "routines.h"
+
+namespace routines
+{
+    double integrate(std::string function_name, double a, double b)
+    {
+        return 1;
+    }
+    double differentiate(std::string function_name, double a)
+    {
+        std::vector<double> arguments (1);
+        arguments[0] = a;
+	//IS THIS A GOOD VALUE?
+        double h = 0.000001;
+        //evaluate the value of the function just at the given point
+        double fx= map_functions[function_name].evaluate(arguments);
+        //evaluate the value of the function just to the right of the given point
+        arguments[0] = a + h;
+        double fx1 = map_functions[function_name].evaluate(arguments);
+        double slope = (fx1 - fx )/ h;
+        return slope;
+
+    }
+
+>>>>>>> upstream/master
 
 }
 
 
+<<<<<<< HEAD
 double diff2 (std::string function_name, double a)
 {
     std::vector<double> arguments (1);
@@ -60,3 +88,32 @@ double diff3 (std::string function_name, double a)
 
 }
 
+=======
+
+
+void def_routines()
+{
+    Routine INTEGRATE;
+    INTEGRATE.routine_name = "integrate";
+    INTEGRATE.num_arguments = 2;
+    map_routines[INTEGRATE.routine_name] = INTEGRATE;
+
+    Routine DIFFERENTIATE;
+    DIFFERENTIATE.routine_name = "differentiate";
+    DIFFERENTIATE.num_arguments = 1;
+    map_routines[DIFFERENTIATE.routine_name] = DIFFERENTIATE;
+
+    return;
+}
+
+void def_ndarrays()
+{
+    ndArray array_test;
+    array_test.array_name = "YOLO";
+    array_test.dim = 1;
+    map_ndarrays[array_test.array_name] = array_test;
+
+    return;
+
+}
+>>>>>>> upstream/master

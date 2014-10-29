@@ -1,10 +1,9 @@
-#include<string>
-#include<iostream>
+#include "misc.h"
 
 //checks whether the char is an operator
 bool is_operator(const char c)
 {
-    return (c == '+' || c == '-' || c == '*' || c == '/' || c == '%' ||c == '^' || c == '!');
+    return (c == '+' || c == '-' || c == '*' || c == '/' || c == '%' ||c == '^' || c == '!' || c == 'e' || c == 'E');
 }
 
 //checks whether the char is a left parentheses
@@ -13,12 +12,23 @@ bool is_lparen(const char c)
     return (c == '(');
 }
 
+//checks whether the char is a square left parentheses
+bool is_sq_lparen(const char c)
+{
+    return (c == '[');
+}
+
 //checks whether the char is a right parentheses
 bool is_rparen(const char c)
 {
     return (c == ')');
 }
 
+//checks whether the char is a square right parentheses
+bool is_sq_rparen(const char c)
+{
+    return (c == ']');
+}
 //checks if the char is function argument separator ','
 bool is_comma(const char c)
 {
@@ -27,10 +37,9 @@ bool is_comma(const char c)
 
 //checks whether the expr has a define keyword followed by a space
 //from the given position
-//DESIGN A BETTER SOLUTION THAN THIS NONSENSE
-bool is_define(const char c1,const char c2,const char c3,const char c4,const char c5,const char c6,const char c7)
+bool is_define(std::string token)
 {
-    if(c1 == 'd' && c2 == 'e' && c3 == 'f' && c4 == 'i' && c5 == 'n' && c6 == 'e' && c7 == ' ')
+    if(token.compare("define") == 0)
     {
         return true;
     }
@@ -46,3 +55,47 @@ bool is_equal_sign(const char c)
 {
     return (c == '=');
 }
+
+//checks whether the token is the name of a routine
+bool is_routine(std::string token)
+{
+    if(token.compare("integrate") == 0)
+    {
+        return true;
+    }
+    if(token.compare("differentiate") == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+//checks whether the token is showrpn keyword
+bool is_showrpn(std::string token)
+{
+    if(token.compare("showrpn") == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+//checks whether the token is linspace keyword
+bool is_linspace(std::string token)
+{
+    if(token.compare("linspace") == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
