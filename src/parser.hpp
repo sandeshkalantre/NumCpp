@@ -57,6 +57,7 @@ class Token
             SQ_RPAREN,
             COMMA,
             SEMICOLON,
+            COLON,
             //this type is used when the string "define" is used on the output
             //the allows the parser to know that we are defining something
             DEFINE,
@@ -137,6 +138,7 @@ class Token
 
 class Parser
 {
+    friend class Token;
     //constructor for the class Parser
     public:
         Parser();
@@ -144,6 +146,8 @@ class Parser
     public:
         //the parsed expression in RPN form as a vector of tokens
         std::queue<Token> expr_rpn;
+        //the parsed form of the slice
+        std::queue<int> slice;
 
     //functions
     public:
@@ -161,6 +165,8 @@ class Parser
         //evaluates the rpn to return a number stack
         //used in defintions
         std::stack<double> eval_rpn_num_stack(std::queue<Token> expr_rpn);
+        //used to parse slice definitions
+        std::queue<int> slice_parse(ndArray array,std::string expr,std::string::iterator it_expr);
 };
 
 class Function
@@ -241,6 +247,7 @@ class ndArray
         void show();
         void array_def_parse(std::string expr,std::string::iterator it_expr);
         void define_linspace(double start,double end,int num_points);
+        void show_slice(std::queue<int> slice);
 };
 
 #endif

@@ -4,6 +4,8 @@
 #include "misc.h"
 #include "errors.h"
 
+#define SUPPRESS_ZERO 42
+
 //Token class constructor
 Token::Token()
 {
@@ -98,6 +100,15 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
     if(*it_expr == ';')
     {
         token_type = SEMICOLON;
+        token += *it_expr;
+        it_expr++;
+        return it_expr;
+    }
+
+    //check for a colon
+    if(*it_expr == ':')
+    {
+        token_type = COLON;
         token += *it_expr;
         it_expr++;
         return it_expr;
@@ -520,8 +531,14 @@ void Parser::parse(std::string expr)
     }
     std::cout<<std::endl;
     */
-
-    std::cout<<eval_rpn(expr_rpn)<<std::endl;
+    double result;
+    result = eval_rpn(expr_rpn);
+    if(result == SUPPRESS_ZERO)
+    {}
+    else
+    {
+        std::cout<<result<<std::endl;
+    }
 
     return;
 
@@ -542,11 +559,19 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
         previous_token = token;
         it_expr = token.get_token(expr,it_expr);
 
-		if(token.token_type == Token::NUMBER || token.token_type == Token::VARIABLE
-		   || token.token_type == Token::NDARRAY)
+		if(token.token_type == Token::NUMBER || token.token_type == Token::VARIABLE)
+
         {
             expr_rpn.push(token);
             continue;
+        }
+        if(token.token_type == Token::NDARRAY)
+        {
+            expr_rpn.push(token);
+            //parse the slice
+            slice = slice_parse(map_ndarrays[token.token],expr,it_expr);
+            return;
+
         }
 
         if(token.token_type == Token::FUNCTION)
@@ -690,8 +715,10 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
         if(expr_rpn.front().token_type == Token::NDARRAY)
         {
             //std::cout<<expr_rpn.front().token;
-            map_ndarrays[expr_rpn.front().token].show();
+
+            map_ndarrays[expr_rpn.front().token].show_slice(slice);
             expr_rpn.pop();
+            return SUPPRESS_ZERO;
             continue;
         }
 
@@ -1025,6 +1052,65 @@ std::stack<double> Parser::eval_rpn_num_stack(std::queue<Token> expr_rpn)
     return number_stack;
 
 }
+std::queue<int> Parser::slice_parse(ndArray array,std::string expr,std::string::iterator it_expr)
+{
+    std::queue<int> slice;
+    Token token;
+    Token previous_token;
+    int current_dim = -1;
+
+    while(true)
+    {
+        it_expr = token.get_token(expr,it_expr);
+        if(token.token_type == Token::COLON)
+        {
+            current_dim++;
+            if(previous_token.token_type == Token::SQ_LPAREN)
+            {
+                slice.push(0);
+            }
+
+            if(previous_token.token_type == Token::COMMA)
+            {
+                slice.push(0);
+            }
+            previous_token = token;
+            continue;
+
+        }
+
+        if(token.token_type == Token::COMMA)
+        {
+            if(previous_token.token_type == Token::COLON)
+            {
+                slice.push(array.dim_size[current_dim]);
+            }
+            previous_token = token;
+            continue;
+        }
+
+        if(token.token_type == Token::NUMBER)
+        {
+            slice.push(atof(token.token.c_str()));
+
+            previous_token = token;
+            continue;
+        }
+        if(token.token_type == Token::SQ_RPAREN)
+        {
+            if(previous_token.token_type == Token::COLON)
+            {
+                slice.push(array.dim_size[current_dim]);
+            }
+            break;
+        }
+        previous_token = token;
+
+
+    }
+    return slice;
+
+}
 
 Function::Function()
 {
@@ -1296,6 +1382,46 @@ double ndArray::return_value(std::vector<int> index)
     return array[index];
 }
 
+void ndArray::show_slice(std::queue<int> slice)
+{
+    std::vector<int> start_index  (dim,0);
+    std::vector<int> end_index  (dim,0);
+    if(slice.size() == dim)
+    {
+        int current_dim = -1;
+        while(!slice.empty())
+        {
+            current_dim++;
+            start_index[current_dim] = slice.front();
+            slice.pop();
+        }
+        std::cout<<return_value(start_index)<<std::endl;
+        return;
+    }
+    else
+    {
+        int current_dim = -1;
+        while(!slice.empty())
+        {
+            current_dim++;
+            start_index[current_dim] = slice.front();
+            slice.pop();
+            end_index[current_dim] = slice.front();
+            slice.pop();
+
+        }
+        for(std::map<std::vector<int>,double>::iterator it_array = array.find(start_index);
+            it_array != array.find(end_index);
+            it_array++)
+        {
+            std::cout<<it_array -> second<<std::endl;
+
+        }
+        return;
+    }
+
+}
+
 void ndArray::show()
 {
     /*
@@ -1411,8 +1537,10 @@ void ndArray::array_def_parse(std::string expr,std::string::iterator it_expr)
     */
 
     //ITERATIVE IMPLEMENTATION
+
     Token token;
     std::vector<int> index(dim,0);
+    std::stack<double> number_stack;
     int current_dim = -1;
     while(true)
     {
@@ -1433,10 +1561,13 @@ void ndArray::array_def_parse(std::string expr,std::string::iterator it_expr)
 
         if(token.token_type == Token::NUMBER)
         {
+
+
             //std::cout<<atof(token.token.c_str());
             store_value(index,atof(token.token.c_str()));
             //std::cout<<array[index];
             index[current_dim]++;
+
             continue;
         }
 
@@ -1461,6 +1592,9 @@ void ndArray::array_def_parse(std::string expr,std::string::iterator it_expr)
         }
 
     }
+
+
+
     return;
 }
 
