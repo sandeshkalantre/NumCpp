@@ -19,6 +19,7 @@
 //stof requires C++11
 //DECIDE WHETHER TO USE stof or atof
 #include <cstdlib>
+#include <fstream>
 
 class Token;
 class Parser;
@@ -72,6 +73,9 @@ class Token
             LINSPACE,
             ZEROS,
             ONES,
+            WRITE,
+            READ,
+            EVALUATE,
             UNKNOWN
         };
 
@@ -275,13 +279,25 @@ class ndArray
         void define_linspace(double start,double end,int num_points);
 
         //array with all elements as zeros
+        bool is_zeros;
         void define_zeros();
 
         //array with all elements as ones
+        bool is_ones;
         void define_ones();
 
         //prints the slice
         void show_slice(std::queue<int> slice);
+
+        //store in a file
+        void write_to_file(const std::string out_filename);
+
+        //read from a file
+        void read_from_file(const std::string in_filename);
+
+        //eval a function on all elements of an array and store the result
+        //in output_array
+        void evaluate(std::string function_name,std::string output_array_name);
 };
 
 #endif

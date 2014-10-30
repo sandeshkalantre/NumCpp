@@ -5,5 +5,6 @@
 #define MISSING_LEFT_PARENTHESES "Left parentheses missing in the given input."
 #define MISSING_RIGHT_PARENTHESES "Right parentheses missing in the given input."
 #define MISSING_EQUAL_SIGN "Equal sign missing in the define expression."
+#define FUNCTION_NOT_DEFINED "The function has not been defined."
 
 #endif

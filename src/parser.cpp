@@ -135,72 +135,6 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
         return it_expr;
     }
 
-    //checks whether the characters are a part of a number
-    //and stores then in the token
-    if(std::isdigit(*it_expr)) //|| *it_expr == '.')
-    //'.' part was commented out
-    //otherwise it treats strings beginning with . as a number
-    //the part was there to handle numbers such as .123 but
-    //we have decided that such numbers will not be allowed
-    //ALL NUMBERS START WITH A DIGIT
-    {
-        token_type = NUMBER;
-        while(std::isdigit(*it_expr) || *it_expr == '.')
-        {
-            token += *it_expr;
-            it_expr++;
-        }
-        return it_expr;
-    }
-
-    //checks whether the token is an operator among +,-,*,/,%,^,!
-    if(is_operator(*it_expr))
-    {
-        token_type = OPERATOR;
-        operator_id = get_operator_id(*it_expr);
-        operator_precedence = get_operator_precedence(*it_expr);
-        operator_associativity = get_operator_associativity(*it_expr);
-        token += *it_expr;
-        it_expr++;
-        return it_expr;
-    }
-
-    //checks whether the token is a left parentheses
-    if(is_lparen(*it_expr))
-    {
-        token_type = LPAREN;
-        token += *it_expr;
-        it_expr++;
-        return it_expr;
-    }
-
-    //checks whether the token is a right parentheses
-    if(is_rparen(*it_expr))
-    {
-        token_type = RPAREN;
-        token += *it_expr;
-        it_expr++;
-        return it_expr;
-    }
-
-    //checks whether the token is a square left parentheses
-    if(is_sq_lparen(*it_expr))
-    {
-        token_type = SQ_LPAREN;
-        token += *it_expr;
-        it_expr++;
-        return it_expr;
-    }
-
-    //checks whether the token is a square right parentheses
-    if(is_sq_rparen(*it_expr))
-    {
-        token_type = SQ_RPAREN;
-        token += *it_expr;
-        it_expr++;
-        return it_expr;
-    }
-
     //checks whether the token is a name either of a variable or a function or a routine
     //or is a keyword
     if(std::isalpha(*it_expr) || *it_expr == '_' || *it_expr == '.')
@@ -254,6 +188,27 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
             return it_expr;
         }
 
+        //checks whether the token is the keyword read
+        if(is_read(token))
+        {
+            token_type = READ;
+            return it_expr;
+        }
+
+        //checks whether the token is the keyword write
+        if(is_write(token))
+        {
+            token_type = WRITE;
+            return it_expr;
+        }
+
+         //checks whether the token is the keyword write
+        if(is_evaluate(token))
+        {
+            token_type = EVALUATE;
+            return it_expr;
+        }
+
         //check whether this is a variable or a function
         //function has a left parentheses
 
@@ -278,6 +233,74 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
         }
         return it_expr;
     }
+
+    //checks whether the characters are a part of a number
+    //and stores then in the token
+    if(std::isdigit(*it_expr)) //|| *it_expr == '.')
+    //'.' part was commented out
+    //otherwise it treats strings beginning with . as a number
+    //the part was there to handle numbers such as .123 but
+    //we have decided that such numbers will not be allowed
+    //ALL NUMBERS START WITH A DIGIT
+    {
+        token_type = NUMBER;
+        while(std::isdigit(*it_expr) || *it_expr == '.')
+        {
+            token += *it_expr;
+            it_expr++;
+        }
+        return it_expr;
+    }
+
+    //checks whether the token is an operator among +,-,*,/,%,^,!,e
+    if(is_operator(*it_expr))
+    {
+        token_type = OPERATOR;
+        operator_id = get_operator_id(*it_expr);
+        operator_precedence = get_operator_precedence(*it_expr);
+        operator_associativity = get_operator_associativity(*it_expr);
+        token += *it_expr;
+        it_expr++;
+        return it_expr;
+    }
+
+    //checks whether the token is a left parentheses
+    if(is_lparen(*it_expr))
+    {
+        token_type = LPAREN;
+        token += *it_expr;
+        it_expr++;
+        return it_expr;
+    }
+
+    //checks whether the token is a right parentheses
+    if(is_rparen(*it_expr))
+    {
+        token_type = RPAREN;
+        token += *it_expr;
+        it_expr++;
+        return it_expr;
+    }
+
+    //checks whether the token is a square left parentheses
+    if(is_sq_lparen(*it_expr))
+    {
+        token_type = SQ_LPAREN;
+        token += *it_expr;
+        it_expr++;
+        return it_expr;
+    }
+
+    //checks whether the token is a square right parentheses
+    if(is_sq_rparen(*it_expr))
+    {
+        token_type = SQ_RPAREN;
+        token += *it_expr;
+        it_expr++;
+        return it_expr;
+    }
+
+
 
     //if no token type was matched
     token_type = UNKNOWN;
@@ -489,7 +512,7 @@ void Parser::parse(std::string expr)
                 map_ndarrays[array.array_name] = array;
                 return;
             }
-            /*
+
             else if(token.token_type == Token::ZEROS)
             {
                 array.define_zeros();
@@ -500,7 +523,26 @@ void Parser::parse(std::string expr)
                 array.define_ones();
                 return;
             }
-            */
+            else if(token.token_type == Token::EVALUATE)
+            {
+                math_parse(expr,it_expr);
+                //expr_rpn will have two components
+                //the function name and the array_name
+                std::string in_array_name = expr_rpn.front().token;
+                expr_rpn.pop();
+                std::string function_name = expr_rpn.front().token;
+
+                //temp is used to allow A = evaluate(A,f) behaviour
+                ndArray temp_array = map_ndarrays[in_array_name];
+                temp_array.array_name = "_";
+                map_ndarrays[temp_array.array_name] = temp_array;
+                map_ndarrays[array.array_name] = array;
+                map_ndarrays[temp_array.array_name].evaluate(function_name,array.array_name);
+                return;
+
+
+            }
+
             else
             {
                 it_expr = it_expr_temp;
@@ -577,6 +619,56 @@ void Parser::parse(std::string expr)
 
     }
 
+    //read keyword
+    if(token.token_type == Token::READ)
+    {
+        math_parse(expr,it_expr);
+        //expr_rpn will have two components
+        //the array name and the file name
+        std::string array_name = expr_rpn.front().token;
+        expr_rpn.pop();
+        std::string filename = expr_rpn.front().token;
+
+        map_ndarrays[array_name].read_from_file(filename);
+        return;
+
+    }
+    //write keyword
+    if(token.token_type == Token::WRITE)
+    {
+        math_parse(expr,it_expr);
+        //expr_rpn will have two components
+        //the array name and the file name
+        std::string array_name = expr_rpn.front().token;
+        expr_rpn.pop();
+        std::string filename = expr_rpn.front().token;
+
+        map_ndarrays[array_name].write_to_file(filename);
+        return;
+
+    }
+
+    //evaluate keyword for functions on arrays
+    if(token.token_type == Token::EVALUATE)
+    {
+        math_parse(expr,it_expr);
+        //expr_rpn will have two components
+        //the function name and the array_name
+        std::string array_name = expr_rpn.front().token;
+        expr_rpn.pop();
+        std::string function_name = expr_rpn.front().token;
+
+        ndArray temp_array = map_ndarrays[array_name];
+        temp_array.array_name = "_";
+        map_ndarrays[temp_array.array_name] = temp_array;
+        map_ndarrays[array_name].evaluate(function_name,temp_array.array_name);
+        map_ndarrays[temp_array.array_name].show();
+
+        return;
+
+    }
+
+
     //EVALUATIONS
     //variable/function/routine evaluation
     it_expr = expr.begin();
@@ -631,7 +723,7 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
             expr_rpn.push(token);
             //parse the slice
             slice = slice_parse(map_ndarrays[token.token],expr,it_expr);
-            return;
+            continue;
 
         }
 
@@ -650,7 +742,7 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
         if(token.token_type == Token::COMMA)
         {
             //THROW SOME ERRORS HERE IF NO LPAREN IS ENCOUNTERED
-            while(operator_stack.top().token_type != Token::LPAREN)
+            while(!operator_stack.empty() && operator_stack.top().token_type != Token::LPAREN)
             {
                 expr_rpn.push(operator_stack.top());
                 operator_stack.pop();
@@ -1434,7 +1526,8 @@ double Routine::evaluate(std::string function_name,std::vector<double> arguments
 ndArray::ndArray()
 {
     dim = 0;
-
+    is_ones = false;
+    is_zeros = false;
 
 }
 
@@ -1447,7 +1540,14 @@ void ndArray::store_value(std::vector<int> inp_index,double value)
 
 double ndArray::return_value(std::vector<int> index)
 {
-    //std::cout<<array[index];
+    if(is_ones)
+    {
+        return 1;
+    }
+    if(is_zeros)
+    {
+        return 0;
+    }
     return array[index];
 }
 
@@ -1683,32 +1783,82 @@ void ndArray::define_linspace(double start,double end,int num_points)
 
 void ndArray::define_zeros()
 {
-    //this code is wrong
-    std::vector<int> index(dim,0);
-    for(int current_dim = 0; current_dim < dim; current_dim++)
-    {
-        for(index[current_dim] = 0; index[current_dim] < dim_size[current_dim]; index[current_dim]++)
-        {
-            array[index] = 0;
-        }
-    }
+    is_zeros = true;
     return;
 }
 
 void ndArray::define_ones()
 {
-    //this code is wrong
-    std::vector<int> index(dim,0);
-    for(int current_dim = 0; current_dim < dim; current_dim++)
-    {
-        for(index[current_dim] = 0; index[current_dim] < dim_size[current_dim]; index[current_dim]++)
-        {
-            array[index]= 1;
-        }
-    }
+    is_ones = true;
     return;
 }
 
+void ndArray::read_from_file(const std::string in_filename)
+{
+    std::ifstream input_file;
+    input_file.open(in_filename.c_str());
+    std::string expr;
+
+    input_file.seekg(0, std::ios::end);
+    expr.resize(input_file.tellg());
+    input_file.seekg(0, std::ios::beg);
+    input_file.read(&expr[0], expr.size());
+    input_file.close();
+
+    std::string::iterator it_expr = expr.begin();
+    array_def_parse(expr,it_expr);
+    return;
+}
+
+void ndArray::write_to_file(const std::string out_filename)
+{
+    std::ofstream output_file;
+    output_file.open(out_filename.c_str());
+    std::streambuf* coutbuf = std::cout.rdbuf();
+    std::cout.rdbuf(output_file.rdbuf());
+
+    show();
+
+    std::cout.rdbuf(coutbuf);
+    output_file.close();
+    return;
+
+}
+
+//evaluates the single variable function on the whole array
+void ndArray::evaluate(std::string function_name,std::string output_array_name)
+{
+
+    //check whether the function has been defined
+    if(map_functions.count(function_name) > 0)
+    {
+        //check if the function is a single variable function
+        if(map_functions[function_name].num_arguments != 1)
+        {
+            std::cout<<"Evaluate can only be defined for single variable functions."<<std::endl;
+            return;
+        }
+        else
+        {
+            for(std::map<std::vector<int>,double>::iterator it_array = array.begin();
+            it_array != array.end();
+            it_array++)
+            {
+                std::vector<double> arguments(1,0);
+                arguments[0] = array[it_array -> first];
+                map_ndarrays[output_array_name].store_value(it_array -> first,map_functions[function_name].evaluate(arguments));
+            }
+
+        }
+    }
+    else
+    {
+        std::cout<<FUNCTION_NOT_DEFINED<<std::endl;
+
+    }
+    return;
+
+}
 
 
 

@@ -126,5 +126,47 @@ bool is_zeros(std::string token)
     }
 }
 
+//checks whether the token is the keyword read
+bool is_read(std::string token)
+{
+    if(token.compare("read") == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+//checks whether the token is the keyword write
+bool is_write(std::string token)
+{
+    if(token.compare("write") == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+//checks whether the token is the keyword evaluate
+bool is_evaluate(std::string token)
+{
+    if(token.compare("evaluate") == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
+
+
 
 

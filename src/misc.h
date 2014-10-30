@@ -19,5 +19,8 @@ bool is_showrpn(std::string token);
 bool is_linspace(std::string token);
 bool is_zeros(std::string token);
 bool is_ones(std::string token);
+bool is_write(std::string token);
+bool is_read(std::string token);
+bool is_evaluate(std::string token);
 
 #endif
