@@ -88,7 +88,10 @@ enum Token::OPERATOR_ASSOCIATIVITY Token::get_operator_associativity(const char 
 std::string::iterator Token::get_token(std::string expr,std::string::iterator it_expr)
 {
     //clear the token string
-    token.clear();
+    if(!token.empty())
+    {
+        token.clear();
+    }
 
     //skip over whitespaces
     while(std::isspace(*it_expr))
@@ -96,8 +99,8 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
         it_expr++;
     }
 
-    //check for a semicolon
-    if(*it_expr == ';')
+    //checks for a semicolon
+    if(is_semicolon(*it_expr))
     {
         token_type = SEMICOLON;
         token += *it_expr;
@@ -105,8 +108,8 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
         return it_expr;
     }
 
-    //check for a colon
-    if(*it_expr == ':')
+    //checks for a colon
+    if(is_colon(*it_expr))
     {
         token_type = COLON;
         token += *it_expr;
@@ -198,11 +201,11 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
         return it_expr;
     }
 
-
-    //checks whether the token is a name either of a variable or a function
-    if(std::isalpha(*it_expr) || *it_expr == '_')
+    //checks whether the token is a name either of a variable or a function or a routine
+    //or is a keyword
+    if(std::isalpha(*it_expr) || *it_expr == '_' || *it_expr == '.')
     {
-        while(std::isalnum(*it_expr) || *it_expr == '_')
+        while(std::isalnum(*it_expr) || *it_expr == '_' || *it_expr == '_')
         {
             token += *it_expr;
             it_expr++;
@@ -234,6 +237,20 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
         if(is_linspace(token))
         {
             token_type = LINSPACE;
+            return it_expr;
+        }
+
+        //check whether the token is the keyword ones
+        if(is_ones(token))
+        {
+            token_type = ONES;
+            return it_expr;
+        }
+
+        //check whether the token is the keyword zeros
+        if(is_zeros(token))
+        {
+            token_type = ZEROS;
             return it_expr;
         }
 
@@ -272,7 +289,6 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
 //constructor for the class Parser
 Parser::Parser()
 {
-
 }
 
 void Parser::parse(std::string expr)
@@ -286,6 +302,7 @@ void Parser::parse(std::string expr)
     {
         return;
     }
+
     //DEFINITIONS
     //store a variable or a function
     if(token.token_type == Token::DEFINE)
@@ -299,6 +316,7 @@ void Parser::parse(std::string expr)
         {
             //store the variable name which will go in the map_varibales
             std::string var_name = token.token;
+
             //stores the variable value which goes into the map_varibales
             double value;
 
@@ -315,9 +333,11 @@ void Parser::parse(std::string expr)
             }
             else
             {
-                //write some ERROR HANDLING ON ACCOUNT OF MISSING = SIGN AFTER DEFINE
+                std::cout<<MISSING_EQUAL_SIGN<<std::endl;
+                return;
             }
 
+            //store the values in the map
             map_variables[var_name] = value;
             return;
         }
@@ -326,28 +346,37 @@ void Parser::parse(std::string expr)
         if(token.token_type == Token::FUNCTION)
         {
             //will store the function in map_functions
-
-
             Function function;
             function.function_name = token.token;
 
             //ignore the LPAREN
             it_expr = token.get_token(expr,it_expr);
+            if(token.token_type != Token::LPAREN)
+            {
+                std::cout<<MISSING_LEFT_PARENTHESES<<std::endl;
+                return;
+            }
 
             while(token.token_type != Token::RPAREN)
             {
-                token = Token();
+                //token = Token();
                 it_expr = token.get_token(expr, it_expr);
                 if(token.token_type == Token::VARIABLE)
                 {
                     function.num_arguments++;
                     function.s_arguments.push_back(token.token);
-                    //std::cout<<function.s_arguments[0];//<<function.s_arguments[1];
                     function.map_arguments[token.token] = 0;
                 }
-                else
+                else if(token.token_type != Token::RPAREN && token.token_type != Token::COMMA)
                 {
-                    //WRITE ERROR HANDLING FOR NOT AN ARGUMENT
+                    std::cout<<token.token<<" is not a valid function argument."<<std::endl;
+                }
+
+                //if RPAREN is never encountered
+                if(token.token_type == Token::SEMICOLON)
+                {
+                    std::cout<<MISSING_RIGHT_PARENTHESES<<std::endl;
+                    return;
                 }
             }
             //arguments have ended and the RPAREN has been been handled
@@ -363,59 +392,77 @@ void Parser::parse(std::string expr)
             }
             else
             {
-                //write some ERROR HANDLING ON ACCOUNT OF MISSING = SIGN AFTER DEFINE
+                std::cout<<MISSING_EQUAL_SIGN<<std::endl;
             }
 
             //stores the function in map_functions in map_functions
             map_functions[function.function_name] = function;
-
             return;
         }
 
         if(token.token_type == Token::NDARRAY)
         {
-            //will store the vector in map_vectors
-
-
+            //will store the ndarray in map_ndarrays
             ndArray array;
             array.array_name = token.token;
 
             //ignore the LPAREN
             it_expr = token.get_token(expr,it_expr);
+            if(token.token_type != Token::SQ_LPAREN)
+            {
+                std::cout<<MISSING_LEFT_PARENTHESES<<std::endl;
+                return;
+            }
 
             while(token.token_type != Token::SQ_RPAREN)
             {
-                //std::cout<<"bazinga";
                 it_expr = token.get_token(expr, it_expr);
                 if(token.token_type == Token::NUMBER)
                 {
-                    array.dim++;
-                    array.dim_size.push_back(atof(token.token.c_str()));
-
+                    double number = atof(token.token.c_str());
+                    if(number == abs(floor(number)) && number > 0)
+                    {
+                        array.dim++;
+                        array.dim_size.push_back(atoi(token.token.c_str()));
+                    }
+                    else
+                    {
+                        std::cout<<number<<" is not a valid array dimension"<<std::endl;
+                        return;
+                    }
                 }
-                else
+                else if(token.token_type != Token::SQ_RPAREN && token.token_type != Token::COMMA)
                 {
-                    //WRITE ERROR HANDLING FOR NOT AN ARGUMENT
+                    std::cout<<token.token<<" is not a valid array dimension."<<std::endl;
+                }
+
+                //if SQ_RPAREN is never found
+                if(token.token_type == Token::SEMICOLON)
+                {
+                    std::cout<<MISSING_RIGHT_PARENTHESES<<std::endl;
+                    return;
                 }
             }
             std::reverse(array.dim_size.begin(),array.dim_size.end());
 
             //store the vector
-            //initialize the index to zero
-            //std::vector<int> index (array.dim,0);
+
             //the next token is a equal
             it_expr = token.get_token(expr,it_expr);
-            //RAISE AN ERORR IF NOT
+            if(token.token_type != Token::EQUAL_SIGN)
+            {
+                std::cout<<MISSING_EQUAL_SIGN<<std::endl;
+            }
 
-            //checks whether the array is defined using a linspace
             std::string::iterator it_expr_temp = it_expr;
             it_expr = token.get_token(expr,it_expr);
+            //checks whether the array is defined using a linspace
             if(token.token_type == Token::LINSPACE)
             {
                 if(array.dim != 1)
                 {
-                    //LINSPACE IS A 1D object
-                    //What IS THE USER TRYING TO DEFINE
+                    std::cout<<"Linspace is a 1D array."<<std::endl;
+                    return;
                 }
                 double start,end;
                 int num_points = array.dim_size[0];
@@ -433,23 +480,36 @@ void Parser::parse(std::string expr)
                     number_stack.pop();
 
                 }
+                else
+                {
+                    std::cout<<MISSING_LEFT_PARENTHESES<<std::endl;
+                }
 
                 array.define_linspace(start,end,num_points);
                 map_ndarrays[array.array_name] = array;
                 return;
-
             }
+            /*
+            else if(token.token_type == Token::ZEROS)
+            {
+                array.define_zeros();
+                return;
+            }
+            else if(token.token_type == Token::ONES)
+            {
+                array.define_ones();
+                return;
+            }
+            */
             else
             {
                 it_expr = it_expr_temp;
             }
 
-
-            //std::vector<int> index(array.dim,0);
+            //the array is defined element-wise
             array.array_def_parse(expr,it_expr);
-
+            //store the array in the map
             map_ndarrays[array.array_name] = array;
-
             return;
         }
     }
@@ -533,6 +593,7 @@ void Parser::parse(std::string expr)
     */
     double result;
     result = eval_rpn(expr_rpn);
+    map_variables["_"] = result;
     if(result == SUPPRESS_ZERO)
     {}
     else
@@ -716,9 +777,17 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
         {
             //std::cout<<expr_rpn.front().token;
 
-            map_ndarrays[expr_rpn.front().token].show_slice(slice);
-            expr_rpn.pop();
-            return SUPPRESS_ZERO;
+            if(slice.empty())
+            {
+                map_ndarrays[expr_rpn.front().token].show();
+                return SUPPRESS_ZERO;
+            }
+            else
+            {
+                map_ndarrays[expr_rpn.front().token].show_slice(slice);
+                expr_rpn.pop();
+                return SUPPRESS_ZERO;
+            }
             continue;
         }
 
@@ -1417,6 +1486,7 @@ void ndArray::show_slice(std::queue<int> slice)
             std::cout<<it_array -> second<<std::endl;
 
         }
+
         return;
     }
 
@@ -1485,6 +1555,7 @@ void ndArray::show()
         }
 
     }
+    std::cout<<std::endl;
     return;
 }
 
@@ -1610,6 +1681,33 @@ void ndArray::define_linspace(double start,double end,int num_points)
 
 }
 
+void ndArray::define_zeros()
+{
+    //this code is wrong
+    std::vector<int> index(dim,0);
+    for(int current_dim = 0; current_dim < dim; current_dim++)
+    {
+        for(index[current_dim] = 0; index[current_dim] < dim_size[current_dim]; index[current_dim]++)
+        {
+            array[index] = 0;
+        }
+    }
+    return;
+}
+
+void ndArray::define_ones()
+{
+    //this code is wrong
+    std::vector<int> index(dim,0);
+    for(int current_dim = 0; current_dim < dim; current_dim++)
+    {
+        for(index[current_dim] = 0; index[current_dim] < dim_size[current_dim]; index[current_dim]++)
+        {
+            array[index]= 1;
+        }
+    }
+    return;
+}
 
 
 

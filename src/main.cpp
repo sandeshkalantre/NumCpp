@@ -43,7 +43,7 @@ int main()
         }
 
         //to ensure that even if ; is forgotten at the end of input
-        //the program still runs
+        //the program still runs without an error
         expr += ";";
 
         it_expr = expr.begin();

@@ -38,6 +38,7 @@ class Token
     //allow Parser and Function to have access to Token_type and other variables
     friend class Parser;
     friend class Function;
+    friend class Routines;
     friend class ndArray;
 
     //enumerated types which define important token characteristics such as token_type
@@ -45,12 +46,15 @@ class Token
     private:
         enum TOKEN_TYPE
         {
+            //DEFAULT token_type when the object is created
+            //different from UNKNOWN
             NIL,
             NUMBER,
-            VARIABLE,
             NDARRAY,
             OPERATOR,
+            VARIABLE,
             FUNCTION,
+            ROUTINE,
             LPAREN,
             RPAREN,
             SQ_LPAREN,
@@ -58,25 +62,29 @@ class Token
             COMMA,
             SEMICOLON,
             COLON,
+            EQUAL_SIGN,
             //this type is used when the string "define" is used on the output
             //the allows the parser to know that we are defining something
             DEFINE,
-            //this sign denotes define/assignment of the variable/function
-            EQUAL_SIGN,
-            ROUTINE,
             //keyword to denote showing of an RPN
             SHOW_RPN,
             //keyword to define a linspace array
             LINSPACE,
+            ZEROS,
+            ONES,
             UNKNOWN
         };
 
         enum OPERATOR_ID
         {
             NOTANOPERATOR,
-            PLUS,MINUS,UNARY_MINUS,
+            PLUS,
+            MINUS,
+            UNARY_MINUS,
             E,//denotes scientific notation
-            MULTIPLY,DIVIDE,MODULUS,
+            MULTIPLY,
+            DIVIDE,
+            MODULUS,
             POWER,
             FACTORIAL
         };
@@ -101,7 +109,7 @@ class Token
             RIGHT
         };
 
-         //data
+    //data
     public:
         //string storing the token
         std::string token;
@@ -121,8 +129,6 @@ class Token
         //NONE = 0 otherwise
         OPERATOR_ASSOCIATIVITY operator_associativity;
 
-
-
     //constructor for the Token class
     public:
         Token();
@@ -133,12 +139,12 @@ class Token
         enum OPERATOR_PRECEDENCE get_operator_precedence(const char c);
         enum OPERATOR_ASSOCIATIVITY get_operator_associativity(const char c);
 
+        //stores the token attributes and returns the iterator to the next element in the string expr
         std::string::iterator get_token(std::string expr, std::string::iterator it_expr);
 };
 
 class Parser
 {
-    friend class Token;
     //constructor for the class Parser
     public:
         Parser();
@@ -146,34 +152,41 @@ class Parser
     public:
         //the parsed expression in RPN form as a vector of tokens
         std::queue<Token> expr_rpn;
-        //the parsed form of the slice
+        //the parsed form of the slice stored as a queue of integers
         std::queue<int> slice;
 
     //functions
     public:
-        //will check if the statement is a definition or a call to a function in the library
-        //if it is a definition it will create a Function class for the function in the Map_functions
-        //and use math_parse to store it's rpn
-        //if it is a routine/function call to the library, it will call the function and output the result
+        /*
+        The Parse function does the following jobs:
+        1)checks if the statement is a definition or a call to a function in the library
+        if it is a definition it will create a Function class for the function in the Map_functions
+        and use math_parse to store it's rpn
+        2)if it is a routine/function call to the library, it will call the function and output the result
+        3)check if the expression is a definition of ndarray and store it accordingly
+        */
         void parse(std::string expr);
 
         //converts the given expression to rpn
         void math_parse(std::string expr, std::string::iterator it_expr);
 
+        //used to parse slice definitions
+        std::queue<int> slice_parse(ndArray array,std::string expr,std::string::iterator it_expr);
+
         //evaluates the rpn
         double eval_rpn(std::queue<Token> expr_rpn);
+
         //evaluates the rpn to return a number stack
         //used in defintions
         std::stack<double> eval_rpn_num_stack(std::queue<Token> expr_rpn);
-        //used to parse slice definitions
-        std::queue<int> slice_parse(ndArray array,std::string expr,std::string::iterator it_expr);
-};
+
+        };
 
 class Function
 {
     friend class Routine;
-    friend class Token;
     friend class Parser;
+
     //data
     public:
         //name of the function
@@ -190,7 +203,7 @@ class Function
         //the vector of arguments
         std::vector<std::string> s_arguments;
 
-        //the unordered map of argument names and their values
+        //the ordered map of argument names and their values
         std::map<std::string, double> map_arguments;
 
         //the rpn form of the definition of the function
@@ -223,30 +236,51 @@ class Routine
         int num_arguments;
 
     public:
+        //evaluates the routine given the function name and the vector of arguments
         double evaluate(std::string function_name, std::vector<double> arguments);
-
-
 };
 
 class ndArray
 {
-    friend class Token;
     public:
         ndArray();
+
         //name of the vector
         std::string array_name;
+
         //number of dimensions
         int dim;
-        //vector of size of dimensions
+
+        //vector of the size of dimensions
         std::vector<int> dim_size;
 
+        //the vector stored as a map with the key as the index of the element
+        //store in a vector
         std::map<std::vector<int>,double> array;
 
+        //store value at the given index
         void store_value(std::vector<int> index,double value);
+
+        //returns value at the given index
         double return_value(std::vector<int> index);
+
+        //prints the complete array
         void show();
+
+        //parses the explicit definition of the array
         void array_def_parse(std::string expr,std::string::iterator it_expr);
+
+        //defines a linspace array consisting of num_points doubles front start to end
+        //END IS NOT INCLUSIVE
         void define_linspace(double start,double end,int num_points);
+
+        //array with all elements as zeros
+        void define_zeros();
+
+        //array with all elements as ones
+        void define_ones();
+
+        //prints the slice
         void show_slice(std::queue<int> slice);
 };
 
