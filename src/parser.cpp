@@ -139,7 +139,7 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
     //or is a keyword
     if(std::isalpha(*it_expr) || *it_expr == '_' || *it_expr == '.')
     {
-        while(std::isalnum(*it_expr) || *it_expr == '_' || *it_expr == '_')
+        while(std::isalnum(*it_expr) || *it_expr == '_' || *it_expr == '.')
         {
             token += *it_expr;
             it_expr++;
@@ -643,6 +643,8 @@ void Parser::parse(std::string expr)
         expr_rpn.pop();
         std::string filename = expr_rpn.front().token;
 
+        ndArray array;
+        array.array_name = array_name;
         map_ndarrays[array_name].write_to_file(filename);
         return;
 
@@ -1583,7 +1585,7 @@ void ndArray::show_slice(std::queue<int> slice)
             it_array != array.find(end_index);
             it_array++)
         {
-            std::cout<<it_array -> second<<std::endl;
+            std::cout<<return_value(it_array -> first)<<std::endl;
 
         }
 
@@ -1634,11 +1636,11 @@ void ndArray::show()
         }
         if(index[current_dim] == dim_size[current_dim] - 1)
         {
-            std::cout<<it_array -> second;
+            std::cout<<return_value(it_array -> first);
         }
         else
         {
-            std::cout<<it_array -> second<<" , ";
+            std::cout<<return_value(it_array -> first)<<" , ";
         }
 
         while(index[current_dim] == dim_size[current_dim] - 1)
