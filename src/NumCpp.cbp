@@ -33,6 +33,7 @@
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Unit filename="NumCpp.cbp" />
+		<Unit filename="errors.h" />
 		<Unit filename="functions.cpp" />
 		<Unit filename="functions.h" />
 		<Unit filename="main.cpp" />
