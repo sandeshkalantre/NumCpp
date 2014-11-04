@@ -148,3 +148,67 @@
 	"parser.hpp"
 	<cmath>
 
+1414769253 source:c:\anuj\documents\csproject\temp\numcpp\src\functions.cpp
+	"functions.h"
+
+1414769253 c:\anuj\documents\csproject\temp\numcpp\src\functions.h
+	"parser.hpp"
+
+1414769253 c:\anuj\documents\csproject\temp\numcpp\src\parser.hpp
+	"misc.h"
+	"functions.h"
+	"routines.h"
+	<cmath>
+	<string>
+	<queue>
+	<map>
+	<vector>
+	<stack>
+	<iterator>
+	<algorithm>
+	<cctype>
+	<iostream>
+	<cstdlib>
+	<fstream>
+
+1414769253 c:\anuj\documents\csproject\temp\numcpp\src\misc.h
+	"parser.hpp"
+	<string>
+
+1414924882 c:\anuj\documents\csproject\temp\numcpp\src\routines.h
+	"parser.hpp"
+	<string>
+
+1414769253 source:c:\anuj\documents\csproject\temp\numcpp\src\main.cpp
+	<iostream>
+	<cstdio>
+	"parser.hpp"
+	"functions.h"
+	"variables.h"
+	"routines.h"
+
+1414769254 c:\anuj\documents\csproject\temp\numcpp\src\variables.h
+	"parser.hpp"
+	<cmath>
+
+1414769253 source:c:\anuj\documents\csproject\temp\numcpp\src\misc.cpp
+	"misc.h"
+
+1414925202 source:c:\anuj\documents\csproject\temp\numcpp\src\parser.cpp
+	"parser.hpp"
+	"functions.h"
+	"routines.h"
+	"misc.h"
+	"errors.h"
+
+1414769253 c:\anuj\documents\csproject\temp\numcpp\src\errors.h
+
+1415102110 source:c:\anuj\documents\csproject\temp\numcpp\src\routines.cpp
+	"routines.h"
+	<iostream>
+	<cstdlib>
+	<time.h>
+
+1414769254 source:c:\anuj\documents\csproject\temp\numcpp\src\variables.cpp
+	"parser.hpp"
+
