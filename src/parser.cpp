@@ -1511,9 +1511,19 @@ double Function::evaluate(std::vector<double> d_arguments)
 
 double Routine::evaluate(std::string function_name,std::vector<double> arguments)
 {
-	if(routine_name.compare("integrate") == 0)
+	if(routine_name.compare("integrate1") == 0)
 	{
-		return routines::integrate(function_name,arguments[0],arguments[1]);
+		return routines::integrate1(function_name,arguments[0],arguments[1]);
+	}
+
+	if(routine_name.compare("integrate2") == 0)
+	{
+		return routines::integrate2(function_name,arguments[0],arguments[1]);
+	}
+
+	if(routine_name.compare("integrate3") == 0)
+	{
+		return routines::integrate3(function_name,arguments[0],arguments[1]);
 	}
 
 	if(routine_name.compare("differentiate") == 0)
@@ -1521,6 +1531,15 @@ double Routine::evaluate(std::string function_name,std::vector<double> arguments
 		return routines::differentiate(function_name,arguments[0]);
 	}
 
+    if(routine_name.compare("newton") == 0)
+	{
+		return routines::newton(function_name,arguments[0]);
+	}
+
+	if(routine_name.compare("bisection") == 0)
+	{
+		return routines::bisection(function_name,arguments[0],arguments[1]);
+	}
 	//returns 0 as default
 	return 0;
 }
