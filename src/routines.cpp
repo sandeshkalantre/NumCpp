@@ -1,23 +1,27 @@
 #include "routines.h"
 
+
 namespace routines
 {
-    double integrate(std::string function_name, double a, double b)
+    Number integrate(std::string function_name, Number a, Number b)
     {
-        return 1;
+        Number number;
+        return number;
     }
-    double differentiate(std::string function_name, double a)
+    Number differentiate(std::string function_name, Number a)
     {
-        std::vector<double> arguments (1);
+        std::vector<Number> arguments (1);
         arguments[0] = a;
 	//IS THIS A GOOD VALUE?
-        double h = 0.000001;
+        cppdouble _h;
+        mpfr_set_d(_h,0.000001,MPFR_RNDN);
+        Number h(_h);
         //evaluate the value of the function just at the given point
-        double fx= map_functions[function_name].evaluate(arguments);
+        Number fx= map_functions[function_name].evaluate(arguments);
         //evaluate the value of the function just to the right of the given point
         arguments[0] = a + h;
-        double fx1 = map_functions[function_name].evaluate(arguments);
-        double slope = (fx1 - fx )/ h;
+        Number fx1 = map_functions[function_name].evaluate(arguments);
+        Number slope = (fx1 - fx )/ h;
         return slope;
 
     }

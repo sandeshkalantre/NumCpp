@@ -3,8 +3,9 @@
 #include "routines.h"
 #include "misc.h"
 #include "errors.h"
+#include "mpfr.h"
 
-#define SUPPRESS_ZERO 42
+
 
 //Token class constructor
 Token::Token()
@@ -135,7 +136,75 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
         return it_expr;
     }
 
-    //checks whether the token is a name either of a variable or a function or a routine
+
+
+    //checks whether the characters are a part of a number
+    //and stores then in the token
+    if(std::isdigit(*it_expr)) //|| *it_expr == '.')
+    //'.' part was commented out
+    //otherwise it treats strings beginning with . as a number
+    //the part was there to handle numbers such as .123 but
+    //we have decided that such numbers will not be allowed
+    //ALL NUMBERS START WITH A DIGIT
+    {
+        token_type = NUMBER;
+        while(std::isdigit(*it_expr) || *it_expr == '.')
+        {
+            token += *it_expr;
+            it_expr++;
+        }
+        return it_expr;
+    }
+
+    //checks whether the token is an operator among +,-,*,/,%,^,!,E
+    if(is_operator(*it_expr))
+    {
+        token_type = OPERATOR;
+        operator_id = get_operator_id(*it_expr);
+        operator_precedence = get_operator_precedence(*it_expr);
+        operator_associativity = get_operator_associativity(*it_expr);
+        token += *it_expr;
+        it_expr++;
+        return it_expr;
+    }
+
+    //checks whether the token is a left parentheses
+    if(is_lparen(*it_expr))
+    {
+        token_type = LPAREN;
+        token += *it_expr;
+        it_expr++;
+        return it_expr;
+    }
+
+    //checks whether the token is a right parentheses
+    if(is_rparen(*it_expr))
+    {
+        token_type = RPAREN;
+        token += *it_expr;
+        it_expr++;
+        return it_expr;
+    }
+
+    //checks whether the token is a square left parentheses
+    if(is_sq_lparen(*it_expr))
+    {
+        token_type = SQ_LPAREN;
+        token += *it_expr;
+        it_expr++;
+        return it_expr;
+    }
+
+    //checks whether the token is a square right parentheses
+    if(is_sq_rparen(*it_expr))
+    {
+        token_type = SQ_RPAREN;
+        token += *it_expr;
+        it_expr++;
+        return it_expr;
+    }
+
+     //checks whether the token is a name either of a variable or a function or a routine
     //or is a keyword
     if(std::isalpha(*it_expr) || *it_expr == '_' || *it_expr == '.')
     {
@@ -234,72 +303,6 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
         return it_expr;
     }
 
-    //checks whether the characters are a part of a number
-    //and stores then in the token
-    if(std::isdigit(*it_expr)) //|| *it_expr == '.')
-    //'.' part was commented out
-    //otherwise it treats strings beginning with . as a number
-    //the part was there to handle numbers such as .123 but
-    //we have decided that such numbers will not be allowed
-    //ALL NUMBERS START WITH A DIGIT
-    {
-        token_type = NUMBER;
-        while(std::isdigit(*it_expr) || *it_expr == '.')
-        {
-            token += *it_expr;
-            it_expr++;
-        }
-        return it_expr;
-    }
-
-    //checks whether the token is an operator among +,-,*,/,%,^,!,e
-    if(is_operator(*it_expr))
-    {
-        token_type = OPERATOR;
-        operator_id = get_operator_id(*it_expr);
-        operator_precedence = get_operator_precedence(*it_expr);
-        operator_associativity = get_operator_associativity(*it_expr);
-        token += *it_expr;
-        it_expr++;
-        return it_expr;
-    }
-
-    //checks whether the token is a left parentheses
-    if(is_lparen(*it_expr))
-    {
-        token_type = LPAREN;
-        token += *it_expr;
-        it_expr++;
-        return it_expr;
-    }
-
-    //checks whether the token is a right parentheses
-    if(is_rparen(*it_expr))
-    {
-        token_type = RPAREN;
-        token += *it_expr;
-        it_expr++;
-        return it_expr;
-    }
-
-    //checks whether the token is a square left parentheses
-    if(is_sq_lparen(*it_expr))
-    {
-        token_type = SQ_LPAREN;
-        token += *it_expr;
-        it_expr++;
-        return it_expr;
-    }
-
-    //checks whether the token is a square right parentheses
-    if(is_sq_rparen(*it_expr))
-    {
-        token_type = SQ_RPAREN;
-        token += *it_expr;
-        it_expr++;
-        return it_expr;
-    }
-
 
 
     //if no token type was matched
@@ -341,7 +344,7 @@ void Parser::parse(std::string expr)
             std::string var_name = token.token;
 
             //stores the variable value which goes into the map_varibales
-            double value;
+            Number value;
 
             it_expr = token.get_token(expr, it_expr);
             if(token.token_type == Token::EQUAL_SIGN)
@@ -388,7 +391,7 @@ void Parser::parse(std::string expr)
                 {
                     function.num_arguments++;
                     function.s_arguments.push_back(token.token);
-                    function.map_arguments[token.token] = 0;
+                    function.map_arguments[token.token];
                 }
                 else if(token.token_type != Token::RPAREN && token.token_type != Token::COMMA)
                 {
@@ -487,7 +490,7 @@ void Parser::parse(std::string expr)
                     std::cout<<"Linspace is a 1D array."<<std::endl;
                     return;
                 }
-                double start,end;
+                Number start,end;
                 int num_points = array.dim_size[0];
                 //next token is an LPAREN
                 std::string::iterator it_expr_lparen = it_expr;
@@ -495,7 +498,7 @@ void Parser::parse(std::string expr)
                 if(token.token_type == Token::LPAREN)
                 {
                     math_parse(expr,it_expr_lparen);
-                    std::stack<double> number_stack = eval_rpn_num_stack(expr_rpn);
+                    std::stack<Number> number_stack = eval_rpn_num_stack(expr_rpn);
                     end = number_stack.top();
                     number_stack.pop();
 
@@ -513,16 +516,6 @@ void Parser::parse(std::string expr)
                 return;
             }
 
-            else if(token.token_type == Token::ZEROS)
-            {
-                array.define_zeros();
-                return;
-            }
-            else if(token.token_type == Token::ONES)
-            {
-                array.define_ones();
-                return;
-            }
             else if(token.token_type == Token::EVALUATE)
             {
                 math_parse(expr,it_expr);
@@ -685,15 +678,18 @@ void Parser::parse(std::string expr)
     }
     std::cout<<std::endl;
     */
-    double result;
+    Number result;
     result = eval_rpn(expr_rpn);
     map_variables["_"] = result;
-    if(result == SUPPRESS_ZERO)
+
+
+    if(!mpfr_cmp_ui(result.value,SUPPRESS_ZERO))
     {}
+
+
     else
-    {
-        std::cout<<result<<std::endl;
-    }
+    mpfr_printf("%.15Rf \n",result.value);
+
 
     return;
 
@@ -844,9 +840,9 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
 }
 
 //will evaluate the rpn tokens passed to in queue<token> expr_rpn
-double Parser::eval_rpn(std::queue<Token> expr_rpn)
+Number Parser::eval_rpn(std::queue<Token> expr_rpn)
 {
-    std::stack<double> number_stack;
+    std::stack<Number> number_stack;
     //this is used as argument to routines
     std::string routine_function_name;
 
@@ -855,7 +851,9 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
         //std::cout<<"here am i"<<std::endl;
         if(expr_rpn.front().token_type == Token::NUMBER)
         {
-            number_stack.push(atof(expr_rpn.front().token.c_str()));
+            Number result;
+            mpfr_set_str(result.value,expr_rpn.front().token.c_str(),BASE,MPFR_RNDN);
+            number_stack.push(result);
             expr_rpn.pop();
             continue;
         }
@@ -874,13 +872,18 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
             if(slice.empty())
             {
                 map_ndarrays[expr_rpn.front().token].show();
-                return SUPPRESS_ZERO;
+                Number number;
+                mpfr_set_ui(number.value,42,MPFR_RNDN);
+                return number;
             }
             else
             {
                 map_ndarrays[expr_rpn.front().token].show_slice(slice);
                 expr_rpn.pop();
-                return SUPPRESS_ZERO;
+                Number number;
+                mpfr_set_ui(number.value,42,MPFR_RNDN);
+                return number;
+
             }
             continue;
         }
@@ -892,7 +895,7 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
             {
                 //WRITE SOME ERROR HANDLING TO CHECK THAT THERE ATLEAST TWO ELEMENTS ON THE STACK
                 //store the top two elements as components of a vector
-                std::vector<double>top_two (2);
+                std::vector<Number>top_two (2);
 
                 top_two[1] = number_stack.top();
                 //std::cout<<number_stack.top();
@@ -949,7 +952,7 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
             //unary operators
             else
             {
-                std::vector<double> top (1);
+                std::vector<Number> top (1);
                 top[0] = number_stack.top();
                 number_stack.pop();
                 if(expr_rpn.front().operator_id == Token::FACTORIAL)
@@ -987,7 +990,7 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
 
 
 		    //stores the poped arguments from the number_stack
-            std::vector<double> arguments;
+            std::vector<Number> arguments;
 
             //WRITE ERROR HANDLING IF THERE ARE NOT ENOUGH ARGUMENTS ON THE number_stack
             for(int i = 0; i < map_functions[expr_rpn.front().token].num_arguments; i++)
@@ -1008,7 +1011,7 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
 
         if(expr_rpn.front().token_type == Token::ROUTINE)
         {
-			std::vector<double> arguments;
+			std::vector<Number> arguments;
             for(int i = 0; i < map_routines[expr_rpn.front().token].num_arguments; i++)
             {
 				arguments.push_back(number_stack.top());
@@ -1038,9 +1041,199 @@ double Parser::eval_rpn(std::queue<Token> expr_rpn)
         //ERROR HANDLING DUE TO TOO MANY VALUES ON THE STACK
     }
     //return 0 by default
-    return 0;
+    return Number(0);
 }
 
+
+//will evaluate the rpn tokens passed to in queue<token> expr_rpn
+std::stack<Number> Parser::eval_rpn_num_stack(std::queue<Token> expr_rpn)
+{
+    std::stack<Number> number_stack;
+    //this is used as argument to routines
+    std::string routine_function_name;
+
+    while(!expr_rpn.empty())
+    {
+        //std::cout<<"here am i"<<std::endl;
+        if(expr_rpn.front().token_type == Token::NUMBER)
+        {
+            Number result;
+            mpfr_set_str(result.value,expr_rpn.front().token.c_str(),BASE,MPFR_RNDN);
+            number_stack.push(result);
+            expr_rpn.pop();
+            continue;
+        }
+        if(expr_rpn.front().token_type == Token::VARIABLE)
+        {
+
+            number_stack.push(map_variables[expr_rpn.front().token]);
+            expr_rpn.pop();
+            continue;
+        }
+
+        if(expr_rpn.front().token_type == Token::NDARRAY)
+        {
+            //std::cout<<expr_rpn.front().token;
+
+            if(slice.empty())
+            {
+                map_ndarrays[expr_rpn.front().token].show();
+                //return SUPPRESS_ZERO;
+            }
+            else
+            {
+                map_ndarrays[expr_rpn.front().token].show_slice(slice);
+                expr_rpn.pop();
+                //return SUPPRESS_ZERO;
+            }
+            continue;
+        }
+
+
+        if(expr_rpn.front().token_type == Token::OPERATOR)
+        {
+            if(expr_rpn.front().operator_id != Token::FACTORIAL && expr_rpn.front().operator_id != Token::UNARY_MINUS)
+            {
+                //WRITE SOME ERROR HANDLING TO CHECK THAT THERE ATLEAST TWO ELEMENTS ON THE STACK
+                //store the top two elements as components of a vector
+                std::vector<Number>top_two (2);
+
+                top_two[1] = number_stack.top();
+                //std::cout<<number_stack.top();
+                number_stack.pop();
+                top_two[0] = number_stack.top();
+                //std::cout<<number_stack.top();
+                number_stack.pop();
+
+                if(expr_rpn.front().operator_id == Token::PLUS)
+                {
+                    number_stack.push(map_functions["ADD"].evaluate(top_two));
+                    expr_rpn.pop();
+                    continue;
+                }
+                if(expr_rpn.front().operator_id == Token::MINUS)
+                {
+                    number_stack.push(map_functions["SUBTRACT"].evaluate(top_two));
+                    expr_rpn.pop();
+                    continue;
+                }
+
+                if(expr_rpn.front().operator_id == Token::MULTIPLY)
+                {
+                    number_stack.push(map_functions["MULTIPLY"].evaluate(top_two));
+                    expr_rpn.pop();
+                    continue;
+                }
+                if(expr_rpn.front().operator_id == Token::DIVIDE)
+                {
+                    number_stack.push(map_functions["DIVIDE"].evaluate(top_two));
+                    expr_rpn.pop();
+                    continue;
+                }
+                if(expr_rpn.front().operator_id == Token::MODULUS)
+                {
+                    number_stack.push(map_functions["MODULUS"].evaluate(top_two));
+                    expr_rpn.pop();
+                    continue;
+                }
+                if(expr_rpn.front().operator_id == Token::E)
+                {
+                    number_stack.push(map_functions["E"].evaluate(top_two));
+                    expr_rpn.pop();
+                    continue;
+                }
+                if(expr_rpn.front().operator_id == Token::POWER)
+                {
+                    number_stack.push(map_functions["POWER"].evaluate(top_two));
+                    expr_rpn.pop();
+                    continue;
+                }
+
+            }
+            //unary operators
+            else
+            {
+                std::vector<Number> top (1);
+                top[0] = number_stack.top();
+                number_stack.pop();
+                if(expr_rpn.front().operator_id == Token::FACTORIAL)
+                {
+                    number_stack.push(map_functions["FACTORIAL"].evaluate(top));
+                    expr_rpn.pop();
+                    continue;
+                }
+                if(expr_rpn.front().operator_id == Token::UNARY_MINUS)
+                {
+                    number_stack.push(map_functions["UNARY_MINUS"].evaluate(top));
+                    expr_rpn.pop();
+                    continue;
+                }
+
+            }
+
+        }
+
+        if(expr_rpn.front().token_type == Token::FUNCTION)
+        {
+
+			//ERROR HANDLING TO ENSURE THAT THE FUNCTION EXISTS ON THE Map_functions
+
+			std::queue<Token> temp_expr_rpn;
+			temp_expr_rpn = expr_rpn;
+
+			temp_expr_rpn.pop();
+			if(temp_expr_rpn.front().token_type == Token::ROUTINE)
+			{
+				routine_function_name = expr_rpn.front().token;
+				expr_rpn.pop();
+				continue;
+			}
+
+
+		    //stores the poped arguments from the number_stack
+            std::vector<Number> arguments;
+
+            //WRITE ERROR HANDLING IF THERE ARE NOT ENOUGH ARGUMENTS ON THE number_stack
+            for(int i = 0; i < map_functions[expr_rpn.front().token].num_arguments; i++)
+            {
+                arguments.push_back(number_stack.top());
+                number_stack.pop();
+            }
+            //the arguments have to be reversed as they are stored in rpn in reverse order
+            std::reverse(arguments.begin(),arguments.end());
+            //if(arguments.empty()){std::cout<<"arg";}
+
+            number_stack.push(map_functions[expr_rpn.front().token].evaluate(arguments));
+
+            expr_rpn.pop();
+            continue;
+
+        }
+
+        if(expr_rpn.front().token_type == Token::ROUTINE)
+        {
+			std::vector<Number> arguments;
+            for(int i = 0; i < map_routines[expr_rpn.front().token].num_arguments; i++)
+            {
+				arguments.push_back(number_stack.top());
+                number_stack.pop();
+            }
+            //the arguments have to be reversed as they are stored in rpn in reverse order
+            std::reverse(arguments.begin(),arguments.end());
+
+            number_stack.push(map_routines[expr_rpn.front().token].evaluate(routine_function_name,arguments));
+            expr_rpn.pop();
+            continue;
+
+        }
+
+
+    }
+
+
+    return number_stack;
+}
+/*
 std::stack<double> Parser::eval_rpn_num_stack(std::queue<Token> expr_rpn)
 {
     std::stack<double> number_stack;
@@ -1215,6 +1408,7 @@ std::stack<double> Parser::eval_rpn_num_stack(std::queue<Token> expr_rpn)
     return number_stack;
 
 }
+*/
 std::queue<int> Parser::slice_parse(ndArray array,std::string expr,std::string::iterator it_expr)
 {
     std::queue<int> slice;
@@ -1288,7 +1482,7 @@ void Function::store_rpn(std::queue<Token> rpn)
     return;
 }
 
-double Function::std_evaluate(std::vector<double> d_arguments)
+Number Function::std_evaluate(std::vector<Number> d_arguments)
 {
     if(function_name == "ADD")
     {
@@ -1344,6 +1538,7 @@ double Function::std_evaluate(std::vector<double> d_arguments)
     {
         return std_functions::asin(d_arguments[0]);
     }
+
     if(function_name == "acos")
     {
         return std_functions::acos(d_arguments[0]);
@@ -1358,10 +1553,10 @@ double Function::std_evaluate(std::vector<double> d_arguments)
     }
 
     //by deafult it returns zero
-    return 0;
+    return Number(0);
 }
 
-double Function::evaluate(std::vector<double> d_arguments)
+Number Function::evaluate(std::vector<Number> d_arguments)
 {
     //stores the rpn so that it can be used again
     std::queue<Token> function_rpn_temp = function_rpn;
@@ -1378,13 +1573,15 @@ double Function::evaluate(std::vector<double> d_arguments)
         map_arguments[s_arguments[i]] = d_arguments[i];
     }
 
-    std::stack<double> number_stack;
+    std::stack<Number> number_stack;
 
     while(!function_rpn.empty())
     {
         if(function_rpn.front().token_type == Token::NUMBER)
         {
-            number_stack.push(atof(function_rpn.front().token.c_str()));
+            Number result;
+            mpfr_set_str(result.value,function_rpn.front().token.c_str(),BASE,MPFR_RNDN);
+            number_stack.push(result);
             function_rpn.pop();
         }
         if(function_rpn.front().token_type == Token::VARIABLE)
@@ -1410,7 +1607,7 @@ double Function::evaluate(std::vector<double> d_arguments)
             if(function_rpn.front().operator_id != Token::FACTORIAL && function_rpn.front().operator_id != Token::UNARY_MINUS)
             {
                 //store the top two elements as compenets of a vector
-                std::vector<double>top_two (2);
+                std::vector<Number>top_two (2);
                 top_two[1] = number_stack.top();
                 number_stack.pop();
                 top_two[0] = number_stack.top();
@@ -1455,7 +1652,7 @@ double Function::evaluate(std::vector<double> d_arguments)
             }
             else
             {
-                std::vector<double> top (1);
+                std::vector<Number> top (1);
                 top[0] = number_stack.top();
                 number_stack.pop();
                 if(function_rpn.front().operator_id == Token::FACTORIAL)
@@ -1479,7 +1676,7 @@ double Function::evaluate(std::vector<double> d_arguments)
             //ERROR HANDLING TO ENSURE THAT THE FUNCTION EXISTS ON THE Map_functions
 
             //stores the poped arguments from the number_stack
-            std::vector<double> arguments;
+            std::vector<Number> arguments;
 
             //WRITE ERROR HANDLING IF THERE ARE NOT ENOUGH ARGUMENTS ON THE number_stack
 
@@ -1506,10 +1703,10 @@ double Function::evaluate(std::vector<double> d_arguments)
         //ERROR HANDLING DUE TO TOO MANY VALUES ON THE STACK
     }
     //returns zero by default
-    return 0;
+    return Number(0);
 }
 
-double Routine::evaluate(std::string function_name,std::vector<double> arguments)
+Number Routine::evaluate(std::string function_name,std::vector<Number> arguments)
 {
 	if(routine_name.compare("integrate") == 0)
 	{
@@ -1522,34 +1719,24 @@ double Routine::evaluate(std::string function_name,std::vector<double> arguments
 	}
 
 	//returns 0 as default
-	return 0;
+	return Number(0);
 }
 
 ndArray::ndArray()
 {
     dim = 0;
-    is_ones = false;
-    is_zeros = false;
 
 }
 
-void ndArray::store_value(std::vector<int> inp_index,double value)
+void ndArray::store_value(std::vector<int> inp_index,Number value)
 {
     array[inp_index] = value;
     //std::cout<<array[inp_index];
     return;
 }
 
-double ndArray::return_value(std::vector<int> index)
+Number ndArray::return_value(std::vector<int> index)
 {
-    if(is_ones)
-    {
-        return 1;
-    }
-    if(is_zeros)
-    {
-        return 0;
-    }
     return array[index];
 }
 
@@ -1566,7 +1753,7 @@ void ndArray::show_slice(std::queue<int> slice)
             start_index[current_dim] = slice.front();
             slice.pop();
         }
-        std::cout<<return_value(start_index)<<std::endl;
+        mpfr_printf("%Rf \n",return_value(start_index).value);
         return;
     }
     else
@@ -1581,11 +1768,11 @@ void ndArray::show_slice(std::queue<int> slice)
             slice.pop();
 
         }
-        for(std::map<std::vector<int>,double>::iterator it_array = array.find(start_index);
+        for(std::map<std::vector<int>,Number>::iterator it_array = array.find(start_index);
             it_array != array.find(end_index);
             it_array++)
         {
-            std::cout<<return_value(it_array -> first)<<std::endl;
+            mpfr_printf("%Rf \n",return_value(it_array -> first).value);
 
         }
 
@@ -1610,7 +1797,7 @@ void ndArray::show()
     std::reverse(dim_size.begin(),dim_size.end());
 
     int current_dim = -1;
-    std::map<std::vector<int>,double>::iterator it_array;
+    std::map<std::vector<int>,Number>::iterator it_array;
 
     for(it_array = array.begin();it_array != array.end();it_array++)
     {
@@ -1636,11 +1823,11 @@ void ndArray::show()
         }
         if(index[current_dim] == dim_size[current_dim] - 1)
         {
-            std::cout<<return_value(it_array -> first);
+            mpfr_printf("%Rf",return_value(it_array -> first).value);
         }
         else
         {
-            std::cout<<return_value(it_array -> first)<<" , ";
+            mpfr_printf("%Rf , ",return_value(it_array -> first).value);
         }
 
         while(index[current_dim] == dim_size[current_dim] - 1)
@@ -1660,6 +1847,8 @@ void ndArray::show()
     std::cout<<std::endl;
     return;
 }
+
+
 
 void ndArray::array_def_parse(std::string expr,std::string::iterator it_expr)
 {
@@ -1713,7 +1902,7 @@ void ndArray::array_def_parse(std::string expr,std::string::iterator it_expr)
 
     Token token;
     std::vector<int> index(dim,0);
-    std::stack<double> number_stack;
+    std::stack<Number> number_stack;
     int current_dim = -1;
     while(true)
     {
@@ -1737,7 +1926,9 @@ void ndArray::array_def_parse(std::string expr,std::string::iterator it_expr)
 
 
             //std::cout<<atof(token.token.c_str());
-            store_value(index,atof(token.token.c_str()));
+            Number result;
+            mpfr_set_str(result.value,token.token.c_str(),BASE,MPFR_RNDN);
+            store_value(index,result);
             //std::cout<<array[index];
             index[current_dim]++;
 
@@ -1771,28 +1962,20 @@ void ndArray::array_def_parse(std::string expr,std::string::iterator it_expr)
     return;
 }
 
-void ndArray::define_linspace(double start,double end,int num_points)
+void ndArray::define_linspace(Number start,Number end,int num_points)
 {
     std::vector<int> index(dim,0);
+    Number _num_points;
+    mpfr_set_ui(_num_points.value,num_points,MPFR_RNDN);
     for(;index[0] < dim_size[0];index[0]++)
     {
-        double value = start + ((end - start)/num_points)*index[0];
+        Number _index;
+        mpfr_set_ui(_index.value,index[0],MPFR_RNDN);
+        Number value = start + ((end - start) / _num_points)*_index;
         store_value(index,value);
     }
     return;
 
-}
-
-void ndArray::define_zeros()
-{
-    is_zeros = true;
-    return;
-}
-
-void ndArray::define_ones()
-{
-    is_ones = true;
-    return;
 }
 
 void ndArray::read_from_file(const std::string in_filename)
@@ -1814,15 +1997,76 @@ void ndArray::read_from_file(const std::string in_filename)
 
 void ndArray::write_to_file(const std::string out_filename)
 {
-    std::ofstream output_file;
-    output_file.open(out_filename.c_str());
-    std::streambuf* coutbuf = std::cout.rdbuf();
-    std::cout.rdbuf(output_file.rdbuf());
+    FILE* out_file;
+    out_file = fopen(out_filename.c_str(),"w");
+    //std::cout<<"apple is good";
+    if(out_file == NULL)
+    {
+        std::cout<<FILE_OPEN_FAILED<<std::endl;
+    }
+    /*
+    std::cout<<"[ ";
+    std::vector<int> inp_index(dim,0);
+    //std::cout<<dim;
+    //std::cout<<dim_size[0];
+    for(inp_index[0] = 0; inp_index[0] < dim_size[0];(inp_index[0])++)
+    {
+        std::cout<<return_value(inp_index)<<" , ";
+    }
+    std::cout<<']';
+    */
+    std::reverse(dim_size.begin(),dim_size.end());
 
-    show();
+    int current_dim = -1;
+    std::map<std::vector<int>,Number>::iterator it_array;
 
-    std::cout.rdbuf(coutbuf);
-    output_file.close();
+    for(it_array = array.begin();it_array != array.end();it_array++)
+    {
+        std::vector<int> index = it_array -> first;
+
+        if(current_dim == -1)
+        {
+            fprintf(out_file," [ ");
+            current_dim++;
+        }
+        while(current_dim < dim && current_dim != dim - 1)
+        {
+
+            fprintf(out_file," [ ");
+            if((current_dim + 1) < dim)
+            {
+                current_dim++;
+            }
+            else
+            {
+                break;
+            }
+        }
+        if(index[current_dim] == dim_size[current_dim] - 1)
+        {
+            mpfr_fprintf(out_file,"%Rf",return_value(it_array -> first).value);
+        }
+        else
+        {
+            mpfr_fprintf(out_file,"%Rf , ",return_value(it_array -> first).value);
+        }
+
+        while(index[current_dim] == dim_size[current_dim] - 1)
+        {
+            current_dim--;
+            if(current_dim == -1 || index[current_dim] == dim_size[current_dim] - 1)
+            {
+                fprintf(out_file," ] ");
+            }
+            else
+            {
+                fprintf(out_file," ] ,");
+            }
+        }
+
+    }
+    fclose(out_file);
+
     return;
 
 }
@@ -1842,11 +2086,11 @@ void ndArray::evaluate(std::string function_name,std::string output_array_name)
         }
         else
         {
-            for(std::map<std::vector<int>,double>::iterator it_array = array.begin();
+            for(std::map<std::vector<int>,Number>::iterator it_array = array.begin();
             it_array != array.end();
             it_array++)
             {
-                std::vector<double> arguments(1,0);
+                std::vector<Number> arguments(1);
                 arguments[0] = array[it_array -> first];
                 map_ndarrays[output_array_name].store_value(it_array -> first,map_functions[function_name].evaluate(arguments));
             }
@@ -1861,6 +2105,78 @@ void ndArray::evaluate(std::string function_name,std::string output_array_name)
     return;
 
 }
+
+Number::Number()
+{
+    mpfr_init(value);
+    mpfr_set_zero(value,0);
+}
+
+Number::Number(cppdouble _value)
+{
+    mpfr_init(value);
+    mpfr_set(value,_value,MPFR_RNDN);
+    //mpfr_init_set(value,_value,MPFR_RNDN);
+}
+
+void Number::store_value(cppdouble _value)
+{
+    mpfr_set(value,_value,MPFR_RNDN);
+}
+
+
+
+Number Number::operator+(const Number num2)
+{
+    Number result;
+    mpfr_add(result.value,value,num2.value,MPFR_RNDN);
+    return result;
+}
+
+Number Number::operator-(const Number num2)
+{
+    Number result;
+    mpfr_sub(result.value,value,num2.value,MPFR_RNDN);
+    return result;
+}
+
+Number Number::operator*(const Number num2)
+{
+    Number result;
+    mpfr_mul(result.value,value,num2.value,MPFR_RNDN);
+    return result;
+}
+
+Number Number::operator/(const Number num2)
+{
+    Number result;
+    mpfr_div(result.value,value,num2.value,MPFR_RNDN);
+    return result;
+}
+
+Number Number::operator%(const Number num2)
+{
+    Number number;
+    return number;
+}
+
+Number Number::operator-()
+{
+    Number result;
+    mpfr_neg(result.value,value,MPFR_RNDN);
+    return result;
+}
+
+
+Number Number::operator^(const Number num2)
+{
+    Number result;
+    mpfr_pow(result.value,value,num2.value,MPFR_RNDN);
+    return result;
+}
+
+
+
 
 
 

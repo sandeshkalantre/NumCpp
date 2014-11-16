@@ -4,6 +4,8 @@
 #include "misc.h"
 #include "functions.h"
 #include "routines.h"
+#include "variables.h"
+#include "mpfr.h"
 #include <cmath>
 #include <string>
 #include <queue>
@@ -21,15 +23,23 @@
 #include <cstdlib>
 #include <fstream>
 
+#define SUPPRESS_ZERO 42
+#define BASE 10
+
+typedef mpfr_t cppdouble;
+//also use gmp double
+
 class Token;
 class Parser;
 class Function;
 class Routine;
+class Numeric;
+class Number;
 class ndArray;
 
 //the extern maps which will store our variables and functions and routines
 extern std::map<std::string, Function> map_functions;
-extern std::map<std::string, double> map_variables;
+extern std::map<std::string, Number> map_variables;
 extern std::map<std::string, Routine> map_routines;
 extern std::map<std::string, ndArray> map_ndarrays;
 
@@ -178,11 +188,11 @@ class Parser
         std::queue<int> slice_parse(ndArray array,std::string expr,std::string::iterator it_expr);
 
         //evaluates the rpn
-        double eval_rpn(std::queue<Token> expr_rpn);
+        Number eval_rpn(std::queue<Token> expr_rpn);
 
         //evaluates the rpn to return a number stack
         //used in defintions
-        std::stack<double> eval_rpn_num_stack(std::queue<Token> expr_rpn);
+        std::stack<Number> eval_rpn_num_stack(std::queue<Token> expr_rpn);
 
         };
 
@@ -208,7 +218,7 @@ class Function
         std::vector<std::string> s_arguments;
 
         //the ordered map of argument names and their values
-        std::map<std::string, double> map_arguments;
+        std::map<std::string, Number> map_arguments;
 
         //the rpn form of the definition of the function
         std::queue<Token> function_rpn;
@@ -223,11 +233,11 @@ class Function
 
         //this has to written differently than eval_rpn as d_arguments are the variables
         //and not the variables in map_variables
-        double evaluate(std::vector<double> d_arguments);
+        Number evaluate(std::vector<Number> d_arguments);
 
         //this function is called by evaluate if the function being evaluated is
         //a standard function as stored in bool standard
-        double std_evaluate(std::vector<double> d_arguments);
+        Number std_evaluate(std::vector<Number> d_arguments);
 };
 
 class Routine
@@ -241,10 +251,43 @@ class Routine
 
     public:
         //evaluates the routine given the function name and the vector of arguments
-        double evaluate(std::string function_name, std::vector<double> arguments);
+        Number evaluate(std::string function_name, std::vector<Number> arguments);
 };
 
-class ndArray
+
+class Numeric
+{
+    private:
+    int type;
+
+};
+
+class Number:public Numeric
+{
+    public:
+    cppdouble value;
+
+    public:
+    Number();
+    Number(cppdouble _value);
+    void store_value(cppdouble _value);
+    //cppdouble return_value();
+
+    Number operator+(const Number num2);
+    Number operator-(const Number num2);
+    Number operator*(const Number num2);
+    Number operator/(const Number num2);
+    Number operator%(const Number num2);
+    Number operator^(const Number num2);
+
+    Number operator-();
+
+
+
+
+};
+
+class ndArray:public Numeric
 {
     public:
         ndArray();
@@ -260,13 +303,13 @@ class ndArray
 
         //the vector stored as a map with the key as the index of the element
         //store in a vector
-        std::map<std::vector<int>,double> array;
+        std::map<std::vector<int>,Number> array;
 
         //store value at the given index
-        void store_value(std::vector<int> index,double value);
+        void store_value(std::vector<int> index,Number value);
 
         //returns value at the given index
-        double return_value(std::vector<int> index);
+        Number return_value(std::vector<int> index);
 
         //prints the complete array
         void show();
@@ -276,15 +319,7 @@ class ndArray
 
         //defines a linspace array consisting of num_points doubles front start to end
         //END IS NOT INCLUSIVE
-        void define_linspace(double start,double end,int num_points);
-
-        //array with all elements as zeros
-        bool is_zeros;
-        void define_zeros();
-
-        //array with all elements as ones
-        bool is_ones;
-        void define_ones();
+        void define_linspace(Number start,Number end,int num_points);
 
         //prints the slice
         void show_slice(std::queue<int> slice);
@@ -299,6 +334,8 @@ class ndArray
         //in output_array
         void evaluate(std::string function_name,std::string output_array_name);
 };
+
+
 
 #endif
 

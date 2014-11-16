@@ -11,8 +11,8 @@ void def_ndarrays();
 
 namespace routines
 {
-    double integrate(std::string function_name, double a, double b);
-    double differentiate(std::string function_name, double a);
+    Number integrate(std::string function_name, Number a, Number b);
+    Number differentiate(std::string function_name, Number a);
 }
 
 #endif

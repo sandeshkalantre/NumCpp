@@ -1,14 +1,11 @@
 #include <iostream>
 #include <cstdio>
 #include "parser.hpp"
-#include "functions.h"
-#include "variables.h"
-#include "routines.h"
 using namespace std;
 
 //definitions of the maps
 std::map<std::string, Function> map_functions;
-std::map<std::string, double> map_variables;
+std::map<std::string, Number> map_variables;
 std::map<std::string, Routine> map_routines;
 std::map<std::string, ndArray> map_ndarrays;
 

@@ -1,88 +1,114 @@
 #include "functions.h"
+#include "parser.hpp"
+
 
 namespace std_functions
 {
-    double add(double a, double b)
+    Number add(Number a, Number b)
     {
         return a + b;
     }
-    double subtract(double a, double b)
+    Number subtract(Number a, Number b)
     {
         return a - b;
     }
-    double unary_minus(double a)
+    Number unary_minus(Number a)
     {
-        return (-1 * a);
+        return (-a);
     }
-    double multiply(double a, double b)
+    Number multiply(Number a,Number b)
     {
         return a * b;
     }
-    double divide(double a, double b)
+    Number divide(Number a, Number b)
     {
-        if(b == 0)
+        if(mpfr_zero_p(b.value) != 0)
         {
             std::cout<<"Divide by zero error."<<std::endl;
-            return NAN;
+            Number result;
+            mpfr_set_nan(result.value);
+            return result;
         }
         return a / b;
     }
-    double modulus1(double a, double b)
+    Number modulus1(Number a, Number b)
     {
-        return (int)a % (int)b;
+        return a % b;
     }
-    double scientific(double a, double b)
+    Number scientific(Number a, Number b)
     {
-        return a * pow(10 , b);
+        Number base;
+        mpfr_set_ui(base.value,BASE,MPFR_RNDN);
+        return a * (base ^ b);
     }
-    double factorial(double a)
+    Number factorial(Number a)
     {
         //if the number is negative
-        if(a < 0)
+        /*
+        if(a.return_value() < 0)
         {
             std::cout<<"Factorial of negative number does not exist.Use gamma(x)."<<std::endl;
             return NAN;
         }
-        int num = (int) a;
+        int num = (int) a.return_value();
         int result = 1;
         while(num > 0)
         {
             result *= num;
             num--;
         }
+        return Number(result);
+        */
+        Number result;
+        unsigned long _a = mpfr_get_ui(a.value,MPFR_RNDN);
+        mpfr_fac_ui(result.value,_a,MPFR_RNDN);
         return result;
     }
-    double power(double a, double b)
+    Number power(Number a, Number b)
     {
-        return pow(a , b);
+        return a ^ b;
     }
-    double sin(double a)
+    Number sin(Number a)
     {
-        return std::sin(a);
+        Number result;
+        mpfr_sin(result.value,a.value,MPFR_RNDN);
+        return result;
     }
-    double cos(double a)
+    Number cos(Number a)
     {
-        return std::cos(a);
+        Number result;
+        mpfr_cos(result.value,a.value,MPFR_RNDN);
+        return result;
     }
-    double tan(double a)
+    Number tan(Number a)
     {
-        return std::tan(a);
+        Number result;
+        mpfr_tan(result.value,a.value,MPFR_RNDN);
+        return result;
     }
-    double asin(double a)
+    Number asin(Number a)
     {
-        return std::asin(a);
+        Number result;
+        mpfr_asin(result.value,a.value,MPFR_RNDN);
+        return result;
     }
-    double acos(double a)
+    Number acos(Number a)
     {
-        return std::acos(a);
+        Number result;
+        mpfr_acos(result.value,a.value,MPFR_RNDN);
+        return result;
     }
-    double atan(double a)
+    Number atan(Number a)
     {
-        return std::atan(a);
+        Number result;
+        mpfr_atan(result.value,a.value,MPFR_RNDN);
+        return result;
     }
-    double atan2(double a, double b)
+    Number atan2(Number a, Number b)
     {
-        return std::atan2(a, b);
+        Number result;
+        mpfr_atan2(result.value,a.value,b.value,MPFR_RNDN);
+        return result;
     }
 }
 

@@ -3,7 +3,7 @@
 //checks whether the char is an operator
 bool is_operator(const char c)
 {
-    return (c == '+' || c == '-' || c == '*' || c == '/' || c == '%' ||c == '^' || c == '!' || c == 'e' || c == 'E');
+    return (c == '+' || c == '-' || c == '*' || c == '/' || c == '%' ||c == '^' || c == '!' || c == 'E');
 }
 
 //checks whether the char is a semicolon
