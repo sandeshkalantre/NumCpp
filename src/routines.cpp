@@ -2,7 +2,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <time.h>
-#define SUPPRESS_ZERO 42
+#include "parser.hpp"
+
 namespace routines
 {
     //Riemann integration with evaluation at midpoint of the subinterval

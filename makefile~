@@ -1,6 +1,6 @@
 all: numcpp
-numcpp: main.o functions.o misc.o parser.o variables.o
-	g++ main.o functions.o misc.o parser.o variables.o -o numcpp
+numcpp: main.o functions.o misc.o parser.o variables.o routines.o
+	g++ main.o functions.o misc.o parser.o variables.o routines.o -o numcpp
 main.o: src/main.cpp
 	g++ -c src/main.cpp
 functions.o: src/functions.cpp src/functions.h

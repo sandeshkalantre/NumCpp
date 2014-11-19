@@ -41,7 +41,7 @@
 	<cstdio>
 	"parser.hpp"
 
-1416384175 /home/sandesh/NumCpp/src/parser.hpp
+1416393629 /home/sandesh/NumCpp/src/parser.hpp
 	"misc.h"
 	"functions.h"
 	"routines.h"
@@ -76,7 +76,7 @@
 	"functions.h"
 	"parser.hpp"
 
-1416384005 source:/home/sandesh/NumCpp/src/parser.cpp
+1416393471 source:/home/sandesh/NumCpp/src/parser.cpp
 	"parser.hpp"
 	"functions.h"
 	"routines.h"
@@ -139,13 +139,14 @@
 	"parser.hpp"
 	<string>
 
-1416383283 source:/home/sandesh/NumCpp/src/routines.cpp
+1416393557 source:/home/sandesh/NumCpp/src/routines.cpp
 	"routines.h"
 	<iostream>
 	<cstdlib>
 	<time.h>
+	"parser.hpp"
 
-1416383926 /home/sandesh/NumCpp/src/errors.h
+1416391644 /home/sandesh/NumCpp/src/errors.h
 
 1414158306 /home/sandesh/NumCpp/src/variables.h
 	"parser.hpp"

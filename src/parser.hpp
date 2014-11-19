@@ -23,7 +23,6 @@
 #include <cstdlib>
 #include <fstream>
 
-#define SUPPRESS_ZERO 42
 #define BASE 10
 
 typedef mpfr_t cppdouble;
@@ -36,6 +35,7 @@ class Routine;
 class Numeric;
 class Number;
 class ndArray;
+
 
 //the extern maps which will store our variables and functions and routines
 extern std::map<std::string, Function> map_functions;
@@ -272,6 +272,7 @@ class Number:public Numeric
     Number();
     Number(cppdouble _value);
     Number(double _value);
+    Number(int _value);
     void store_value(cppdouble _value);
     //cppdouble return_value();
 
