@@ -55,7 +55,7 @@ namespace routines
 
         Number h((b-a)/(Number)10000) ;
         Number x (a);
-        Number integral(0);
+        Number integral(0.0);
         Number t;
         std::vector<Number> arguments(1);
         srand(time(NULL));
@@ -107,9 +107,9 @@ namespace routines
             x+=h;
         }
 
-        Number i(0);
+        Number i(0.0);
         Number y;
-        Number inside_pts (0);
+        Number inside_pts (0.0);
         Number height (maximum - minimum);
         Number total_pts = Number(100000)*width*height;
         while( (i+=1) < total_pts )
@@ -200,7 +200,7 @@ namespace routines
         {
             //std::cout<<a<<" "<<b<<std::endl;
             //if function values of mp and a are of opposite signs, change limits to a and mp, since the root must lie between them
-            if((func_mp<0&&func_a>0)||(func_mp>0&&func_a<0))
+            if((func_mp< Number(0.0) && func_a>Number(0.0))||(func_mp > Number(0.0) && func_a < Number(0.0)))
             {
                 b = (a+b)/2;
                 arguments[0] = (a+b)/2;
@@ -226,22 +226,66 @@ void def_routines()
     Routine INTEGRATE;
     INTEGRATE.routine_name = "integrate";
     INTEGRATE.num_arguments = 2;
-    map_routines[INTEGRATE.routine_name] = INTEGRATE;
+    INTEGRATE.routine_help =
+    "___________________________________________________________\n\n"
+    "Syntax: integrate(left_limit, right_limit, function_name())\n"
+    "___________________________________________________________\n\n"
+    "This function will integrate the given function function_name over the given\n"
+    "interval x=left_limit to x=right_limit, using the default integrating function,\n"
+    "integrate.r_m. For more information on that, type help(integrate.r_m)\n";
+     map_routines[INTEGRATE.routine_name] = INTEGRATE;
+
 
     Routine INTEGRATE1;
     INTEGRATE1.routine_name = "integrate.r_m";
     INTEGRATE1.num_arguments = 2;
+    INTEGRATE1.routine_help =
+    "Riemann method, evaluation at the midpoint\n"
+    "_______________________________________________________________\n\n"
+    "Syntax: integrate.r_m(left_limit, right_limit, function_name())\n"
+    "_______________________________________________________________\n\n"
+    "This function will integrate function_name from x = left_limit to x = right_limit.\n\n"
+    "It approximates the area of the curve by evaluating the integral as an almost\n"
+    "infinite sum of infinitesimally narrow rectangles.\n"
+    "The width of each rectangle is a miniscule subdivision of the interval and the\n"
+    "height is the function value at the midpoint of the subdivision.\n";
     map_routines[INTEGRATE1.routine_name] = INTEGRATE1;
 
     Routine INTEGRATE2;
     INTEGRATE2.routine_name = "integrate.r_t";
     INTEGRATE2.num_arguments = 2;
+    INTEGRATE2.routine_help =
+    "Riemann method, evaluation at a random tag\n"
+    "_______________________________________________________________\n\n"
+    "Syntax: integrate.r_t(left_limit, right_limit, function_name())\n"
+    "_______________________________________________________________\n\n"
+    "This function will integrate function_name from x=left_limit to x=right_limit.\n\n"
+    "It approximates the area of the curve by evaluating the integral as an almost\n"
+    "infinite sum of infinitesimally narrow rectangles.\n"
+    "The width of each rectangle is a miniscule subdivision of the interval and the\n"
+    "height is the function value at a random point in the subdivision.\n";
     map_routines[INTEGRATE2.routine_name] = INTEGRATE2;
 
     Routine INTEGRATE3;
     INTEGRATE3.routine_name = "integrate.mc";
     INTEGRATE3.num_arguments = 2;
+    INTEGRATE3.routine_help =
+    "Monte Carlo method\n"
+    "______________________________________________________________\n\n"
+    "Syntax: integrate.mc(left_limit, right_limit, function_name())\n"
+    "______________________________________________________________\n\n"
+    "This function will integrate function_name from x=left_limit to x = right_limit.\n"
+    "It finds the maximum and minimum values of the curve in the given interval, so we\n"
+    "know the rectangle bounding the curve.\n"
+    "It then plots a large number of random points and checks whether it is inside or\n"
+    "outside the area bounded by the curve and the x-axis.\n"
+    "Thus if we divide number of points inside the curve by the total points plotted,\n"
+    "accounting for negative area, and multiply that ratio by the total area of the\n"
+    "rectangle, we can approximate the integral.\n"
+    "This is not as accurate a method as Riemann method, refer to help(intgrate.r_m)\n"
+    "for more.\n";
     map_routines[INTEGRATE3.routine_name] = INTEGRATE3;
+
 
     Routine DIFFERENTIATE;
     DIFFERENTIATE.routine_name = "differentiate";
@@ -249,17 +293,37 @@ void def_routines()
     map_routines[DIFFERENTIATE.routine_name] = DIFFERENTIATE;
 
     Routine NEWTON;
-
     NEWTON.routine_name = "solve.n";
-
     NEWTON.num_arguments = 1;
+    NEWTON.routine_help =
+    "Newton's method\n"
+    "_______________________________________\n\n"
+    "Syntax: solve.n(guess, function_name())\n"
+    "_______________________________________\n\n"
+    "This will take a guess of the root from the user, and use it to find the actual\n"
+    "root of the given function function_name.\n"
+    "t evaluates the point of intersection of the tangent to the function at x = guess\n"
+    "with the x-axis, which is an improved guess.\n"
+    "It then keeps iterating this method to improve it's guess and eventually reaches\n"
+    "the root.\n";
     map_routines[NEWTON.routine_name] = NEWTON;
 
     Routine BISECTION;
-
     BISECTION.routine_name = "solve.b";
-
     BISECTION.num_arguments = 2;
+    BISECTION.routine_help =
+    "Bisection method\n"
+    "____________________________________________________\n\n"
+    "Syntax: solve.b(left_end, right_end, function_name())\n"
+    "____________________________________________________\n\n"
+    "This takes in 2 points, having function values of opposite sign, and finds the\n"
+    "root lying between them.\n"
+    "It calculates the function value at the midpoint and out of the 2 subintervals\n"
+    "created, chooses the one having endpoints with function values of opposite signs,\n"
+    "thus implying that the root lies between them (assuming the given function is\n"
+    "continuous)\n"
+    "It iterates this method till it finds the root.\n"
+    "This is not as accurate as Newton's method, refer to help(solve.n) for more.\n";
     map_routines[BISECTION.routine_name] = BISECTION;
 
     return;

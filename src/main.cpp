@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cstdio>
-#include <iomanip>
+
 #include "parser.hpp"
 using namespace std;
 
@@ -39,7 +39,7 @@ int main(int argc,char** argv)
     //create a Parser object
     Parser parser;
 
-    //the test to be declared at the start of the program
+    //the text to be declared at the start of the program
     std::cout<<"NumCpp"<<std::endl;
     std::cout<<
 
@@ -54,6 +54,7 @@ Use help(routine_name) for help on a routine.\n\
 Use exit() to exit the program.\n"
 
     <<std::endl;
+
     //the loop that runs the program
     while(true)
     {

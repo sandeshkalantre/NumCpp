@@ -1748,6 +1748,13 @@ Number Function::evaluate(std::vector<Number> d_arguments)
     //returns zero by default
     return Number(0.0);
 }
+/*
+Routine::Routine()
+{
+
+
+}
+*/
 
 Number Routine::evaluate(std::string function_name,std::vector<Number> arguments)
 {
@@ -1791,11 +1798,13 @@ Number Routine::evaluate(std::string function_name,std::vector<Number> arguments
 	//returns 0 as default
 	return Number(0.0);
 }
+
 void Routine::help()
 {
     std::cout<<routine_help<<std::endl;
     return;
 }
+
 
 ndArray::ndArray()
 {
@@ -2063,15 +2072,16 @@ void ndArray::read_from_file(const std::string in_filename)
     input_file.open(in_filename.c_str());
     std::string expr;
 
+    /*
     input_file.seekg(0, std::ios::end);
     expr.resize(input_file.tellg());
     input_file.seekg(0, std::ios::beg);
     input_file.read(&expr[0], expr.size());
     input_file.close();
-
-    expr.erase(std::remove(expr.begin(), expr.end(), '\t'), expr.end());
-    expr.erase(std::remove(expr.begin(), expr.end(), ' '), expr.end());
-    expr.erase(std::remove(expr.begin(), expr.end(), '\n'), expr.end());
+    */
+    //expr.erase(std::remove(expr.begin(), expr.end(), '\t'), expr.end());
+    //expr.erase(std::remove(expr.begin(), expr.end(), ' '), expr.end());
+    //expr.erase(std::remove(expr.begin(), expr.end(), '\n'), expr.end());
 
     std::string::iterator it_expr = expr.begin();
     array_def_parse(expr,it_expr);
