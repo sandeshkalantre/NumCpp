@@ -20,6 +20,21 @@ int main()
     //create a Parser object
     Parser parser;
 
+    //the test to be declared at the start of the program
+    std::cout<<"NumCpp"<<std::endl;
+    std::cout<<
+
+"\nNumCpp is a numerical library with an inbuilt parser for input\n\
+that can be used to do numerical stuff such as:\n\
+-integration\n\
+-differentiation\n\
+-matrix operations\n\
+-root finding in an interval\n\
+-FFT of an discrete array of complex numbers.\n\n\
+Use help(routine_name) for help on a routine.\n\
+Use exit() to exit the program.\n"
+
+    <<std::endl;
     //the loop that runs the program
     while(true)
     {
@@ -35,7 +50,7 @@ int main()
         //or if "exit()" is entered
         if(expr == ";" || expr.compare("exit()") == 0 || cin.eof())
         {
-            cout<<"Bye.";
+            cout<<"Bye.\n";
             return 0;
         }
 

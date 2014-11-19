@@ -36,12 +36,12 @@
 	"parser.hpp"
 	"functions.h"
 
-1416120385 source:/home/sandesh/NumCpp/src/main.cpp
+1416381004 source:/home/sandesh/NumCpp/src/main.cpp
 	<iostream>
 	<cstdio>
 	"parser.hpp"
 
-1416129662 /home/sandesh/NumCpp/src/parser.hpp
+1416384175 /home/sandesh/NumCpp/src/parser.hpp
 	"misc.h"
 	"functions.h"
 	"routines.h"
@@ -64,19 +64,19 @@
 	"parser.hpp"
 	<string>
 
-1416120605 /home/sandesh/NumCpp/src/functions.h
+1416381826 /home/sandesh/NumCpp/src/functions.h
 
 1416130323 source:/home/sandesh/NumCpp/src/misc.cpp
 	"misc.h"
 
-1416126328 source:/home/sandesh/NumCpp/src/variables.cpp
+1416382382 source:/home/sandesh/NumCpp/src/variables.cpp
 	"parser.hpp"
 
-1416129887 source:/home/sandesh/NumCpp/src/functions.cpp
+1416381942 source:/home/sandesh/NumCpp/src/functions.cpp
 	"functions.h"
 	"parser.hpp"
 
-1416129663 source:/home/sandesh/NumCpp/src/parser.cpp
+1416384005 source:/home/sandesh/NumCpp/src/parser.cpp
 	"parser.hpp"
 	"functions.h"
 	"routines.h"
@@ -135,14 +135,17 @@
 1413909056 source:/users/cs101/140260012/NumCpp/src/routines.cpp
 	"routines.h"
 
-1416129687 /home/sandesh/NumCpp/src/routines.h
+1416211318 /home/sandesh/NumCpp/src/routines.h
 	"parser.hpp"
 	<string>
 
-1416126316 source:/home/sandesh/NumCpp/src/routines.cpp
+1416383283 source:/home/sandesh/NumCpp/src/routines.cpp
 	"routines.h"
+	<iostream>
+	<cstdlib>
+	<time.h>
 
-1414688493 /home/sandesh/NumCpp/src/errors.h
+1416383926 /home/sandesh/NumCpp/src/errors.h
 
 1414158306 /home/sandesh/NumCpp/src/variables.h
 	"parser.hpp"

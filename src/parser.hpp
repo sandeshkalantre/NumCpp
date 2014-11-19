@@ -43,6 +43,7 @@ extern std::map<std::string, Number> map_variables;
 extern std::map<std::string, Routine> map_routines;
 extern std::map<std::string, ndArray> map_ndarrays;
 
+//global bool SUPPRESS_ZERO = false;
 
 class Token
 {
@@ -270,6 +271,7 @@ class Number:public Numeric
     public:
     Number();
     Number(cppdouble _value);
+    Number(double _value);
     void store_value(cppdouble _value);
     //cppdouble return_value();
 
@@ -279,6 +281,17 @@ class Number:public Numeric
     Number operator/(const Number num2);
     Number operator%(const Number num2);
     Number operator^(const Number num2);
+    Number operator+=(const Number num2);
+    Number operator-=(const Number num2);
+    Number operator*=(const Number num2);
+    Number operator/=(const Number num2);
+    Number operator=(const double num2);
+    bool operator>(const Number num2);
+    bool operator<(const Number num2);
+    bool operator>=(const Number num2);
+    bool operator<=(const Number num2);
+    bool operator==(const Number num2);
+    bool operator==(const double num2);
 
     Number operator-();
 

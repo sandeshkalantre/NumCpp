@@ -599,7 +599,7 @@ void Parser::parse(std::string expr)
                 }
                 else
                 {
-                    //THROW AN ERROR THAT THE FUNCTION HAS NOT BEEN DEFINED
+                    std::cout<<FUNCTION_NOT_DEFINED<<std::endl;
                 }
                 return;
             }
@@ -649,8 +649,18 @@ void Parser::parse(std::string expr)
         math_parse(expr,it_expr);
         //expr_rpn will have two components
         //the function name and the array_name
+        if(map_ndarrays.count(expr_rpn.front().token) <= 0)
+        {
+            std::cout<<ARRAY_NOT_DEFINED<<std::endl;
+            return;
+        }
         std::string array_name = expr_rpn.front().token;
         expr_rpn.pop();
+        if(map_functions.count(expr_rpn.front().token) <= 0)
+        {
+            std::cout<<FUNCTION_NOT_DEFINED<<std::endl;
+            return;
+        }
         std::string function_name = expr_rpn.front().token;
 
         ndArray temp_array = map_ndarrays[array_name];
@@ -711,13 +721,25 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
         it_expr = token.get_token(expr,it_expr);
 
 		if(token.token_type == Token::NUMBER || token.token_type == Token::VARIABLE)
-
         {
+            if(token.token_type == Token::VARIABLE)
+            {
+                if(map_variables.count(token.token) <= 0)
+                {
+                    std::cout<<token.token<<" : "<<VARIABLE_NOT_DEFINED<<std::endl;
+                    return;
+                }
+            }
             expr_rpn.push(token);
             continue;
         }
         if(token.token_type == Token::NDARRAY)
         {
+            if(map_ndarrays.count(token.token) <= 0)
+            {
+                std::cout<<token.token<<" : "<<ARRAY_NOT_DEFINED<<std::endl;
+                return;
+            }
             expr_rpn.push(token);
             //parse the slice
             slice = slice_parse(map_ndarrays[token.token],expr,it_expr);
@@ -727,6 +749,11 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
 
         if(token.token_type == Token::FUNCTION)
         {
+            if(map_functions.count(token.token) <= 0)
+            {
+                std::cout<<token.token<<" : "<<FUNCTION_NOT_DEFINED<<std::endl;
+                return;
+            }
             operator_stack.push(token);
             continue;
         }
@@ -1028,7 +1055,7 @@ Number Parser::eval_rpn(std::queue<Token> expr_rpn)
 
         if(expr_rpn.front().token_type == Token::UNKNOWN)
         {
-            return 0;
+            return Number(0.0);
         }
     }
 
@@ -1041,7 +1068,7 @@ Number Parser::eval_rpn(std::queue<Token> expr_rpn)
         //ERROR HANDLING DUE TO TOO MANY VALUES ON THE STACK
     }
     //return 0 by default
-    return Number(0);
+    return Number(0.0);
 }
 
 
@@ -1534,6 +1561,18 @@ Number Function::std_evaluate(std::vector<Number> d_arguments)
     {
         return std_functions::tan(d_arguments[0]);
     }
+    if(function_name == "sec")
+    {
+        return std_functions::sec(d_arguments[0]);
+    }
+    if(function_name == "csc")
+    {
+        return std_functions::csc(d_arguments[0]);
+    }
+    if(function_name == "cot")
+    {
+        return std_functions::cot(d_arguments[0]);
+    }
     if(function_name == "asin")
     {
         return std_functions::asin(d_arguments[0]);
@@ -1547,13 +1586,50 @@ Number Function::std_evaluate(std::vector<Number> d_arguments)
     {
         return std_functions::atan(d_arguments[0]);
     }
+    if(function_name == "sinh")
+    {
+        return std_functions::sinh(d_arguments[0]);
+    }
+    if(function_name == "cosh")
+    {
+        return std_functions::cosh(d_arguments[0]);
+    }
+    if(function_name == "tanh")
+    {
+        return std_functions::tanh(d_arguments[0]);
+    }
+    if(function_name == "sech")
+    {
+        return std_functions::sech(d_arguments[0]);
+    }
+    if(function_name == "csch")
+    {
+        return std_functions::csch(d_arguments[0]);
+    }
+    if(function_name == "coth")
+    {
+        return std_functions::coth(d_arguments[0]);
+    }
+    if(function_name == "asinh")
+    {
+        return std_functions::asinh(d_arguments[0]);
+    }
+
+    if(function_name == "acosh")
+    {
+        return std_functions::acosh(d_arguments[0]);
+    }
+    if(function_name == "atanh")
+    {
+        return std_functions::atanh(d_arguments[0]);
+    }
     if(function_name == "atan2")
     {
         return std_functions::atan2(d_arguments[0],d_arguments[1]);
     }
 
     //by deafult it returns zero
-    return Number(0);
+    return Number(0.0);
 }
 
 Number Function::evaluate(std::vector<Number> d_arguments)
@@ -1703,23 +1779,50 @@ Number Function::evaluate(std::vector<Number> d_arguments)
         //ERROR HANDLING DUE TO TOO MANY VALUES ON THE STACK
     }
     //returns zero by default
-    return Number(0);
+    return Number(0.0);
 }
 
 Number Routine::evaluate(std::string function_name,std::vector<Number> arguments)
 {
-	if(routine_name.compare("integrate") == 0)
+    if(routine_name.compare("integrate") == 0)
 	{
-		return routines::integrate(function_name,arguments[0],arguments[1]);
+		return routines::integrate1(function_name,arguments[0],arguments[1]);
 	}
+	if(routine_name.compare("integrate.r_m") == 0)
+	{
+		return routines::integrate1(function_name,arguments[0],arguments[1]);
+	}
+    /*
+	if(routine_name.compare("integrate.r_t") == 0)
+	{
+		return routines::integrate2(function_name,arguments[0],arguments[1]);
+	}
+	if(routine_name.compare("integrate.mc") == 0)
+	{
+		return routines::integrate3(function_name,arguments[0],arguments[1]);
+	}
+
 
 	if(routine_name.compare("differentiate") == 0)
 	{
 		return routines::differentiate(function_name,arguments[0]);
 	}
 
+
+	if(routine_name.compare("solve.n") == 0)
+	{
+		return routines::newton(function_name,arguments[0]);
+	}
+
+
+	if(routine_name.compare("solve.b") == 0)
+	{
+		return routines::bisection(function_name,arguments[0],arguments[1]);
+	}
+    */
+
 	//returns 0 as default
-	return Number(0);
+	return Number(0.0);
 }
 
 ndArray::ndArray()
@@ -2119,6 +2222,12 @@ Number::Number(cppdouble _value)
     //mpfr_init_set(value,_value,MPFR_RNDN);
 }
 
+Number::Number(double _value)
+{
+    mpfr_init(value);
+    mpfr_set_d(value,_value,MPFR_RNDN);
+}
+
 void Number::store_value(cppdouble _value)
 {
     mpfr_set(value,_value,MPFR_RNDN);
@@ -2173,6 +2282,91 @@ Number Number::operator^(const Number num2)
     Number result;
     mpfr_pow(result.value,value,num2.value,MPFR_RNDN);
     return result;
+}
+
+Number Number::operator+=(const Number num2)
+{
+    *this = *this + num2;
+    return *this;
+}
+Number Number::operator-=(const Number num2)
+{
+    *this = *this - num2;
+    return *this;
+}
+Number Number::operator*=(const Number num2)
+{
+    *this = *this * num2;
+    return *this;
+}
+Number Number::operator/=(const Number num2)
+{
+    *this = *this / num2;
+    return *this;
+}
+
+Number Number::operator=(const double num2)
+{
+    return Number(num2);
+}
+
+
+
+bool Number::operator>(const Number num2)
+{
+    int result = mpfr_cmp(value,num2.value);
+    if(result > 0)
+    {
+        return true;
+    }
+    return false;
+}
+
+bool Number::operator<(const Number num2)
+{
+    int result = mpfr_cmp(value,num2.value);
+    if(result < 0)
+    {
+        return true;
+    }
+    return false;
+}
+bool Number::operator>=(const Number num2)
+{
+    int result = mpfr_cmp(value,num2.value);
+    if(result > 0 || result == 0)
+    {
+        return true;
+    }
+    return false;
+}
+bool Number::operator<=(const Number num2)
+{
+    int result = mpfr_cmp(value,num2.value);
+    if(result < 0 || result == 0)
+    {
+        return true;
+    }
+    return false;
+}
+bool Number::operator==(const Number num2)
+{
+    int result = mpfr_cmp(value,num2.value);
+    if(result == 0)
+    {
+        return true;
+    }
+    return false;
+}
+bool Number::operator==(const double _num2)
+{
+    Number num2(_num2);
+    int result = mpfr_cmp(value,num2.value);
+    if(result == 0)
+    {
+        return true;
+    }
+    return false;
 }
 
 

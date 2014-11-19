@@ -20,9 +20,21 @@ namespace std_functions
     Number sin(Number a);
     Number cos(Number a);
     Number tan(Number a);
+    Number sec(Number a);
+    Number csc(Number a);
+    Number cot(Number a);
     Number asin(Number a);
     Number acos(Number a);
     Number atan(Number a);
+    Number sinh(Number a);
+    Number cosh(Number a);
+    Number tanh(Number a);
+    Number sech(Number a);
+    Number csch(Number a);
+    Number coth(Number a);
+    Number asinh(Number a);
+    Number acosh(Number a);
+    Number atanh(Number a);
     Number atan2(Number a, Number b);
 }
 

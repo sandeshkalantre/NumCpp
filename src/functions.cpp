@@ -86,6 +86,24 @@ namespace std_functions
         mpfr_tan(result.value,a.value,MPFR_RNDN);
         return result;
     }
+    Number sec(Number a)
+    {
+        Number result;
+        mpfr_sec(result.value,a.value,MPFR_RNDN);
+        return result;
+    }
+    Number csc(Number a)
+    {
+        Number result;
+        mpfr_csc(result.value,a.value,MPFR_RNDN);
+        return result;
+    }
+    Number cot(Number a)
+    {
+        Number result;
+        mpfr_cot(result.value,a.value,MPFR_RNDN);
+        return result;
+    }
     Number asin(Number a)
     {
         Number result;
@@ -102,6 +120,60 @@ namespace std_functions
     {
         Number result;
         mpfr_atan(result.value,a.value,MPFR_RNDN);
+        return result;
+    }
+    Number sinh(Number a)
+    {
+        Number result;
+        mpfr_sinh(result.value,a.value,MPFR_RNDN);
+        return result;
+    }
+    Number cosh(Number a)
+    {
+        Number result;
+        mpfr_cosh(result.value,a.value,MPFR_RNDN);
+        return result;
+    }
+    Number tanh(Number a)
+    {
+        Number result;
+        mpfr_tanh(result.value,a.value,MPFR_RNDN);
+        return result;
+    }
+    Number sech(Number a)
+    {
+        Number result;
+        mpfr_sech(result.value,a.value,MPFR_RNDN);
+        return result;
+    }
+    Number csch(Number a)
+    {
+        Number result;
+        mpfr_csch(result.value,a.value,MPFR_RNDN);
+        return result;
+    }
+    Number coth(Number a)
+    {
+        Number result;
+        mpfr_coth(result.value,a.value,MPFR_RNDN);
+        return result;
+    }
+    Number asinh(Number a)
+    {
+        Number result;
+        mpfr_asinh(result.value,a.value,MPFR_RNDN);
+        return result;
+    }
+    Number acosh(Number a)
+    {
+        Number result;
+        mpfr_acosh(result.value,a.value,MPFR_RNDN);
+        return result;
+    }
+    Number atanh(Number a)
+    {
+        Number result;
+        mpfr_atanh(result.value,a.value,MPFR_RNDN);
         return result;
     }
     Number atan2(Number a, Number b)
@@ -188,6 +260,24 @@ void def_functions()
     TAN.standard = true;
     map_functions[TAN.function_name] = TAN;
 
+    Function SEC;
+    SEC.function_name = "sec";
+    SEC.num_arguments = 1;
+    SEC.standard = true;
+    map_functions[SEC.function_name] = SEC;
+
+    Function CSC;
+    CSC.function_name = "csc";
+    CSC.num_arguments = 1;
+    CSC.standard = true;
+    map_functions[CSC.function_name] = CSC;
+
+    Function COT;
+    COT.function_name = "cot";
+    COT.num_arguments = 1;
+    COT.standard = true;
+    map_functions[COT.function_name] = COT;
+
     Function ASIN;
     ASIN.function_name = "asin";
     ASIN.num_arguments = 1;
@@ -206,11 +296,67 @@ void def_functions()
     ATAN.standard = true;
     map_functions[ATAN.function_name] = ATAN;
 
+    Function SINH;
+    SINH.function_name = "sinh";
+    SINH.num_arguments = 1;
+    SINH.standard = true;
+    map_functions[SINH.function_name] = SINH;
+
+    Function COSH;
+    COSH.function_name = "cosh";
+    COSH.num_arguments = 1;
+    COSH.standard = true;
+    map_functions[COSH.function_name] = COSH;
+
+    Function TANH;
+    TANH.function_name = "tanh";
+    TANH.num_arguments = 1;
+    TANH.standard = true;
+    map_functions[TANH.function_name] = TANH;
+
+    Function SECH;
+    SECH.function_name = "sech";
+    SECH.num_arguments = 1;
+    SECH.standard = true;
+    map_functions[SECH.function_name] = SECH;
+
+    Function CSCH;
+    CSCH.function_name = "csch";
+    CSCH.num_arguments = 1;
+    CSCH.standard = true;
+    map_functions[CSCH.function_name] = CSCH;
+
+    Function COTH;
+    COTH.function_name = "coth";
+    COTH.num_arguments = 1;
+    COTH.standard = true;
+    map_functions[COTH.function_name] = COTH;
+
+    Function ASINH;
+    ASINH.function_name = "asinh";
+    ASINH.num_arguments = 1;
+    ASINH.standard = true;
+    map_functions[ASINH.function_name] = ASINH;
+
+    Function ACOSH;
+    ACOSH.function_name = "acosh";
+    ACOSH.num_arguments = 1;
+    ACOSH.standard = true;
+    map_functions[ACOSH.function_name] = ACOSH;
+
+    Function ATANH;
+    ATANH.function_name = "atanh";
+    ATANH.num_arguments = 1;
+    ATANH.standard = true;
+    map_functions[ATANH.function_name] = ATANH;
+
     Function ATAN2;
     ATAN2.function_name = "atan2";
     ATAN2.num_arguments = 2;
     ATAN2.standard = true;
     map_functions[ATAN2.function_name] = ATAN2;
+
+
 
     return;
 }
