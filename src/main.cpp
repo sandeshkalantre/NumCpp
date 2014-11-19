@@ -1,7 +1,10 @@
 #include <iostream>
 #include <cstdio>
+#include <iomanip>
 #include "parser.hpp"
 using namespace std;
+
+#define DEFAULT_PRECISION 1000000
 
 //definitions of the maps
 std::map<std::string, Function> map_functions;
@@ -9,8 +12,20 @@ std::map<std::string, Number> map_variables;
 std::map<std::string, Routine> map_routines;
 std::map<std::string, ndArray> map_ndarrays;
 
-int main()
+int main(int argc,char** argv)
 {
+    //default precision for the program
+    mpfr_set_default_prec(DEFAULT_PRECISION);
+    //command line arguments to the progran
+    for(int i = 1; i < argc;i++)
+    {
+        if(argv[i][0] == '-' && argv[i][1] == 'p')
+        {
+            mpfr_set_default_prec(std::atoi(argv[i]));
+            i+=2;
+        }
+    }
+
     //initialize the maps with standard data
     def_functions();
     def_variables();

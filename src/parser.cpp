@@ -4,6 +4,7 @@
 #include "misc.h"
 #include "errors.h"
 #include "mpfr.h"
+#include <gmp.h>
 
 //the global bools which are used when parsing fails
 bool suppress_zero = false;

@@ -6,6 +6,7 @@
 #include "routines.h"
 #include "variables.h"
 #include "mpfr.h"
+#include <gmp.h>
 #include <cmath>
 #include <string>
 #include <queue>

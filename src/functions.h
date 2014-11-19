@@ -1,6 +1,7 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
+
 class Number;
 //defines the standard functions and loads them in map_functions
 void def_functions();

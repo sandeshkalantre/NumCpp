@@ -41,12 +41,13 @@
 	<cstdio>
 	"parser.hpp"
 
-1416393629 /home/sandesh/NumCpp/src/parser.hpp
+1416396975 /home/sandesh/NumCpp/src/parser.hpp
 	"misc.h"
 	"functions.h"
 	"routines.h"
 	"variables.h"
 	"mpfr.h"
+	<gmp.h>
 	<cmath>
 	<string>
 	<queue>
@@ -64,7 +65,7 @@
 	"parser.hpp"
 	<string>
 
-1416381826 /home/sandesh/NumCpp/src/functions.h
+1416396986 /home/sandesh/NumCpp/src/functions.h
 
 1416130323 source:/home/sandesh/NumCpp/src/misc.cpp
 	"misc.h"
@@ -72,17 +73,18 @@
 1416382382 source:/home/sandesh/NumCpp/src/variables.cpp
 	"parser.hpp"
 
-1416381942 source:/home/sandesh/NumCpp/src/functions.cpp
+1416397110 source:/home/sandesh/NumCpp/src/functions.cpp
 	"functions.h"
 	"parser.hpp"
 
-1416393471 source:/home/sandesh/NumCpp/src/parser.cpp
+1416395482 source:/home/sandesh/NumCpp/src/parser.cpp
 	"parser.hpp"
 	"functions.h"
 	"routines.h"
 	"misc.h"
 	"errors.h"
 	"mpfr.h"
+	<gmp.h>
 
 1413902166 source:/users/cs101/140260012/NumCpp/src/functions.cpp
 	"functions.h"
