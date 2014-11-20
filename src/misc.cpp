@@ -177,3 +177,16 @@ bool is_help(const std::string token)
         return false;
     }
 }
+
+//checks whether the token is the keyword fft
+bool is_fft(const std::string token)
+{
+    if(token.compare("fft") == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}

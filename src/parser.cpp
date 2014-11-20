@@ -6,8 +6,8 @@
 #include "mpfr.h"
 #include <gmp.h>
 
-
-
+Number::constants_help = "";
+Function::functions_help = "";
 
 
 
@@ -289,6 +289,13 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
             return it_expr;
         }
 
+        //checks whether the token is the keyword fft
+        if(is_fft(token))
+        {
+            token_type = FFT;
+            return it_expr;
+        }
+
         //check whether this is a variable or a function
         //function has a left parentheses
 
@@ -438,6 +445,7 @@ void Parser::parse(std::string expr)
             return;
         }
 
+        //define an ndArray
         if(token.token_type == Token::NDARRAY)
         {
             //will store the ndarray in map_ndarrays
@@ -574,7 +582,15 @@ void Parser::parse(std::string expr)
             }
 
             //the array is defined element-wise
-            array.array_def_parse(expr,it_expr);
+            try
+            {
+                array.array_def_parse(expr,it_expr);
+            }
+            catch(const char *str)
+            {
+                std::cout<<"Parsing Error : "<<IMPROPER_EXPRESSION<<std::endl;
+                return;
+            }
             //store the array in the map
             map_ndarrays[array.array_name] = array;
             return;
@@ -704,10 +720,28 @@ void Parser::parse(std::string expr)
 
     }
 
+
     //help token
     if(token.token_type == Token::HELP)
     {
         math_parse(expr,it_expr);
+        if(suppress_eval)
+        {
+            return;
+        }
+        //list of functions
+        if(expr_rpn.front().token.compare("functions") == 0)
+        {
+            help(Function::functions_help);
+            return;
+        }
+        //list of constants
+        if(expr_rpn.front().token.compare("constants") == 0)
+        {
+            help(Function::constants_help);
+            return;
+        }
+        //help for routines
         while(!expr_rpn.empty())
         {
             if(expr_rpn.front().token_type != Token::ROUTINE)
@@ -715,11 +749,39 @@ void Parser::parse(std::string expr)
                 std::cout<<expr_rpn.front().token<<" : "<<NOT_A_ROUTINE<<std::endl;
                 return;
             }
-            map_routines[expr_rpn.front().token].help();
+            help(map_routines[expr_rpn.front().token].routine_help);
             expr_rpn.pop();
         }
+
+
         return;
 
+    }
+
+    if(token.token_type == Token::FFT)
+    {
+        math_parse(expr,it_expr);
+        //the token must be an ndArray of dim 2 and size n*2
+        if(expr_rpn.front().token_type == NDARRAY)
+        {
+            try
+            {
+                Complex_array c_array(map_ndarrays[expr_rpn.front().token]);
+                Complex array c_array_fft(map_ndarrays[expr_rpn.front().token].dim_size[1]);
+                c_array.FFT(c_array_fft);
+                ndArray temp_array(c_array_fft);
+                temp_array.array_name = "_";
+                map_ndarrays[temp_array.array_name] = temp_array;
+                map_ndarrays[temp_array.array_name].show();
+                return;
+
+            }
+            catch(const char *str)
+            {
+                cout<<"DIMENSION MISMATCH : "<<str<<std::endl;
+                return;
+            }
+        }
     }
 
 
@@ -737,13 +799,19 @@ void Parser::parse(std::string expr)
     }
     std::cout<<std::endl;
     */
-    Number result;
-    result = eval_rpn(expr_rpn);
-    map_variables["_"] = result;
+    try
+    {
+        Number result;
+        result = eval_rpn(expr_rpn);
+        map_variables["_"] = result;
 
-    if(!suppress_zero)
-    mpfr_printf("%.15Rf \n",result.value);
-
+        if(!suppress_zero)
+        mpfr_printf("%.15Rf \n",result.value);
+    }
+    catch(const char *str)
+    {
+        std::cout<<"Expression Error : "<<str<<std::endl;
+    }
 
     return;
 
@@ -936,10 +1004,11 @@ Number Parser::eval_rpn(std::queue<Token> expr_rpn)
     std::stack<Number> number_stack;
     //this is used as argument to routines
     std::string routine_function_name;
+    //auxillary arguments to a routine
+    std::vector<std::string> routine_aux_arguments;
 
     while(!expr_rpn.empty())
     {
-        //std::cout<<"here am i"<<std::endl;
         if(expr_rpn.front().token_type == Token::NUMBER)
         {
             Number result;
@@ -997,15 +1066,16 @@ Number Parser::eval_rpn(std::queue<Token> expr_rpn)
         {
             if(expr_rpn.front().operator_id != Token::FACTORIAL && expr_rpn.front().operator_id != Token::UNARY_MINUS)
             {
-                //WRITE SOME ERROR HANDLING TO CHECK THAT THERE ATLEAST TWO ELEMENTS ON THE STACK
+                if(number_stack.size() < 2)
+                {
+                    throw INVALID_EXPRESSION;
+                }
                 //store the top two elements as components of a vector
                 std::vector<Number>top_two (2);
 
                 top_two[1] = number_stack.top();
-                //std::cout<<number_stack.top();
                 number_stack.pop();
                 top_two[0] = number_stack.top();
-                //std::cout<<number_stack.top();
                 number_stack.pop();
 
                 if(expr_rpn.front().operator_id == Token::PLUS)
@@ -1056,6 +1126,10 @@ Number Parser::eval_rpn(std::queue<Token> expr_rpn)
             //unary operators
             else
             {
+                if(number_stack.size() < 1)
+                {
+                    throw INVALID_EXPRESSION;
+                }
                 std::vector<Number> top (1);
                 top[0] = number_stack.top();
                 number_stack.pop();
@@ -1089,12 +1163,22 @@ Number Parser::eval_rpn(std::queue<Token> expr_rpn)
 			std::queue<Token> temp_expr_rpn;
 			temp_expr_rpn = expr_rpn;
 
-			temp_expr_rpn.pop();
+			while(temp_expr_rpn.front().token_type == Token::FUNCTION)
+			{
+                routine_aux_arguments.push_back(temp_expr_rpn.front().token);
+                temp_expr_rpn.pop();
+            }
 			if(temp_expr_rpn.front().token_type == Token::ROUTINE)
 			{
-				routine_function_name = expr_rpn.front().token;
-				expr_rpn.pop();
+                //the last argument is the function name
+				routine_function_name = routine_aux_arguments.back();
+				routine_aux_arguments.pop_back();
+				expr_rpn = temp_expr_rpn;
 				continue;
+			}
+			else
+			{
+                routine_aux_arguments.clear();
 			}
 
 
@@ -1102,6 +1186,10 @@ Number Parser::eval_rpn(std::queue<Token> expr_rpn)
             std::vector<Number> arguments;
 
             //WRITE ERROR HANDLING IF THERE ARE NOT ENOUGH ARGUMENTS ON THE number_stack
+            if((int)number_stack.size() < map_functions[expr_rpn.front().token].num_arguments)
+            {
+                throw INVALID_EXPRESSION;
+            }
             for(int i = 0; i < map_functions[expr_rpn.front().token].num_arguments; i++)
             {
                 arguments.push_back(number_stack.top());
@@ -1109,7 +1197,6 @@ Number Parser::eval_rpn(std::queue<Token> expr_rpn)
             }
             //the arguments have to be reversed as they are stored in rpn in reverse order
             std::reverse(arguments.begin(),arguments.end());
-            //if(arguments.empty()){std::cout<<"arg";}
 
             number_stack.push(map_functions[expr_rpn.front().token].evaluate(arguments));
 
@@ -1121,6 +1208,10 @@ Number Parser::eval_rpn(std::queue<Token> expr_rpn)
         if(expr_rpn.front().token_type == Token::ROUTINE)
         {
 			std::vector<Number> arguments;
+			if((int)number_stack.size() < map_routines[expr_rpn.front().token].num_arguments)
+			{
+                throw INVALID_EXPRESSION;
+			}
             for(int i = 0; i < map_routines[expr_rpn.front().token].num_arguments; i++)
             {
 				arguments.push_back(number_stack.top());
@@ -1129,7 +1220,7 @@ Number Parser::eval_rpn(std::queue<Token> expr_rpn)
             //the arguments have to be reversed as they are stored in rpn in reverse order
             std::reverse(arguments.begin(),arguments.end());
 
-            number_stack.push(map_routines[expr_rpn.front().token].evaluate(routine_function_name,arguments));
+            number_stack.push(map_routines[expr_rpn.front().token].evaluate(routine_function_name,arguments,routine_aux_arguments));
             expr_rpn.pop();
             continue;
 
@@ -1147,8 +1238,9 @@ Number Parser::eval_rpn(std::queue<Token> expr_rpn)
     }
     else
     {
-        std::cout<<INVALID_EXPRESSION<<std::endl;
+        //std::cout<<INVALID_EXPRESSION<<std::endl;
         suppress_zero = true;
+        throw INVALID_EXPRESSION;
     }
     //return 0 by default
     return Number(0.0);
@@ -1161,10 +1253,12 @@ std::stack<Number> Parser::eval_rpn_num_stack(std::queue<Token> expr_rpn)
     std::stack<Number> number_stack;
     //this is used as argument to routines
     std::string routine_function_name;
+    //auxillary arguments to a routine
+    std::vector<std::string> routine_aux_arguments;
+
 
     while(!expr_rpn.empty())
     {
-        //std::cout<<"here am i"<<std::endl;
         if(expr_rpn.front().token_type == Token::NUMBER)
         {
             Number result;
@@ -1188,13 +1282,11 @@ std::stack<Number> Parser::eval_rpn_num_stack(std::queue<Token> expr_rpn)
             if(slice.empty())
             {
                 map_ndarrays[expr_rpn.front().token].show();
-                //return SUPPRESS_ZERO;
             }
             else
             {
                 map_ndarrays[expr_rpn.front().token].show_slice(slice);
                 expr_rpn.pop();
-                //return SUPPRESS_ZERO;
             }
             continue;
         }
@@ -1205,6 +1297,11 @@ std::stack<Number> Parser::eval_rpn_num_stack(std::queue<Token> expr_rpn)
             if(expr_rpn.front().operator_id != Token::FACTORIAL && expr_rpn.front().operator_id != Token::UNARY_MINUS)
             {
                 //WRITE SOME ERROR HANDLING TO CHECK THAT THERE ATLEAST TWO ELEMENTS ON THE STACK
+                if(number_stack.size() < 2)
+                {
+                    throw INVALID_EXPRESSION;
+                }
+
                 //store the top two elements as components of a vector
                 std::vector<Number>top_two (2);
 
@@ -1263,6 +1360,10 @@ std::stack<Number> Parser::eval_rpn_num_stack(std::queue<Token> expr_rpn)
             //unary operators
             else
             {
+                if(number_stack.size() < 1)
+                {
+                    throw INVALID_EXPRESSION;
+                }
                 std::vector<Number> top (1);
                 top[0] = number_stack.top();
                 number_stack.pop();
@@ -1290,13 +1391,23 @@ std::stack<Number> Parser::eval_rpn_num_stack(std::queue<Token> expr_rpn)
 
 			std::queue<Token> temp_expr_rpn;
 			temp_expr_rpn = expr_rpn;
-
-			temp_expr_rpn.pop();
+            while(temp_expr_rpn.front().token_type == Token::FUNCTION)
+			{
+                routine_aux_arguments.push_back(temp_expr_rpn.front().token);
+                temp_expr_rpn.pop();
+            }
 			if(temp_expr_rpn.front().token_type == Token::ROUTINE)
 			{
-				routine_function_name = expr_rpn.front().token;
-				expr_rpn.pop();
+                //the last argument is the function name
+				routine_function_name = routine_aux_arguments.back();
+				routine_aux_arguments.pop_back();
+				expr_rpn = temp_expr_rpn;
 				continue;
+			}
+			else
+			{
+                //temp_expr_rpn.clear();
+                routine_aux_arguments.clear();
 			}
 
 
@@ -1304,6 +1415,11 @@ std::stack<Number> Parser::eval_rpn_num_stack(std::queue<Token> expr_rpn)
             std::vector<Number> arguments;
 
             //WRITE ERROR HANDLING IF THERE ARE NOT ENOUGH ARGUMENTS ON THE number_stack
+            if((int)number_stack.size() < map_functions[expr_rpn.front().token].num_arguments)
+            {
+                throw INVALID_EXPRESSION;
+            }
+
             for(int i = 0; i < map_functions[expr_rpn.front().token].num_arguments; i++)
             {
                 arguments.push_back(number_stack.top());
@@ -1323,6 +1439,10 @@ std::stack<Number> Parser::eval_rpn_num_stack(std::queue<Token> expr_rpn)
         if(expr_rpn.front().token_type == Token::ROUTINE)
         {
 			std::vector<Number> arguments;
+			if((int)number_stack.size() < map_routines[expr_rpn.front().token].num_arguments)
+			{
+                throw INVALID_EXPRESSION;
+			}
             for(int i = 0; i < map_routines[expr_rpn.front().token].num_arguments; i++)
             {
 				arguments.push_back(number_stack.top());
@@ -1331,7 +1451,7 @@ std::stack<Number> Parser::eval_rpn_num_stack(std::queue<Token> expr_rpn)
             //the arguments have to be reversed as they are stored in rpn in reverse order
             std::reverse(arguments.begin(),arguments.end());
 
-            number_stack.push(map_routines[expr_rpn.front().token].evaluate(routine_function_name,arguments));
+            number_stack.push(map_routines[expr_rpn.front().token].evaluate(routine_function_name,arguments,routine_aux_arguments));
             expr_rpn.pop();
             continue;
 
@@ -1379,11 +1499,26 @@ std::queue<int> Parser::slice_parse(ndArray array,std::string expr,std::string::
             previous_token = token;
             continue;
         }
+        if(token.token_type == Token::OPERATOR && token.operator_id == Token::UNARY_MINUS)
+        {
+            previous_token = token;
+            continue;
+        }
 
         if(token.token_type == Token::NUMBER)
         {
-            slice.push(atof(token.token.c_str()));
-
+            int num =  atoi(token.token.c_str());
+            if(previous_token.token_type == Token::OPERATOR)
+            {
+                num *= -1;
+            }
+            //std::cout<<num<<std::endl;
+            //std::cout<<array.dim_size[current_dim + 1]<<std::endl;
+            if(num < 0 && num > (-1*array.dim_size[current_dim + 1]))
+            {
+                num += array.dim_size[current_dim + 1];
+            }
+            slice.push(num);
             previous_token = token;
             continue;
         }
@@ -1779,7 +1914,7 @@ Number Function::evaluate(std::vector<Number> d_arguments)
     return Number(0.0);
 }
 
-Number Routine::evaluate(std::string function_name,std::vector<Number> arguments)
+Number Routine::evaluate(std::string function_name,std::vector<Number> arguments,std::vector<std::string> aux_arguments)
 {
     if(routine_name.compare("integrate") == 0)
 	{
@@ -1789,7 +1924,6 @@ Number Routine::evaluate(std::string function_name,std::vector<Number> arguments
 	{
 		return routines::integrate1(function_name,arguments[0],arguments[1]);
 	}
-
 	if(routine_name.compare("integrate.r_t") == 0)
 	{
 		return routines::integrate2(function_name,arguments[0],arguments[1]);
@@ -1798,20 +1932,22 @@ Number Routine::evaluate(std::string function_name,std::vector<Number> arguments
 	{
 		return routines::integrate3(function_name,arguments[0],arguments[1]);
 	}
-
-
+	if(routine_name.compare("integrate2d.rect") == 0)
+	{
+        return routines::integrate_rect(function_name,arguments[0],arguments[1],arguments[2],arguments[3]);
+	}
+    if(routine_name.compare("integrate2d.type1") == 0)
+    {
+        return routines::integrate2d(function_name,arguments[0],arguments[1],aux_arguments);
+    }
 	if(routine_name.compare("differentiate") == 0)
 	{
 		return routines::differentiate(function_name,arguments[0]);
 	}
-
-
 	if(routine_name.compare("solve.n") == 0)
 	{
 		return routines::newton(function_name,arguments[0]);
 	}
-
-
 	if(routine_name.compare("solve.b") == 0)
 	{
 		return routines::bisection(function_name,arguments[0],arguments[1]);
@@ -1820,17 +1956,27 @@ Number Routine::evaluate(std::string function_name,std::vector<Number> arguments
 	return Number(0.0);
 }
 
-void Routine::help()
-{
-    std::cout<<routine_help<<std::endl;
-    return;
-}
-
 //IMPLEMENTATION OF THE CLASS NDARRAY
 ndArray::ndArray()
 {
     dim = 0;
 
+}
+
+ndArray::ndArray(Complex_array c_array)
+{
+    dim = 2;
+    dim_size[0] = c_array.size();
+    dim_size[1] = 2;
+    std::vector<int> index(2);
+    for(int i = 0;i < dim_size[0];i++)
+    {
+        index[0] = i;
+        index[1] = 0;
+        store_value(index,c_array[i].real());
+        index[1] = 1;
+        store_value(index,c_array[i].img());
+    }
 }
 
 void ndArray::store_value(std::vector<int> inp_index,Number value)
@@ -1849,6 +1995,11 @@ void ndArray::show_slice(std::queue<int> slice)
 {
     std::vector<int> start_index  (dim,0);
     std::vector<int> end_index  (dim,0);
+
+    if(!lexicographical_compare(start_index.begin(),start_index.end(),end_index.begin(),end_index.end()))
+    {
+        start_index.swap(end_index);
+    }
     if((int)slice.size() == dim)
     {
         int current_dim = -1;
@@ -1873,6 +2024,19 @@ void ndArray::show_slice(std::queue<int> slice)
             slice.pop();
 
         }
+        //is the slice is reversed
+        if(!lexicographical_compare(start_index.begin(),start_index.end(),end_index.begin(),end_index.end()))
+        {
+            for(std::map<std::vector<int>,Number>::iterator it_array = array.find(start_index);
+            it_array != array.find(end_index);
+            it_array--)
+            {
+                mpfr_printf("%Rf \n",return_value(it_array -> first).value);
+
+            }
+            return;
+        }
+
         for(std::map<std::vector<int>,Number>::iterator it_array = array.find(start_index);
             it_array != array.find(end_index);
             it_array++)
@@ -1992,8 +2156,9 @@ void ndArray::array_def_parse(std::string expr,std::string::iterator it_expr)
             index[current_dim]++;
             continue;
         }
-        if(token.token_type == Token::UNKNOWN)
+        else
         {
+            throw IMPROPER_EXPRESSION;
             return;
         }
 
@@ -2315,5 +2480,29 @@ bool Number::operator==(const double _num2)
         return true;
     }
     return false;
+}
+
+void help(std::string filename)
+{
+    char c;
+    FILE* fp;
+    fp = fopen(filename,"r")
+    try
+    {
+        if(fp == NULL)
+        {
+            throw FILE_OPEN_FAILED;
+        }
+        unsigned long pos = ftellg();
+        while((c = getc(fp)) != EOF)
+        {
+            putchar(c);
+        }
+        fclose(fp);
+    }
+    catch(const char* c)
+    {
+        std::cout<<"File Error : "<<str<<std::endl;
+    }
 }
 

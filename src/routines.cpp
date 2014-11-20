@@ -123,6 +123,91 @@ namespace routines
         return integral;
     }
 
+    Number integrate_rect(std::string function_name, Number a, Number b, Number c, Number d)
+    {
+        Number sign(1); Number temp;
+        if(b<a)
+        {
+            temp = a;
+            a = b;
+            b = temp;
+            sign=sign*Number(-1);
+        }
+        if(d<c)
+        {
+            temp = c;
+            c = d;
+            d = temp;
+            sign=sign*Number(-1);
+        }
+        Number h1 ((b-a)/Number(100));
+        Number h2 ((d-c)/Number(100));
+        Number x(a + h1/Number(2));
+        Number integral(0.0);
+        std::vector<Number> arguments(2);
+        while(x<b)
+        {
+            arguments[0]=x;
+            Number y(c+ h2/Number(2));
+            while (y<d)
+            {
+                arguments[1] = y;
+                integral += map_functions[function_name].evaluate(arguments);
+                y += h2;
+            }
+            x += h1;
+        }
+        integral*=(sign*h1*h2);
+        return integral;
+    }
+    Number integrate2d(std::string function_name, Number a, Number b,std::vector<std::string> aux_arguments)
+    {
+        std::string function_name_1 = aux_arguments[0];
+        std::string function_name_2 = aux_arguments[1];
+        Number sign(1); Number temp;
+        if(b<a)
+        {
+            temp = a;
+            a = b;
+            b = temp;
+            sign=sign*Number(-1);
+        }
+        Number h1 ((b-a)/Number(100));
+        Number x(a + h1/Number(2));
+        Number integral(0.0);
+        Number h2, y;
+        Number sign1(1);
+        Number c,d;
+        std::vector<Number> limits(1);
+        std::vector<Number> arguments(2);
+        while(x<b)
+        {
+            arguments[0] = x;
+            limits[0] = x;
+            c = map_functions[function_name_1].evaluate(limits);
+            d = map_functions[function_name_2].evaluate(limits);
+            if(d<c)
+            {
+                temp = c;
+                c = d;
+                d = temp;
+                sign1 = sign1*Number(-1);
+            }
+            h2 = (d-c)/Number(100);
+            y = c+ h2/Number(2);
+            while (y<d)
+            {
+                arguments[1] = y;
+                integral += (h2*sign1*map_functions[function_name].evaluate(arguments));
+                y += h2;
+            }
+            x += h1;
+
+        }
+        integral*=(sign*h1);
+        return integral;
+    }
+
     Number differentiate(std::string function_name, Number a)
 
     {
@@ -282,6 +367,17 @@ void def_routines()
     "for more.\n";
     map_routines[INTEGRATE3.routine_name] = INTEGRATE3;
 
+    Routine INTEGRATE_RECT;
+    INTEGRATE_RECT.routine_name = "integrate2d.rect";
+    INTEGRATE_RECT.num_arguments = 4;
+    INTEGRATE3.routine_help = "Integrating a function with 2 parameters over a rectangle";
+    map_routines[INTEGRATE_RECT.routine_name] = INTEGRATE_RECT;
+
+    Routine INTEGRATE_2D;
+    INTEGRATE_2D.routine_name = "integrate2d.type1";
+    INTEGRATE_2D.num_arguments = 2;
+    INTEGRATE_2D.routine_help = "Integrates a function with 2 parameters from x=a to x=b and from y=f1(x) to y=f2(x)";
+    map_routines[INTEGRATE_2D.routine_name] = INTEGRATE_2D;
 
     Routine DIFFERENTIATE;
     DIFFERENTIATE.routine_name = "differentiate";
@@ -323,4 +419,15 @@ void def_routines()
     map_routines[BISECTION.routine_name] = BISECTION;
 
     return;
+}
+
+void def_ndarrays()
+{
+    ndArray array_test;
+    array_test.array_name = "YOLO";
+    array_test.dim = 1;
+    map_ndarrays[array_test.array_name] = array_test;
+
+    return;
+
 }

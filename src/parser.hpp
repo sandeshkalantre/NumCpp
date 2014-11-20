@@ -10,6 +10,7 @@ as well as the data structure classes Number and ndArray
 #include "functions.h"
 #include "routines.h"
 #include "variables.h"
+#include "complex.h"
 #include "mpfr.h"
 #include <cmath>
 #include <gmp.h>
@@ -37,6 +38,7 @@ class Function;
 class Routine;
 class Number;
 class ndArray;
+class Complex_array;
 
 //the extern maps which will store our variables and functions and routines
 extern std::map<std::string, Function> map_functions;
@@ -94,6 +96,8 @@ class Token
             EVALUATE,
             //help keyword
             HELP,
+            //fft keyword
+            FFT,
             UNKNOWN
         };
 
@@ -235,7 +239,7 @@ class Function
     public:
         //the constructor for the class Functions
         Function();
-    public:
+
         //stores the rpn in function_rpn given the rpn as the argument
         void store_rpn(std::queue<Token> rpn);
 
@@ -246,6 +250,9 @@ class Function
         //this function is called by evaluate if the function being evaluated is
         //a standard function as stored in bool standard
         Number std_evaluate(std::vector<Number> d_arguments);
+
+        //help for functions
+        static std::string functions_help;
 };
 
 class Routine
@@ -261,8 +268,8 @@ class Routine
 
     public:
         //evaluates the routine given the function name and the vector of arguments
-        Number evaluate(std::string function_name, std::vector<Number> arguments);
-        void help();
+        //aux arguments
+        Number evaluate(std::string function_name, std::vector<Number> arguments,std::vector<std::string> aux_arguments);
 };
 
 class Number
@@ -273,11 +280,13 @@ class Number
     cppdouble value;
 
     public:
+    //constructors for initialization
     Number();
     Number(cppdouble _value);
     Number(double _value);
     Number(int _value);
 
+    //overloaded operators for the Number
     Number operator+(const Number num2);
     Number operator-(const Number num2);
     Number operator*(const Number num2);
@@ -298,12 +307,23 @@ class Number
     bool operator<=(const Number num2);
     bool operator==(const Number num2);
     bool operator==(const double num2);
+
+    //help for the constants stored in map_variables
+    static std::string constants_help;
 };
 
 class ndArray
 {
+    private:
+        //the vector stored as a map with the key as the index of the element
+        //store in a vector
+        std::map<std::vector<int>,Number> array;
+
     public:
+        //constructors
         ndArray();
+
+        ndArray(const Complex_array c_array);
 
         //name of the array
         std::string array_name;
@@ -313,10 +333,6 @@ class ndArray
 
         //vector of the size of dimensions
         std::vector<int> dim_size;
-
-        //the vector stored as a map with the key as the index of the element
-        //store in a vector
-        std::map<std::vector<int>,Number> array;
 
         //store value at the given index
         void store_value(std::vector<int> index,Number value);
@@ -348,4 +364,6 @@ class ndArray
         void evaluate(std::string function_name,std::string output_array_name);
 };
 
+//prints the help present in filename
+void help(std::string filename)
 #endif

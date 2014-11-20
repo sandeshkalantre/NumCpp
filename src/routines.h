@@ -8,6 +8,7 @@ See routines.cpp for their implementation
 
 #include "parser.hpp"
 #include <string>
+#include <vector>
 #include <iostream>
 #include <cstdlib>
 #include <time.h>
@@ -25,6 +26,8 @@ namespace routines
     Number newton(std::string function_name, Number a);
     Number bisection(std::string function_name, Number a, Number b);
     Number differentiate(std::string function_name, Number a);
+    Number integrate_rect(std::string function_name,Number a,Number b,Number c,Number d);
+    Number integrate2d(std::string function_name,Number a,Number b,std::vector<std::string> aux_arguments);
 }
 
 #endif

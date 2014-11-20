@@ -14,10 +14,12 @@ To make changes in the error messages the string must be changed here
 #define FILE_OPEN_FAILED "The program failed to open the file.Do you have write permission in the current directory"
 #define ARRAY_NOT_DEFINED "Array has not been defined"
 #define VARIABLE_NOT_DEFINED "Variable has not been defined."
+#define IMPROPER_EXPRESSION "The expression could not be parsed."
 #define INVALID_EXPRESSION "Too many/too few values were present on the number stack while evaluation"
 #define NOT_A_ROUTINE "Routine has not been defined in the program"
 #define DIVISION_BY_ZERO "Division by zero."
 #define NEGATIVE_FACTORIAL "Factorial of a neagtive number is not defined.\nUse gamma(number) for the gamma function."
 #define WRONG_PRECISION "Precison must be between 10 and 1000000."
+#define DIM_MISMATCH "The dimensions of the input array were not proper."
 
 #endif
