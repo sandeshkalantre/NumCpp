@@ -1,7 +1,6 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
-
 class Number;
 //defines the standard functions and loads them in map_functions
 void def_functions();
@@ -37,6 +36,26 @@ namespace std_functions
     Number acosh(Number a);
     Number atanh(Number a);
     Number atan2(Number a, Number b);
+    Number log1p(Number a);
+    Number expm1(Number a);
+    Number eint(Number a);
+    Number li2(Number a);
+    Number gamma(Number a);
+    Number lngamma(Number a);
+    Number digamma(Number a);
+    Number zeta(Number a);
+    Number erf(Number a);
+    Number erfc(Number a);
+    Number j0(Number a);
+    Number j1(Number a);
+    Number jn(Number a,Number b);
+    Number y0(Number a);
+    Number y1(Number a);
+    Number yn(Number a,Number b);
+    Number agm(Number a, Number b);
+    Number hypot(Number a, Number b);
+    Number ai(Number a);
+
 }
 
 #endif

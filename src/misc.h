@@ -22,5 +22,7 @@ bool is_ones(std::string token);
 bool is_write(std::string token);
 bool is_read(std::string token);
 bool is_evaluate(std::string token);
+bool is_help(std::string token);
+
 
 #endif

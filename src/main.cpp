@@ -4,13 +4,17 @@
 #include "parser.hpp"
 using namespace std;
 
-#define DEFAULT_PRECISION 1000000
+#define DEFAULT_PRECISION 64
 
 //definitions of the maps
 std::map<std::string, Function> map_functions;
 std::map<std::string, Number> map_variables;
 std::map<std::string, Routine> map_routines;
 std::map<std::string, ndArray> map_ndarrays;
+
+//the global bools which are used when parsing fails
+bool suppress_zero = false;
+bool suppress_eval = false;
 
 int main(int argc,char** argv)
 {

@@ -182,6 +182,133 @@ namespace std_functions
         mpfr_atan2(result.value,a.value,b.value,MPFR_RNDN);
         return result;
     }
+    //log (1+x)
+    Number log1p(Number a)
+    {
+        Number result;
+        mpfr_log1p(result.value, a.value, MPFR_RNDN);
+        return result;
+    }
+    //e^x - 1
+    Number expm1(Number a)
+    {
+        Number result;
+        mpfr_expm1(result.value, a.value,MPFR_RNDN);
+        return result;
+    }
+    //exponential integral (only for +ve)
+    Number eint(Number a)
+    {
+        Number result;
+        mpfr_eint(result.value, a.value,MPFR_RNDN);
+        return result;
+    }
+    //dilogarithm
+    Number li2(Number a)
+    {
+        Number result;
+        mpfr_li2(result.value, a.value,MPFR_RNDN);
+        return result;
+    }
+    Number gamma(Number a)
+    {
+        Number result;
+        mpfr_gamma(result.value, a.value,MPFR_RNDN);
+        return result;
+    }
+    Number lngamma(Number a)
+    {
+        Number result;
+        mpfr_lngamma(result.value, a.value,MPFR_RNDN);
+        return result;
+    }
+    //Digamma function aka Psi
+    Number digamma(Number a)
+    {
+        Number result;
+        mpfr_digamma(result.value, a.value,MPFR_RNDN);
+        return result;
+    }
+    Number zeta(Number a)
+    {
+        Number result;
+        mpfr_zeta(result.value, a.value,MPFR_RNDN);
+        return result;
+    }
+    //error function
+    Number erf(Number a)
+    {
+        Number result;
+        mpfr_erf(result.value, a.value,MPFR_RNDN);
+        return result;
+    }
+    //complement of error function
+    Number erfc(Number a)
+    {
+        Number result;
+        mpfr_erfc(result.value, a.value,MPFR_RNDN);
+        return result;
+    }
+    //First kind of bessel functions for 0,1,n
+    Number j0(Number a)
+    {
+        Number result;
+        mpfr_j0(result.value, a.value,MPFR_RNDN);
+        return result;
+    }
+    Number j1(Number a)
+    {
+        Number result;
+        mpfr_j1(result.value, a.value,MPFR_RNDN);
+        return result;
+    }
+    Number jn(Number a,Number b)
+    {
+        long n = mpfr_get_si(b.value,MPFR_RNDN);
+
+        Number result;
+        mpfr_jn(result.value, n ,a.value,MPFR_RNDN);
+        return result;
+    }
+    //Second kind of bessel function for 0,1,n
+    Number y0(Number a)
+    {
+        Number result;
+        mpfr_y0(result.value, a.value,MPFR_RNDN);
+        return result;
+    }
+    Number y1(Number a)
+    {
+        Number result;
+        mpfr_y1(result.value, a.value,MPFR_RNDN);
+        return result;
+    }
+    Number yn(Number a,Number b)
+    {
+        long n = mpfr_get_si(b.value,MPFR_RNDN);
+        Number result;
+        mpfr_yn(result.value,n, a.value,MPFR_RNDN);
+        return result;
+    }
+    Number agm(Number a, Number b)
+    {
+        Number result;
+        mpfr_agm(result.value, a.value, b.value, MPFR_RNDN);
+        return result;
+    }
+    Number hypot(Number a, Number b)
+    {
+        Number result;
+        mpfr_hypot(result.value, a.value ,b.value, MPFR_RNDN);
+        return result;
+    }
+    //Airy function,
+    Number ai(Number a)
+    {
+        Number result;
+        mpfr_ai(result.value, a.value,MPFR_RNDN);
+        return result;
+    }
 }
 
 //defines the standard functions and loads them in map_function
@@ -356,10 +483,119 @@ void def_functions()
     ATAN2.standard = true;
     map_functions[ATAN2.function_name] = ATAN2;
 
+    Function LOG1P;
+    LOG1P.function_name = "log1p";
+    LOG1P.num_arguments = 1;
+    LOG1P.standard = true;
+    map_functions[LOG1P.function_name] = LOG1P;
 
+    Function EXPM1;
+    EXPM1.function_name = "expm1";
+    EXPM1.num_arguments = 1;
+    EXPM1.standard = true;
+    map_functions[EXPM1.function_name] = EXPM1;
 
+    Function EINT;
+    EINT.function_name = "eint";
+    EINT.num_arguments = 1;
+    EINT.standard = true;
+    map_functions[EINT.function_name] = EINT;
+
+    Function LI2;
+    LI2.function_name = "li2";
+    LI2.num_arguments = 1;
+    LI2.standard = true;
+    map_functions[LI2.function_name] = LI2;
+
+    Function GAMMA;
+    GAMMA.function_name = "gamma";
+    GAMMA.num_arguments = 1;
+    GAMMA.standard = true;
+    map_functions[GAMMA.function_name] = GAMMA;
+
+    Function LNGAMMA;
+    LNGAMMA.function_name = "lngamma";
+    LNGAMMA.num_arguments = 1;
+    LNGAMMA.standard = true;
+    map_functions[LNGAMMA.function_name] = LNGAMMA;
+
+    Function DIGAMMA;
+    DIGAMMA.function_name = "digamma";
+    DIGAMMA.num_arguments = 1;
+    DIGAMMA.standard = true;
+    map_functions[DIGAMMA.function_name] = DIGAMMA;
+
+    Function ZETA;
+    ZETA.function_name = "zeta";
+    ZETA.num_arguments = 1;
+    ZETA.standard = true;
+    map_functions[ZETA.function_name] = ZETA;
+
+    Function ERF;
+    ERF.function_name = "erf";
+    ERF.num_arguments = 1;
+    ERF.standard = true;
+    map_functions[ERF.function_name] = ERF;
+
+    Function ERFC;
+    ERFC.function_name = "erfc";
+    ERFC.num_arguments = 1;
+    ERFC.standard = true;
+    map_functions[ERFC.function_name] = ERFC;
+
+    Function J0;
+    J0.function_name = "j0";
+    J0.num_arguments = 1;
+    J0.standard = true;
+    map_functions[J0.function_name] = J0;
+
+    Function J1;
+    J1.function_name = "j1";
+    J1.num_arguments = 1;
+    J1.standard = true;
+    map_functions[J1.function_name] = J1;
+
+    Function JN;
+    JN.function_name = "jn";
+    JN.num_arguments = 2;
+    JN.standard = true;
+    map_functions[JN.function_name] = JN;
+
+    Function Y0;
+    Y0.function_name = "y0";
+    Y0.num_arguments = 1;
+    Y0.standard = true;
+    map_functions[Y0.function_name] = Y0;
+
+    Function Y1;
+    Y1.function_name = "y1";
+    Y1.num_arguments = 1;
+    Y1.standard = true;
+    map_functions[Y1.function_name] = Y1;
+
+    Function YN;
+    YN.function_name = "yn";
+    YN.num_arguments = 2;
+    YN.standard = true;
+    map_functions[YN.function_name] = YN;
+
+    Function AGM;
+    AGM.function_name = "agm";
+    AGM.num_arguments = 2;
+    AGM.standard = true;
+    map_functions[AGM.function_name] = AGM;
+
+    Function HYPOT;
+    HYPOT.function_name = "hypot";
+    HYPOT.num_arguments = 2;
+    HYPOT.standard = true;
+    map_functions[HYPOT.function_name] = HYPOT;
+
+    Function AI;
+    AI.function_name = "ai";
+    AI.num_arguments = 1;
+    map_functions[AI.function_name] = AI;
     return;
 }
-
 
 

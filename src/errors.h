@@ -11,5 +11,6 @@
 #define ARRAY_NOT_DEFINED "Array has not been defined"
 #define VARIABLE_NOT_DEFINED "Variable has not been defined."
 #define INVALID_EXPRESSION "Too many values were present on the number stack while evaluation"
+#define NOT_A_ROUTINE "Routine has not been defined in the program"
 
 #endif

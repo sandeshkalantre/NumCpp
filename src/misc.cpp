@@ -165,6 +165,21 @@ bool is_evaluate(std::string token)
     }
 }
 
+//checks whether the token is the keyword help
+bool is_help(std::string token)
+{
+    if(token.compare("help") == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
+
 
 
 

@@ -1,21 +1,24 @@
 #include "routines.h"
+#include "parser.hpp"
 #include <iostream>
 #include <cstdlib>
 #include <time.h>
-#include "parser.hpp"
 
 namespace routines
 {
     //Riemann integration with evaluation at midpoint of the subinterval
+
     Number integrate1(std::string function_name, Number a, Number b)
     {
         Number sign(1.0); Number temp;
+
+
         if(b<a)
         {
             temp = b;
             b = a;
             a = temp;
-            sign = -1;
+            sign = Number(-1);
         }
         //h is the width of the subinterval
         Number h((b-a)/Number(100000.0));
@@ -23,6 +26,8 @@ namespace routines
         Number x = a + h/2 ;
         Number integral(0.0);
         std::vector<Number> arguments(1);
+
+
         while(x<b)
         {
             arguments[0] = x;
@@ -33,28 +38,32 @@ namespace routines
         return integral;
     }
 
-    /*
+
     //Riemann integration with evaluation at random tags in the subinterval
     Number integrate2(std::string function_name, Number a, Number b)
     {
-        int sign = 1; double temp;
+        Number sign (1.0); Number temp;
+
+
         if(b<a)
         {
             temp = b;
             b = a;
             a = temp;
-            sign = -1;
+            sign = Number(-1);
         }
-        double h = (b-a)/10000 ;
-        double x = a;
-        double integral = 0;
-        double t;
-        std::vector<double> arguments(1);
+
+        Number h((b-a)/(Number)10000) ;
+        Number x (a);
+        Number integral(0);
+        Number t;
+        std::vector<Number> arguments(1);
         srand(time(NULL));
         while(x<b)
         {
-            // t is a double from 0 to h
-            t = h*((double)rand()/RAND_MAX);
+            // t is a Number from 0 to h
+            t = h*((Number)rand()/(Number)RAND_MAX);
+
             arguments[0] = x + t;
             integral += map_functions[function_name].evaluate(arguments);
             x += h;
@@ -62,25 +71,30 @@ namespace routines
         integral *= sign*h;
         return integral;
     }
+
+
     //Monte Carlo method
-    double integrate3(std::string function_name, double a, double b)
+    Number integrate3(std::string function_name, Number a, Number b)
     {
-        int sign = 1; double temp;
+        Number sign (1.0); Number temp;
+
         if(b<a)
         {
             temp = b;
             b = a;
             a = temp;
-            sign = -1;
+            sign = Number(-1);
         }
-        double x = a;
-        double function_value;
-        double width = (b-a)/100000;
-        double h = width;
-        std::vector<double> arguments(1);
+
+        Number x = a;
+        Number function_value;
+        Number width (b-a);
+        Number h(width/(Number(10000)));
+        std::vector<Number> arguments(1);
         arguments[0] = x;
-        double maximum = map_functions[function_name].evaluate(arguments);
-        double minimum = map_functions[function_name].evaluate(arguments);
+        Number maximum = map_functions[function_name].evaluate(arguments);
+        Number minimum = map_functions[function_name].evaluate(arguments);
+
         //finding maximum and minimum value of f in the given interval
         while(x<=b)
         {
@@ -92,51 +106,55 @@ namespace routines
                 minimum = function_value;
             x+=h;
         }
-        int i=0;
-        double y;
-        long int inside_pts = 0;
-        double height = maximum - minimum;
-        long int total_pts = (int)( 1000*width*height );
-        while(i++ < total_pts )
+
+        Number i(0);
+        Number y;
+        Number inside_pts (0);
+        Number height (maximum - minimum);
+        Number total_pts = Number(100000)*width*height;
+        while( (i+=1) < total_pts )
         {
-            x = (double)rand()/RAND_MAX;
-            y = (double)rand()/RAND_MAX;
+            x = Number(1.0*rand()/RAND_MAX);
+            y = Number(1.0*rand()/RAND_MAX);
             arguments[0] = x;
             function_value = map_functions[function_name].evaluate(arguments);
             if(function_value > y && y > 0 )
-                inside_pts++;
+                inside_pts+=1;
             else if(function_value < y && y < 0)
-                inside_pts--;
+                inside_pts-=1;
         }
-        double integral = sign*width*height*inside_pts/total_pts;
+        Number integral = sign*width*height*inside_pts/total_pts;
         return integral;
     }
 
-    double differentiate(std::string function_name, double a)
+    Number differentiate(std::string function_name, Number a)
+
     {
-        std::vector<double> arguments (1);
+        std::vector<Number> arguments (1);
         arguments[0] = a;
-	//IS THIS A GOOD VALUE?
-        double h = 0.000001;
+    	//IS THIS A GOOD VALUE?
+        Number h (0.000001);
         //evaluate the value of the function just at the given point
-        double fx= map_functions[function_name].evaluate(arguments);
+        Number fx= map_functions[function_name].evaluate(arguments);
         //evaluate the value of the function just to the right of the given point
         arguments[0] = a + h;
-        double fx1 = map_functions[function_name].evaluate(arguments);
-        double slope = (fx1 - fx )/ h;
+        Number fx1 (map_functions[function_name].evaluate(arguments));
+        Number slope ((fx1 - fx )/ h);
         return slope;
 
     }
+
+
     //Newton Raphson Method
-    double newton(std::string function_name, double x)
+    Number newton(std::string function_name, Number x)
     {
-        std::vector<double> arguments(1);
+        std::vector<Number> arguments(1);
         //x is the initial guess of the root given by the user
         arguments[0] = x;
-        double func_val = map_functions[function_name].evaluate(arguments);
+        Number func_val = map_functions[function_name].evaluate(arguments);
         //defining an approximate infinitesimal value to use as the epsilon about 0
-        double h = 0.000001;
-        double slope = differentiate(function_name,x);
+        Number h (0.000001);
+        Number slope (differentiate(function_name,x));
         while(func_val > h || func_val < -h)
         {
             //we better our approximation by finding where the tangent at x
@@ -152,16 +170,16 @@ namespace routines
         return x;
     }
     //Bisection Method
-    double bisection (std::string function_name, double a, double b)
+    Number bisection (std::string function_name, Number a, Number b)
     {
-        std::vector<double> arguments(1);
+        std::vector<Number> arguments(1);
         arguments[0] = a;
-        double func_a = map_functions[function_name].evaluate(arguments);
+        Number func_a = map_functions[function_name].evaluate(arguments);
         // if a is the root, return it
         if(func_a==0)
             return a;
         arguments[0] = b;
-        double func_b = map_functions[function_name].evaluate(arguments);
+        Number func_b (map_functions[function_name].evaluate(arguments));
         // if b is the root, return it
         if (func_b==0)
             return b;
@@ -170,13 +188,14 @@ namespace routines
         if(func_a*func_b>0)
         {
              std::cout<<"Function values of given points must be of opposite sign. Unfortunately, given points have function value of the same sign."<<std::endl;
-             return SUPPRESS_ZERO;
+             suppress_zero = true;
+             return Number(0.0);
         }
         //storing function value of midpoint of a and b
         arguments[0] = (a+b)/2;
-        double func_mp = map_functions[function_name].evaluate(arguments);
+        Number func_mp (map_functions[function_name].evaluate(arguments));
         //defining an approximate infinitesimal value to use as the epsilon about 0
-        double h = 0.000001;
+        Number h (0.000001);
         while(func_mp>h || func_mp<-h)
         {
             //std::cout<<a<<" "<<b<<std::endl;
@@ -197,7 +216,6 @@ namespace routines
         }
         return (a+b)/2;
     }
-    */
 
 }
 
@@ -231,12 +249,16 @@ void def_routines()
     map_routines[DIFFERENTIATE.routine_name] = DIFFERENTIATE;
 
     Routine NEWTON;
+
     NEWTON.routine_name = "solve.n";
+
     NEWTON.num_arguments = 1;
     map_routines[NEWTON.routine_name] = NEWTON;
 
     Routine BISECTION;
+
     BISECTION.routine_name = "solve.b";
+
     BISECTION.num_arguments = 2;
     map_routines[BISECTION.routine_name] = BISECTION;
 

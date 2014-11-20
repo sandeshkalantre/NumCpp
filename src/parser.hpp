@@ -44,6 +44,10 @@ extern std::map<std::string, Number> map_variables;
 extern std::map<std::string, Routine> map_routines;
 extern std::map<std::string, ndArray> map_ndarrays;
 
+//the global bools which are used when parsing fails
+extern bool suppress_zero;
+extern bool suppress_eval;
+
 //global bool SUPPRESS_ZERO = false;
 
 class Token
@@ -88,6 +92,7 @@ class Token
             WRITE,
             READ,
             EVALUATE,
+            HELP,
             UNKNOWN
         };
 
@@ -250,10 +255,13 @@ class Routine
         std::string routine_name;
         //number of arguments excluding the function_name
         int num_arguments;
+        //string which stores the help for the routine
+        std::string routine_help;
 
     public:
         //evaluates the routine given the function name and the vector of arguments
         Number evaluate(std::string function_name, std::vector<Number> arguments);
+        void help();
 };
 
 
