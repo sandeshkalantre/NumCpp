@@ -4,7 +4,7 @@
 #include "parser.hpp"
 using namespace std;
 
-#define DEFAULT_PRECISION 64
+
 
 //definitions of the maps
 std::map<std::string, Function> map_functions;

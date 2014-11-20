@@ -25,6 +25,8 @@
 #include <fstream>
 
 #define BASE 10
+#define RND_MODE MPFR_RNDZ
+#define DEFAULT_PRECISION 64
 
 typedef mpfr_t cppdouble;
 //also use gmp double

@@ -12,5 +12,7 @@
 #define VARIABLE_NOT_DEFINED "Variable has not been defined."
 #define INVALID_EXPRESSION "Too many values were present on the number stack while evaluation"
 #define NOT_A_ROUTINE "Routine has not been defined in the program"
+#define DIVISION_BY_ZERO "Division by zero."
+#define NEGATIVE_FACTORIAL "Factorial of a neagtive number is not defined.Use gamma(number) for the gamma function."
 
 #endif

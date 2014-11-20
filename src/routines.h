@@ -3,7 +3,11 @@
 
 #include "parser.hpp"
 #include <string>
+#include <iostream>
+#include <cstdlib>
+#include <time.h>
 
+class Number;
 //defines the routines
 void def_routines();
 //defines the arrays

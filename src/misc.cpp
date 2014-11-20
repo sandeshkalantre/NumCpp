@@ -55,7 +55,7 @@ bool is_equal_sign(const char c)
 
 //checks whether the expr has a define keyword followed by a space
 //from the given position
-bool is_define(std::string token)
+bool is_define(const std::string token)
 {
     if(token.compare("define") == 0)
     {
@@ -69,13 +69,13 @@ bool is_define(std::string token)
 }
 
 //checks whether the token is the name of a routine
-bool is_routine(std::string token)
+bool is_routine(const std::string token)
 {
     return (map_routines.count(token) > 0);
 }
 
 //checks whether the token is showrpn keyword
-bool is_showrpn(std::string token)
+bool is_showrpn(const std::string token)
 {
     if(token.compare("showrpn") == 0)
     {
@@ -88,7 +88,7 @@ bool is_showrpn(std::string token)
 }
 
 //checks whether the token is linspace keyword
-bool is_linspace(std::string token)
+bool is_linspace(const std::string token)
 {
     if(token.compare("linspace") == 0)
     {
@@ -101,7 +101,7 @@ bool is_linspace(std::string token)
 }
 
 //checks whether the token is the keyword ones
-bool is_ones(std::string token)
+bool is_ones(const std::string token)
 {
     if(token.compare("ones") == 0)
     {
@@ -114,7 +114,7 @@ bool is_ones(std::string token)
 }
 
 //checks whether the token is the keyword zeros
-bool is_zeros(std::string token)
+bool is_zeros(const std::string token)
 {
     if(token.compare("zeros") == 0)
     {
@@ -127,7 +127,7 @@ bool is_zeros(std::string token)
 }
 
 //checks whether the token is the keyword read
-bool is_read(std::string token)
+bool is_read(const std::string token)
 {
     if(token.compare("read") == 0)
     {
@@ -140,7 +140,7 @@ bool is_read(std::string token)
 }
 
 //checks whether the token is the keyword write
-bool is_write(std::string token)
+bool is_write(const std::string token)
 {
     if(token.compare("write") == 0)
     {
@@ -153,7 +153,7 @@ bool is_write(std::string token)
 }
 
 //checks whether the token is the keyword evaluate
-bool is_evaluate(std::string token)
+bool is_evaluate(const std::string token)
 {
     if(token.compare("evaluate") == 0)
     {
@@ -166,7 +166,7 @@ bool is_evaluate(std::string token)
 }
 
 //checks whether the token is the keyword help
-bool is_help(std::string token)
+bool is_help(const std::string token)
 {
     if(token.compare("help") == 0)
     {
@@ -177,11 +177,3 @@ bool is_help(std::string token)
         return false;
     }
 }
-
-
-
-
-
-
-
-

@@ -1,12 +1,26 @@
+/*
+Contains the standard mathematical functions used in the program
+in the namespace std_functions
+
+Also contains the function def_functions which load the standard function
+at the start of program execution
+*/
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
+#include "parser.hpp"
+#include "errors.h"
+
+//class from parser.hpp
 class Number;
+
 //defines the standard functions and loads them in map_functions
+//called from main()
 void def_functions();
 
 namespace std_functions
 {
+    //see functions.cpp for the working of each function
     Number add(Number a, Number b);
     Number subtract(Number a, Number b);
     Number unary_minus(Number a);
@@ -55,7 +69,6 @@ namespace std_functions
     Number agm(Number a, Number b);
     Number hypot(Number a, Number b);
     Number ai(Number a);
-
 }
 
 #endif

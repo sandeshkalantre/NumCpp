@@ -1,7 +1,7 @@
 #include "functions.h"
-#include "parser.hpp"
 
-
+//the operators for Number objects have been overloaded so
+//as to simplify the implementation
 namespace std_functions
 {
     Number add(Number a, Number b)
@@ -22,14 +22,23 @@ namespace std_functions
     }
     Number divide(Number a, Number b)
     {
-        if(mpfr_zero_p(b.value) != 0)
+        //handle division by zero error
+        //returns nan(NOT A NUMBER) for such a case
+        try
         {
-            std::cout<<"Divide by zero error."<<std::endl;
+            if(b == Number(0.0))
+            {
+                throw DIVISION_BY_ZERO;
+            }
+            return a / b;
+        }
+        catch(const char *str)
+        {
+            std::cout<<"Domain Error: "<<str<<std::endl;
             Number result;
             mpfr_set_nan(result.value);
             return result;
         }
-        return a / b;
     }
     Number modulus1(Number a, Number b)
     {
@@ -37,32 +46,31 @@ namespace std_functions
     }
     Number scientific(Number a, Number b)
     {
-        Number base;
-        mpfr_set_ui(base.value,BASE,MPFR_RNDN);
+        Number base(BASE);
         return a * (base ^ b);
     }
     Number factorial(Number a)
     {
-        //if the number is negative
-        /*
-        if(a.return_value() < 0)
+        try
         {
-            std::cout<<"Factorial of negative number does not exist.Use gamma(x)."<<std::endl;
-            return NAN;
+            //if the number is negative
+            if(a < Number(0.0))
+            {
+                throw NEGATIVE_FACTORIAL;
+            }
+            Number result;
+            unsigned long _a = mpfr_get_ui(a.value,RND_MODE);
+            mpfr_fac_ui(result.value,_a,RND_MODE);
+            return result;
         }
-        int num = (int) a.return_value();
-        int result = 1;
-        while(num > 0)
+        catch(const char *str)
         {
-            result *= num;
-            num--;
+            std::cout<<"Domain Error: "<<NEGATIVE_FACTORIAL<<std::endl;
+            Number result;
+            mpfr_set_nan(result.value);
+            return result;
         }
-        return Number(result);
-        */
-        Number result;
-        unsigned long _a = mpfr_get_ui(a.value,MPFR_RNDN);
-        mpfr_fac_ui(result.value,_a,MPFR_RNDN);
-        return result;
+
     }
     Number power(Number a, Number b)
     {
@@ -71,247 +79,248 @@ namespace std_functions
     Number sin(Number a)
     {
         Number result;
-        mpfr_sin(result.value,a.value,MPFR_RNDN);
+        mpfr_sin(result.value,a.value,RND_MODE);
         return result;
     }
     Number cos(Number a)
     {
         Number result;
-        mpfr_cos(result.value,a.value,MPFR_RNDN);
+        mpfr_cos(result.value,a.value,RND_MODE);
         return result;
     }
     Number tan(Number a)
     {
         Number result;
-        mpfr_tan(result.value,a.value,MPFR_RNDN);
+        mpfr_tan(result.value,a.value,RND_MODE);
         return result;
     }
     Number sec(Number a)
     {
         Number result;
-        mpfr_sec(result.value,a.value,MPFR_RNDN);
+        mpfr_sec(result.value,a.value,RND_MODE);
         return result;
     }
     Number csc(Number a)
     {
         Number result;
-        mpfr_csc(result.value,a.value,MPFR_RNDN);
+        mpfr_csc(result.value,a.value,RND_MODE);
         return result;
     }
     Number cot(Number a)
     {
         Number result;
-        mpfr_cot(result.value,a.value,MPFR_RNDN);
+        mpfr_cot(result.value,a.value,RND_MODE);
         return result;
     }
     Number asin(Number a)
     {
         Number result;
-        mpfr_asin(result.value,a.value,MPFR_RNDN);
+        mpfr_asin(result.value,a.value,RND_MODE);
         return result;
     }
     Number acos(Number a)
     {
         Number result;
-        mpfr_acos(result.value,a.value,MPFR_RNDN);
+        mpfr_acos(result.value,a.value,RND_MODE);
         return result;
     }
     Number atan(Number a)
     {
         Number result;
-        mpfr_atan(result.value,a.value,MPFR_RNDN);
+        mpfr_atan(result.value,a.value,RND_MODE);
         return result;
     }
     Number sinh(Number a)
     {
         Number result;
-        mpfr_sinh(result.value,a.value,MPFR_RNDN);
+        mpfr_sinh(result.value,a.value,RND_MODE);
         return result;
     }
     Number cosh(Number a)
     {
         Number result;
-        mpfr_cosh(result.value,a.value,MPFR_RNDN);
+        mpfr_cosh(result.value,a.value,RND_MODE);
         return result;
     }
     Number tanh(Number a)
     {
         Number result;
-        mpfr_tanh(result.value,a.value,MPFR_RNDN);
+        mpfr_tanh(result.value,a.value,RND_MODE);
         return result;
     }
     Number sech(Number a)
     {
         Number result;
-        mpfr_sech(result.value,a.value,MPFR_RNDN);
+        mpfr_sech(result.value,a.value,RND_MODE);
         return result;
     }
     Number csch(Number a)
     {
         Number result;
-        mpfr_csch(result.value,a.value,MPFR_RNDN);
+        mpfr_csch(result.value,a.value,RND_MODE);
         return result;
     }
     Number coth(Number a)
     {
         Number result;
-        mpfr_coth(result.value,a.value,MPFR_RNDN);
+        mpfr_coth(result.value,a.value,RND_MODE);
         return result;
     }
     Number asinh(Number a)
     {
         Number result;
-        mpfr_asinh(result.value,a.value,MPFR_RNDN);
+        mpfr_asinh(result.value,a.value,RND_MODE);
         return result;
     }
     Number acosh(Number a)
     {
         Number result;
-        mpfr_acosh(result.value,a.value,MPFR_RNDN);
+        mpfr_acosh(result.value,a.value,RND_MODE);
         return result;
     }
     Number atanh(Number a)
     {
         Number result;
-        mpfr_atanh(result.value,a.value,MPFR_RNDN);
+        mpfr_atanh(result.value,a.value,RND_MODE);
         return result;
     }
     Number atan2(Number a, Number b)
     {
         Number result;
-        mpfr_atan2(result.value,a.value,b.value,MPFR_RNDN);
+        mpfr_atan2(result.value,a.value,b.value,RND_MODE);
         return result;
     }
     //log (1+x)
     Number log1p(Number a)
     {
         Number result;
-        mpfr_log1p(result.value, a.value, MPFR_RNDN);
+        mpfr_log1p(result.value, a.value, RND_MODE);
         return result;
     }
     //e^x - 1
     Number expm1(Number a)
     {
         Number result;
-        mpfr_expm1(result.value, a.value,MPFR_RNDN);
+        mpfr_expm1(result.value, a.value,RND_MODE);
         return result;
     }
     //exponential integral (only for +ve)
     Number eint(Number a)
     {
         Number result;
-        mpfr_eint(result.value, a.value,MPFR_RNDN);
+        mpfr_eint(result.value, a.value,RND_MODE);
         return result;
     }
     //dilogarithm
     Number li2(Number a)
     {
         Number result;
-        mpfr_li2(result.value, a.value,MPFR_RNDN);
+        mpfr_li2(result.value, a.value,RND_MODE);
         return result;
     }
     Number gamma(Number a)
     {
         Number result;
-        mpfr_gamma(result.value, a.value,MPFR_RNDN);
+        mpfr_gamma(result.value, a.value,RND_MODE);
         return result;
     }
     Number lngamma(Number a)
     {
         Number result;
-        mpfr_lngamma(result.value, a.value,MPFR_RNDN);
+        mpfr_lngamma(result.value, a.value,RND_MODE);
         return result;
     }
     //Digamma function aka Psi
     Number digamma(Number a)
     {
         Number result;
-        mpfr_digamma(result.value, a.value,MPFR_RNDN);
+        mpfr_digamma(result.value, a.value,RND_MODE);
         return result;
     }
     Number zeta(Number a)
     {
         Number result;
-        mpfr_zeta(result.value, a.value,MPFR_RNDN);
+        mpfr_zeta(result.value, a.value,RND_MODE);
         return result;
     }
     //error function
     Number erf(Number a)
     {
         Number result;
-        mpfr_erf(result.value, a.value,MPFR_RNDN);
+        mpfr_erf(result.value, a.value,RND_MODE);
         return result;
     }
     //complement of error function
     Number erfc(Number a)
     {
         Number result;
-        mpfr_erfc(result.value, a.value,MPFR_RNDN);
+        mpfr_erfc(result.value, a.value,RND_MODE);
         return result;
     }
     //First kind of bessel functions for 0,1,n
     Number j0(Number a)
     {
         Number result;
-        mpfr_j0(result.value, a.value,MPFR_RNDN);
+        mpfr_j0(result.value, a.value,RND_MODE);
         return result;
     }
     Number j1(Number a)
     {
         Number result;
-        mpfr_j1(result.value, a.value,MPFR_RNDN);
+        mpfr_j1(result.value, a.value,RND_MODE);
         return result;
     }
     Number jn(Number a,Number b)
     {
-        long n = mpfr_get_si(b.value,MPFR_RNDN);
-
+        long n = mpfr_get_si(b.value,RND_MODE);
         Number result;
-        mpfr_jn(result.value, n ,a.value,MPFR_RNDN);
+        mpfr_jn(result.value, n ,a.value,RND_MODE);
         return result;
     }
     //Second kind of bessel function for 0,1,n
     Number y0(Number a)
     {
         Number result;
-        mpfr_y0(result.value, a.value,MPFR_RNDN);
+        mpfr_y0(result.value, a.value,RND_MODE);
         return result;
     }
     Number y1(Number a)
     {
         Number result;
-        mpfr_y1(result.value, a.value,MPFR_RNDN);
+        mpfr_y1(result.value, a.value,RND_MODE);
         return result;
     }
     Number yn(Number a,Number b)
     {
-        long n = mpfr_get_si(b.value,MPFR_RNDN);
+        long n = mpfr_get_si(b.value,RND_MODE);
         Number result;
-        mpfr_yn(result.value,n, a.value,MPFR_RNDN);
+        mpfr_yn(result.value,n, a.value,RND_MODE);
         return result;
     }
+    //arithmatic geometric mean of a and b
     Number agm(Number a, Number b)
     {
         Number result;
-        mpfr_agm(result.value, a.value, b.value, MPFR_RNDN);
+        mpfr_agm(result.value, a.value, b.value, RND_MODE);
         return result;
     }
+    //Euclidean norm of a and b sqrt(a^2 + b^2)
     Number hypot(Number a, Number b)
     {
         Number result;
-        mpfr_hypot(result.value, a.value ,b.value, MPFR_RNDN);
+        mpfr_hypot(result.value, a.value ,b.value, RND_MODE);
         return result;
     }
     //Airy function,
     Number ai(Number a)
     {
         Number result;
-        mpfr_ai(result.value, a.value,MPFR_RNDN);
+        mpfr_ai(result.value, a.value,RND_MODE);
         return result;
     }
 }
 
-//defines the standard functions and loads them in map_function
+//defines the standard functions and loads them in map_functions
 void def_functions()
 {
     //Function declarations
@@ -597,5 +606,3 @@ void def_functions()
     map_functions[AI.function_name] = AI;
     return;
 }
-
-
