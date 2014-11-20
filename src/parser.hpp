@@ -1,3 +1,8 @@
+/*
+This file contains the parsing classes Token and Parser
+as well as the data structure classes Number and ndArray
+*/
+
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
@@ -6,11 +11,10 @@
 #include "routines.h"
 #include "variables.h"
 #include "mpfr.h"
-#include <gmp.h>
 #include <cmath>
+#include <gmp.h>
 #include <string>
 #include <queue>
-//#include <unordered_map>
 #include <map>
 #include <vector>
 #include <stack>
@@ -18,9 +22,6 @@
 #include <algorithm>
 #include <cctype>
 #include <iostream>
-//for atof function
-//stof requires C++11
-//DECIDE WHETHER TO USE stof or atof
 #include <cstdlib>
 #include <fstream>
 
@@ -29,16 +30,13 @@
 #define DEFAULT_PRECISION 64
 
 typedef mpfr_t cppdouble;
-//also use gmp double
 
 class Token;
 class Parser;
 class Function;
 class Routine;
-class Numeric;
 class Number;
 class ndArray;
-
 
 //the extern maps which will store our variables and functions and routines
 extern std::map<std::string, Function> map_functions;
@@ -50,11 +48,9 @@ extern std::map<std::string, ndArray> map_ndarrays;
 extern bool suppress_zero;
 extern bool suppress_eval;
 
-//global bool SUPPRESS_ZERO = false;
-
 class Token
 {
-    //allow Parser and Function to have access to Token_type and other variables
+    //allow Parser and Function to have access to token_type and other variables
     friend class Parser;
     friend class Function;
     friend class Routines;
@@ -91,9 +87,12 @@ class Token
             LINSPACE,
             ZEROS,
             ONES,
+            //keyword for reading and writing to a file
             WRITE,
             READ,
+            //keyword for function evaluation on an array
             EVALUATE,
+            //help keyword
             HELP,
             UNKNOWN
         };
@@ -266,16 +265,10 @@ class Routine
         void help();
 };
 
-
-class Numeric
+class Number
 {
-    private:
-    int type;
-
-};
-
-class Number:public Numeric
-{
+    //since mpfr_t is a c styled pointer to an array it seems proper
+    //to keep value public instead of private for simplicity of code
     public:
     cppdouble value;
 
@@ -284,8 +277,6 @@ class Number:public Numeric
     Number(cppdouble _value);
     Number(double _value);
     Number(int _value);
-    void store_value(cppdouble _value);
-    //cppdouble return_value();
 
     Number operator+(const Number num2);
     Number operator-(const Number num2);
@@ -298,26 +289,23 @@ class Number:public Numeric
     Number operator*=(const Number num2);
     Number operator/=(const Number num2);
     Number operator=(const double num2);
+    Number operator++();
+    Number operator--();
+    Number operator-();
     bool operator>(const Number num2);
     bool operator<(const Number num2);
     bool operator>=(const Number num2);
     bool operator<=(const Number num2);
     bool operator==(const Number num2);
     bool operator==(const double num2);
-
-    Number operator-();
-
-
-
-
 };
 
-class ndArray:public Numeric
+class ndArray
 {
     public:
         ndArray();
 
-        //name of the vector
+        //name of the array
         std::string array_name;
 
         //number of dimensions
@@ -360,12 +348,4 @@ class ndArray:public Numeric
         void evaluate(std::string function_name,std::string output_array_name);
 };
 
-
-
 #endif
-
-
-
-
-
-

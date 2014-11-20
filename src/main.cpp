@@ -4,8 +4,6 @@
 #include "parser.hpp"
 using namespace std;
 
-
-
 //definitions of the maps
 std::map<std::string, Function> map_functions;
 std::map<std::string, Number> map_variables;
@@ -23,10 +21,23 @@ int main(int argc,char** argv)
     //command line arguments to the progran
     for(int i = 1; i < argc;i++)
     {
-        if(argv[i][0] == '-' && argv[i][1] == 'p')
+        try
         {
-            mpfr_set_default_prec(std::atoi(argv[i]));
-            i+=2;
+            if(argv[i][0] == '-' && argv[i][1] == 'p')
+            {
+                int prec = std::atoi(argv[++i]);
+                if(prec < 10 || prec > 1000000)
+                {
+                    throw WRONG_PRECISION;
+                }
+                mpfr_set_default_prec(prec);
+                i++;
+            }
+        }
+        catch(const char *str)
+        {
+            std::cout<<"Argument error : "<<str<<std::endl;
+            return -1;
         }
     }
 
@@ -34,24 +45,24 @@ int main(int argc,char** argv)
     def_functions();
     def_variables();
     def_routines();
-    def_ndarrays();
 
     //create a Parser object
     Parser parser;
 
     //the text to be declared at the start of the program
+    std::cout<<"______"<<std::endl;
     std::cout<<"NumCpp"<<std::endl;
+    std::cout<<"______"<<std::endl;
     std::cout<<
-
-"\nNumCpp is a numerical library with an inbuilt parser for input\n\
-that can be used to do numerical stuff such as:\n\
--integration\n\
--differentiation\n\
--matrix operations\n\
--root finding in an interval\n\
--FFT of an discrete array of complex numbers.\n\n\
-Use help(routine_name) for help on a routine.\n\
-Use exit() to exit the program.\n"
+    "\nNumCpp is a numerical library with an inbuilt parser for input\n"
+    "that can be used to do numerical analysis such as:\n"
+    "-integration\n"
+    "-differentiation\n"
+    "-root finding and much more.\n\n"
+    "Use help(functions) for a list of standard functions.\n"
+    "Use help(constants) for a list of stored constants.\n"
+    "Use help(routines) for a list of routines and help(routine_name) for help on a specifc routine.\n"
+    "Use exit() to exit the program.\n"
 
     <<std::endl;
 

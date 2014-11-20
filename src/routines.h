@@ -1,3 +1,8 @@
+/*
+This file contains the main routines of the program in the routine namespace.
+See routines.cpp for their implementation
+*/
+
 #ifndef ROUTINES_H
 #define ROUTINES_H
 
@@ -7,11 +12,10 @@
 #include <cstdlib>
 #include <time.h>
 
+//Number class defined in parser.hpp
 class Number;
 //defines the routines
 void def_routines();
-//defines the arrays
-void def_ndarrays();
 
 namespace routines
 {

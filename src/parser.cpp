@@ -547,6 +547,26 @@ void Parser::parse(std::string expr)
 
 
             }
+            //if the rhs is itself the name of an array/ndArray token
+            //then the contents of rhs are copied to the lhs
+            else if(token.token_type == Token::NDARRAY)
+            {
+                try
+                {
+                    if(map_ndarrays.count(token.token) <= 0)
+                    {
+                        throw token.token;
+                    }
+                    map_ndarrays[array.array_name] = map_ndarrays[token.token];
+                    return;
+                }
+                catch(std::string str)
+                {
+                    std::cout<<"Definition Error : "<<token.token<<" : "<<ARRAY_NOT_DEFINED<<std::endl;
+                    return;
+                }
+            }
+
 
             else
             {
@@ -755,7 +775,7 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
         {
             if(map_ndarrays.count(token.token) <= 0)
             {
-                std::cout<<token.token<<" : "<<ARRAY_NOT_DEFINED<<std::endl;
+                std::cout<<"Definition Error : "<<token.token<<" : "<<ARRAY_NOT_DEFINED<<std::endl;
                 suppress_zero = true;
                 return;
             }
@@ -934,7 +954,7 @@ Number Parser::eval_rpn(std::queue<Token> expr_rpn)
             {
                 if(map_variables.count(expr_rpn.front().token) <= 0)
                 {
-                    std::cout<<expr_rpn.front().token<<" : "<<VARIABLE_NOT_DEFINED<<std::endl;
+                    std::cout<<"Definition Error : "<<expr_rpn.front().token<<" : "<<VARIABLE_NOT_DEFINED<<std::endl;
                     suppress_zero = true;
                     return Number(0.0);
                 }
@@ -950,7 +970,7 @@ Number Parser::eval_rpn(std::queue<Token> expr_rpn)
             //std::cout<<expr_rpn.front().token;
             if(map_ndarrays.count(expr_rpn.front().token) <= 0)
             {
-                std::cout<<expr_rpn.front().token<<" : "<<ARRAY_NOT_DEFINED<<std::endl;
+                std::cout<<"Definition Error : "<<expr_rpn.front().token<<" : "<<ARRAY_NOT_DEFINED<<std::endl;
                 suppress_zero = true;
                 return Number(0.0);
             }
@@ -1062,7 +1082,7 @@ Number Parser::eval_rpn(std::queue<Token> expr_rpn)
 			//ERROR HANDLING TO ENSURE THAT THE FUNCTION EXISTS ON THE Map_functions
             if(map_functions.count(expr_rpn.front().token) <= 0)
             {
-                std::cout<<expr_rpn.front().token<<" : "<<FUNCTION_NOT_DEFINED<<std::endl;
+                std::cout<<"Definition Error : "<<expr_rpn.front().token<<" : "<<FUNCTION_NOT_DEFINED<<std::endl;
                 suppress_zero = true;
                 return Number(0.0);
             }
@@ -1639,7 +1659,7 @@ Number Function::evaluate(std::vector<Number> d_arguments)
             }
             else
             {
-                std::cout<<function_rpn.front().token<<" : "<<VARIABLE_NOT_DEFINED<<std::endl;
+                std::cout<<"Definition Error : "<<function_rpn.front().token<<" : "<<VARIABLE_NOT_DEFINED<<std::endl;
                 suppress_zero = true;
                 return Number(0.0);
             }
@@ -1717,6 +1737,12 @@ Number Function::evaluate(std::vector<Number> d_arguments)
         if(function_rpn.front().token_type == Token::FUNCTION)
         {
             //ERROR HANDLING TO ENSURE THAT THE FUNCTION EXISTS ON THE Map_functions
+            if(map_functions.count(function_rpn.front().token) <= 0)
+            {
+                std::cout<<"Definition Error : "<<function_rpn.front().token<<FUNCTION_NOT_DEFINED<<std::endl;
+                suppress_zero = true;
+                return Number(0.0);
+            }
 
             //stores the poped arguments from the number_stack
             std::vector<Number> arguments;
@@ -1725,6 +1751,10 @@ Number Function::evaluate(std::vector<Number> d_arguments)
 
             for(int i = 0; i < map_functions[function_rpn.front().token].num_arguments; i++)
             {
+                if(number_stack.empty())
+                {
+                    std::cout<<"Parsing Error : "<<INVALID_EXPRESSION<<std::endl;
+                }
                 arguments.push_back(number_stack.top());
                 number_stack.pop();
             }
@@ -1743,18 +1773,11 @@ Number Function::evaluate(std::vector<Number> d_arguments)
     }
     else
     {
-        //ERROR HANDLING DUE TO TOO MANY VALUES ON THE STACK
+        std::cout<<"Parsing Error : "<<INVALID_EXPRESSION<<std::endl;
     }
     //returns zero by default
     return Number(0.0);
 }
-/*
-Routine::Routine()
-{
-
-
-}
-*/
 
 Number Routine::evaluate(std::string function_name,std::vector<Number> arguments)
 {
@@ -1793,8 +1816,6 @@ Number Routine::evaluate(std::string function_name,std::vector<Number> arguments
 	{
 		return routines::bisection(function_name,arguments[0],arguments[1]);
 	}
-
-
 	//returns 0 as default
 	return Number(0.0);
 }
@@ -1805,7 +1826,7 @@ void Routine::help()
     return;
 }
 
-
+//IMPLEMENTATION OF THE CLASS NDARRAY
 ndArray::ndArray()
 {
     dim = 0;
@@ -1815,7 +1836,7 @@ ndArray::ndArray()
 void ndArray::store_value(std::vector<int> inp_index,Number value)
 {
     array[inp_index] = value;
-    //std::cout<<array[inp_index];
+
     return;
 }
 
@@ -1828,7 +1849,7 @@ void ndArray::show_slice(std::queue<int> slice)
 {
     std::vector<int> start_index  (dim,0);
     std::vector<int> end_index  (dim,0);
-    if(slice.size() == dim)
+    if((int)slice.size() == dim)
     {
         int current_dim = -1;
         while(!slice.empty())
@@ -1859,7 +1880,6 @@ void ndArray::show_slice(std::queue<int> slice)
             mpfr_printf("%Rf \n",return_value(it_array -> first).value);
 
         }
-
         return;
     }
 
@@ -1867,17 +1887,7 @@ void ndArray::show_slice(std::queue<int> slice)
 
 void ndArray::show()
 {
-    /*
-    std::cout<<"[ ";
-    std::vector<int> inp_index(dim,0);
-    //std::cout<<dim;
-    //std::cout<<dim_size[0];
-    for(inp_index[0] = 0; inp_index[0] < dim_size[0];(inp_index[0])++)
-    {
-        std::cout<<return_value(inp_index)<<" , ";
-    }
-    std::cout<<']';
-    */
+    std::vector<int> dim_size_temp = dim_size;
     std::reverse(dim_size.begin(),dim_size.end());
 
     int current_dim = -1;
@@ -1933,61 +1943,12 @@ void ndArray::show()
 
     }
     std::cout<<std::endl;
+    dim_size = dim_size_temp;
     return;
 }
 
-
-
 void ndArray::array_def_parse(std::string expr,std::string::iterator it_expr)
 {
-    /*Recursive implementation SOME BUGS ARE THERE
-    it_expr = token.get_token(expr,it_expr);
-
-    if(token.token_type == Token::SQ_LPAREN)
-    {
-        current_dim++;
-        index[current_dim] = 0;
-        array_def_parse(token,expr,it_expr,current_dim);
-        if(current_dim == -1){return;}
-    }
-
-    if(token.token_type == Token::COMMA)
-    {
-        array_def_parse(token,expr,it_expr,current_dim);
-        return;
-    }
-
-
-    while(!(token.token_type == Token::SQ_RPAREN))
-    {
-        //std::cout<<"here";
-
-        if(token.token_type == Token::COMMA)
-        {
-            it_expr = token.get_token(expr,it_expr);
-            continue;
-        }
-        store_value(index,atof(token.token.c_str()));
-
-        (index[current_dim])++;
-        it_expr = token.get_token(expr,it_expr);
-    }
-
-
-
-    if(token.token_type == Token::SQ_RPAREN)
-    {
-
-        current_dim--;
-        if(current_dim == -1){return;}
-        index[current_dim]++;
-        return;
-    }
-    return;
-    */
-
-    //ITERATIVE IMPLEMENTATION
-
     Token token;
     std::vector<int> index(dim,0);
     std::stack<Number> number_stack;
@@ -1995,8 +1956,6 @@ void ndArray::array_def_parse(std::string expr,std::string::iterator it_expr)
     while(true)
     {
         it_expr = token.get_token(expr,it_expr);
-        //std::cout<<token.token;
-
         if(token.token_type == Token::SEMICOLON)
         {
             return;
@@ -2011,15 +1970,10 @@ void ndArray::array_def_parse(std::string expr,std::string::iterator it_expr)
 
         if(token.token_type == Token::NUMBER)
         {
-
-
-            //std::cout<<atof(token.token.c_str());
             Number result;
             mpfr_set_str(result.value,token.token.c_str(),BASE,MPFR_RNDN);
             store_value(index,result);
-            //std::cout<<array[index];
             index[current_dim]++;
-
             continue;
         }
 
@@ -2044,9 +1998,6 @@ void ndArray::array_def_parse(std::string expr,std::string::iterator it_expr)
         }
 
     }
-
-
-
     return;
 }
 
@@ -2072,16 +2023,17 @@ void ndArray::read_from_file(const std::string in_filename)
     input_file.open(in_filename.c_str());
     std::string expr;
 
-    /*
+    //copy the input file to a string expr
     input_file.seekg(0, std::ios::end);
     expr.resize(input_file.tellg());
     input_file.seekg(0, std::ios::beg);
     input_file.read(&expr[0], expr.size());
     input_file.close();
-    */
-    //expr.erase(std::remove(expr.begin(), expr.end(), '\t'), expr.end());
-    //expr.erase(std::remove(expr.begin(), expr.end(), ' '), expr.end());
-    //expr.erase(std::remove(expr.begin(), expr.end(), '\n'), expr.end());
+
+    //remove all whitespaces
+    expr.erase(std::remove(expr.begin(), expr.end(), '\t'), expr.end());
+    expr.erase(std::remove(expr.begin(), expr.end(), ' '), expr.end());
+    expr.erase(std::remove(expr.begin(), expr.end(), '\n'), expr.end());
 
     std::string::iterator it_expr = expr.begin();
     array_def_parse(expr,it_expr);
@@ -2092,22 +2044,12 @@ void ndArray::write_to_file(const std::string out_filename)
 {
     FILE* out_file;
     out_file = fopen(out_filename.c_str(),"w");
-    //std::cout<<"apple is good";
     if(out_file == NULL)
     {
         std::cout<<FILE_OPEN_FAILED<<std::endl;
     }
-    /*
-    std::cout<<"[ ";
-    std::vector<int> inp_index(dim,0);
-    //std::cout<<dim;
-    //std::cout<<dim_size[0];
-    for(inp_index[0] = 0; inp_index[0] < dim_size[0];(inp_index[0])++)
-    {
-        std::cout<<return_value(inp_index)<<" , ";
-    }
-    std::cout<<']';
-    */
+
+    std::vector<int>dim_size_temp = dim_size;
     std::reverse(dim_size.begin(),dim_size.end());
 
     int current_dim = -1;
@@ -2155,11 +2097,16 @@ void ndArray::write_to_file(const std::string out_filename)
             {
                 fprintf(out_file," ] ,");
             }
+            if(current_dim == -1)
+            {
+                break;
+            }
+
         }
 
     }
     fclose(out_file);
-
+    dim_size = dim_size_temp;
     return;
 
 }
@@ -2192,26 +2139,25 @@ void ndArray::evaluate(std::string function_name,std::string output_array_name)
     }
     else
     {
-        std::cout<<FUNCTION_NOT_DEFINED<<std::endl;
+        std::cout<<"Definition Error : "<<function_name<<" : "<<FUNCTION_NOT_DEFINED<<std::endl;
 
     }
     return;
 
 }
 
+//IMPLEMENTATION OF THE CLASS NUMBER
 Number::Number()
 {
     mpfr_init(value);
     mpfr_set_zero(value,0);
 }
-
 Number::Number(cppdouble _value)
 {
     mpfr_init(value);
     mpfr_set(value,_value,MPFR_RNDN);
-    //mpfr_init_set(value,_value,MPFR_RNDN);
-}
 
+}
 Number::Number(double _value)
 {
     mpfr_init(value);
@@ -2222,15 +2168,6 @@ Number::Number(int _value)
     mpfr_init(value);
     mpfr_set_si(value,_value,MPFR_RNDN);
 }
-
-
-void Number::store_value(cppdouble _value)
-{
-    mpfr_set(value,_value,MPFR_RNDN);
-}
-
-
-
 Number Number::operator+(const Number num2)
 {
     Number result;
@@ -2261,8 +2198,17 @@ Number Number::operator/(const Number num2)
 
 Number Number::operator%(const Number num2)
 {
-    Number number;
-    return number;
+    mpz_t n1,n2,r;
+    mpz_init(n1);
+    mpz_init(n2);
+    mpz_init(r);
+    mpfr_get_z(n1,value,RND_MODE);
+    mpfr_get_z(n2,num2.value,RND_MODE);
+    mpz_tdiv_r(r,n1,n2);
+    Number result;
+    mpfr_set_z(result.value,r,RND_MODE);
+    mpz_clears(n1,n2,r);
+    return result;
 }
 
 Number Number::operator-()
@@ -2300,14 +2246,20 @@ Number Number::operator/=(const Number num2)
     *this = *this / num2;
     return *this;
 }
-
+Number Number::operator++()
+{
+    *this = *this + Number(1.0);
+    return *this;
+}
+Number Number::operator--()
+{
+    *this = *this - Number(1.0);
+    return *this;
+}
 Number Number::operator=(const double num2)
 {
     return Number(num2);
 }
-
-
-
 bool Number::operator>(const Number num2)
 {
     int result = mpfr_cmp(value,num2.value);
@@ -2364,15 +2316,4 @@ bool Number::operator==(const double _num2)
     }
     return false;
 }
-
-
-
-
-
-
-
-
-
-
-
 
