@@ -78,7 +78,7 @@
 1416575755 source:/home/sandesh/NumCpp/src/functions.cpp
 	"functions.h"
 
-1416581031 source:/home/sandesh/NumCpp/src/parser.cpp
+1416584775 source:/home/sandesh/NumCpp/src/parser.cpp
 	"parser.hpp"
 	"functions.h"
 	"routines.h"
@@ -139,20 +139,19 @@
 1413909056 source:/users/cs101/140260012/NumCpp/src/routines.cpp
 	"routines.h"
 
-1416573456 /home/sandesh/NumCpp/src/routines.h
-	"parser.hpp"
+1416581790 /home/sandesh/NumCpp/src/routines.h
 	"errors.h"
+	"parser.hpp"
 	<string>
 	<vector>
 	<iostream>
 	<cstdlib>
 	<time.h>
 
-1416576711 source:/home/sandesh/NumCpp/src/routines.cpp
+1416581800 source:/home/sandesh/NumCpp/src/routines.cpp
 	"routines.h"
-	"errors.h"
 
-1416575947 /home/sandesh/NumCpp/src/errors.h
+1416581137 /home/sandesh/NumCpp/src/errors.h
 
 1416464618 /home/sandesh/NumCpp/src/variables.h
 	"parser.hpp"
@@ -228,10 +227,10 @@
 1416542511 /home/sandesh/NumCpp/src/complex.h
 	"parser.hpp"
 
-1416570243 source:/home/sandesh/NumCpp/src/complex.cpp
+1416581428 source:/home/sandesh/NumCpp/src/complex.cpp
 	"parser.hpp"
 
-1416566024 source:/home/sandesh/NumCpp/src/sim_eqn.cpp
+1416581490 source:/home/sandesh/NumCpp/src/sim_eqn.cpp
 	"sim_eqn.hpp"
 
 1416547726 /home/sandesh/NumCpp/src/sim_eqn.hpp

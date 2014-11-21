@@ -705,11 +705,16 @@ void Parser::parse(std::string expr)
 
         try
         {
+            if(map_ndarrays.count(array_name) <= 0)
+            {
+                throw ARRAY_NOT_DEFINED;
+            }
             map_ndarrays[array_name].read_from_file(filename);
         }
         catch(const char *str)
         {
             std::cout<<str<<std::endl;
+            return;
         }
         return;
 
@@ -732,11 +737,16 @@ void Parser::parse(std::string expr)
         array.array_name = array_name;
         try
         {
+            if(map_ndarrays.count(array_name) <= 0)
+            {
+                throw ARRAY_NOT_DEFINED;
+            }
             map_ndarrays[array_name].write_to_file(filename);
         }
         catch(const char *str)
         {
             std::cout<<str<<std::endl;
+            return;
         }
         return;
     }
