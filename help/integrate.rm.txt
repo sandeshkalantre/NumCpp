@@ -1,0 +1,9 @@
+Riemann method, evaluation at midpoint
+___________________________________________________________
+Syntax: integrate.rm(left_limit, right_limit, function_name())
+___________________________________________________________
+This function will integrate the given function function_name(), which accepts one parameter, over the given interval x=left_limit to x=right_limit.
+It approximates the area represented by the integral as an almost infinite sum of infinitesimally narrow rectangles.
+The width of each rectangle is a miniscule subdivision of the interval and the height is the function value at the midpoint of the subdivision.
+
+

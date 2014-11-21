@@ -190,3 +190,16 @@ bool is_fft(const std::string token)
         return false;
     }
 }
+
+//checks whether the token is the keyword solve
+bool is_solve(const std::string token)
+{
+    if(token.compare("solve") == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}

@@ -47,7 +47,7 @@ void def_variables()
     Number R(8.3144621);
     map_variables["phy.R"] = R;
 
-    Number alpha(7.29735257e1-3);
+    Number alpha(7.29735257e-3);
     map_variables["phy.alpha"] = alpha;
 
     Number N_A(6.02214129e+23);

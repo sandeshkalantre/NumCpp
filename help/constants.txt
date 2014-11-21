@@ -1,0 +1,64 @@
+List of predefined constants which can be used
+
+Napier's constant 
+Syntax: math.e
+
+Pi
+Syntax: math.pi
+
+Golden ratio
+Syntax: math.phi
+
+Speed of light
+Syntax: phy.c
+
+Magnetic constant/Permeability of free space
+Syntax: phy.mu_0
+
+Electric constant/Permittivity of free space
+Syntax: phy.epsilon_0
+
+Planck constant
+Syntax: phy.h
+
+Reduced Planck constant/H-bar/H-cut
+Syntax: phy.hbar or phy.hcut (both return the same value)
+
+Gravitational constant
+Syntax: phy.G
+
+Acceleration on the surface of the Earth due to gravity
+Syntax: phy.g
+
+Magnitude of charge on an electron
+Syntax: phy.e
+
+Gas constant
+Syntax: phy.R
+
+Fine-structure constant/Sommerfeld's constant
+Syntax: phy.alpha
+
+Avagadro's number
+Syntax: phy.N_A
+
+Boltzmann's constant
+Syntax: phy.k
+
+Stefan's constant
+Syntax: phy.sigma
+
+Wein's constant
+Syntax: phy.Wein
+
+Rydberg's constant
+Syntax: phy.Rydberg
+
+Mass of an electron
+Syntax: phy.m_e
+
+Mass of a proton
+Syntax: phy.m_p
+
+Mass of a neutron
+Syntax: phy.m_n

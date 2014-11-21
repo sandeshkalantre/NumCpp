@@ -1,0 +1,7 @@
+Riemann integration over a rectangle  
+_________________________________________________________________________________
+Syntax: integrate2d.rect(l_limit, r_limit, bot_limit, top_limit, function_name())
+_________________________________________________________________________________
+This function will integrate the given function function_name(), which accepts 2 parameters, over the given interval x=l_limit to x=r_limit and y=bot_limit to y=top_limit.
+It uses Riemann integration by dividing the rectangle into a large number of smaller rectangles.
+The integral is the sum of the product of the function value at the centre of each rectangle and the area of the rectangle.

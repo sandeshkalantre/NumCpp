@@ -1,0 +1,7 @@
+Riemann integration over a 2d Type 1 region  
+_____________________________________________________________________________________
+Syntax: integrate2d.type1(l_limit, r_limit, bot_limit(), top_limit(), function_name())
+_____________________________________________________________________________________
+This function will integrate the given function function_name(), which accepts 2 parameters, over a Type 1 region, meaning the limits of x are constants, x=l_limit to x=r_limit, and the limits of y are functions of x, y=bot_limit() to y=top_limit().
+It uses Riemann integration by representing the area of the region as a sum of a large number of smaller rectangles.
+The integral is the sum of the product of the function value at the centre of each rectangle and the area of the rectangle.

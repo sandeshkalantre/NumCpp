@@ -1,0 +1,8 @@
+Monte Carlo method
+___________________________________________________________
+Syntax: integrate.mc(left_limit, right_limit, function_name())
+___________________________________________________________
+This function will integrate the given function function_name(), which accepts one parameter, over the given interval x=left_limit to x=right_limit.
+It finds max and min values of the curve in the interval, so we have the rectangle bounding the curve.
+It then plots a large number of random points, checks whether the point is inside or outside the are bounded by the curve and x-axis.
+It then divides number of points inside by total points, also accounting for negative area, and multiplies that ratio with the area of the rectangle.

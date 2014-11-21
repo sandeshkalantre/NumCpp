@@ -37,6 +37,7 @@
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Unit filename="NumCpp.cbp" />
+		<Unit filename="complex.cpp" />
 		<Unit filename="errors.h" />
 		<Unit filename="functions.cpp" />
 		<Unit filename="functions.h" />
@@ -47,6 +48,7 @@
 		<Unit filename="parser.hpp" />
 		<Unit filename="routines.cpp" />
 		<Unit filename="routines.h" />
+		<Unit filename="sim_eqn.cpp" />
 		<Unit filename="variables.cpp" />
 		<Unit filename="variables.h" />
 		<Extensions>

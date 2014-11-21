@@ -1,0 +1,8 @@
+Line integral of a function over a given 2d parametrisation 
+____________________________________________________________________________
+Syntax: integrate2d.line(left_limit, right_limit, x(), y(), function_name())
+____________________________________________________________________________
+This function will integrate the given function function_name(), which accepts 2 parameters, over the line given by the point, (x(), y()), each coordinate being a function with 1 parameter, t.
+Therefore the line is defined from t=left_limit to t=right_limit, and the line integral is the 1 dimensional Riemann integral of the product of function_name(x(t),y(t)) and the norm of the vector represented by (x'(t), y'(t)).
+x'(t) represents the differential of the function x() at t, and so on.
+

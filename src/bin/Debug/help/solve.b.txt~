@@ -1,0 +1,6 @@
+_____________________________________________________
+Syntax: solve.b(left_end, right_end, function_name())
+ _____________________________________________________
+This takes in 2 points, having function values of opposite sign, and finds the root lying between them.
+It calculates the function value at the midpoint and out of the 2 subintervals created, chooses the one having endpoints with function values of opposite signs, thus implying that the root lies between them (the given function should be continuous). 
+It then iterates this method till it finds the root.

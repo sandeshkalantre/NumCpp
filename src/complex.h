@@ -1,35 +1,41 @@
 /*
-This file contains the implementation of the complex class 
+This file contains the implementation of the complex class
 used in the calculation of the FFT
 */
-
 #ifndef COMPLEX_H
 #define COMPLEX_H
 
 #include "parser.hpp"
+
+//Number class from parser.hpp
 class Number;
-class ndArray;
+//ndArray class from parser.hpp
+//class ndArray;
+
+/*
 //class of complex numbers
 class Complex
 {
     private:
-        Number real;
-        Number img;
+        //internal representation i_
+        Number i_real;
+        Number i_img;
     public:
         //const j:sqrt(-1)
-        static const Complex j;
+        //static const Complex j;
 
         //constructors
-        Complex(): real(0.0),img(0.0){}
-        Complex(Number _real,Number _img): real(_real),img(_img){}
+        Complex(): i_real(0.0),i_img(0.0){};
+        Complex(Number _real,Number _img): i_real(_real),i_img(_img){};
         //real number
-        Complex(Number _real):real(_real),img(0.0);
+        Complex(Number _real):i_real(_real),i_img(0.0){};
 
         //assignment for a real number
-        complex& operator=(const Number _real)
+        Complex operator=(const Number _real)
         {
-            real = real;
-            img = 0.0;
+            i_real = _real;
+            i_img = 0.0;
+            return *this;
         }
 
         //return the real and imaginary parts respectively
@@ -44,24 +50,24 @@ class Complex
         Number norm();
 
         //the operators overloaded for members of the Complex class
-        Complex operator+(const Complex c_num2);
-        Complex operator-(const Complex c_num2);
-        Complex operator*(const Complex c_num2);
-        Complex operator/(const Complex c_num2);
-        Complex operator+=(const Complex c_num2);
-        Complex operator-=(const Complex c_num2);
-        Complex operator*=(const Complex c_num2);
-        Complex operator/=(const Complex c_num2);
-        bool operator==(const Complex c_num2);
-        bool operator!=(const Complex c_num2);
+        Complex operator+(Complex c_num2);
+        Complex operator-(Complex c_num2);
+        Complex operator*(Complex c_num2);
+        Complex operator/(Complex c_num2);
+        Complex operator+=(Complex c_num2);
+        Complex operator-=(Complex c_num2);
+        Complex operator*=(Complex c_num2);
+        Complex operator/=(Complex c_num2);
+        bool operator==(Complex c_num2);
+        bool operator!=(Complex c_num2);
         Complex operator-();
 };
 
 class Complex_array
 {
     private:
-        unsigned long size;
-        Complex* c_array = new Complex [size];
+        unsigned long i_size;
+        Complex* c_array;// = new Complex[i_size];
     public:
         unsigned long size();
         void store_value(const Complex c_num,unsigned long index);
@@ -73,15 +79,15 @@ class Complex_array
         Complex_array(unsigned long _size);
 
         //subscripting operator
-        Complex operator[](unsingned long index);
+        Complex operator[](unsigned long index);
 
         //scale the array by a real number
         void scale(Number scale);
 
         //the fft function
-        void FFT(Complex_array c_array_fft,bool inverse = false);
-};  
-            
+        void FFT(Complex_array c_array_fft);
+};
+
 class Complex_FFT
 {
     public:
@@ -91,6 +97,6 @@ class Complex_FFT
         void rearrange(Complex_array c_array);
         void fft(Complex_array c_array,bool inverse = false);
 };
-
+*/
 
 #endif

@@ -1,0 +1,8 @@
+Line integral of a function over a given 3d parametrisation 
+_________________________________________________________________________________
+Syntax: integrate3d.line(left_limit, right_limit, x(), y(), z(), function_name())
+_________________________________________________________________________________
+This function will integrate the given function function_name(), which accepts 3 parameters, over the line given by the point, (x(), y(), z()), each coordinate being a function with 1 parameter, t.
+Therefore the line is defined from t=left_limit to t=right_limit, and the line integral is the 1 dimensional Riemann integral of the product of function_name(x(t),y(t),z(t)) and the norm of the vector represented by (x'(t), y'(t), z'(t)).
+x'(t) represents the differential of the function x() at t, and so on.
+

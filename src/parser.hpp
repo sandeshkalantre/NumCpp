@@ -1,6 +1,9 @@
 /*
 This file contains the parsing classes Token and Parser
-as well as the data structure classes Number and ndArray
+as well as the data structure classes Number,ndArray,
+Complex,Complex_array.
+
+It also contains the classes Function,Routine and sim_eqn.
 */
 
 #ifndef PARSER_HPP
@@ -10,7 +13,6 @@ as well as the data structure classes Number and ndArray
 #include "functions.h"
 #include "routines.h"
 #include "variables.h"
-#include "complex.h"
 #include "mpfr.h"
 #include <cmath>
 #include <gmp.h>
@@ -26,9 +28,14 @@ as well as the data structure classes Number and ndArray
 #include <cstdlib>
 #include <fstream>
 
+//base of the number system
 #define BASE 10
+//rouding mode for mpfr
 #define RND_MODE MPFR_RNDZ
+//default precison
 #define DEFAULT_PRECISION 64
+//default dim and ndArray
+#define DEFAULT_DIM 3
 
 typedef mpfr_t cppdouble;
 
@@ -38,7 +45,9 @@ class Function;
 class Routine;
 class Number;
 class ndArray;
+class Complex;
 class Complex_array;
+class sim_eqn;
 
 //the extern maps which will store our variables and functions and routines
 extern std::map<std::string, Function> map_functions;
@@ -49,6 +58,9 @@ extern std::map<std::string, ndArray> map_ndarrays;
 //the global bools which are used when parsing fails
 extern bool suppress_zero;
 extern bool suppress_eval;
+
+//prints the help present in filename
+void help(std::string filename);
 
 class Token
 {
@@ -80,6 +92,8 @@ class Token
             SEMICOLON,
             COLON,
             EQUAL_SIGN,
+            //KEYWORDS
+
             //this type is used when the string "define" is used on the output
             //the allows the parser to know that we are defining something
             DEFINE,
@@ -98,6 +112,8 @@ class Token
             HELP,
             //fft keyword
             FFT,
+            //solve for simultaneous equations
+            SOLVE,
             UNKNOWN
         };
 
@@ -206,7 +222,7 @@ class Parser
         //used in defintions
         std::stack<Number> eval_rpn_num_stack(std::queue<Token> expr_rpn);
 
-        };
+};
 
 class Function
 {
@@ -270,6 +286,9 @@ class Routine
         //evaluates the routine given the function name and the vector of arguments
         //aux arguments
         Number evaluate(std::string function_name, std::vector<Number> arguments,std::vector<std::string> aux_arguments);
+
+        //list of routines
+        static std::string routines_help;
 };
 
 class Number
@@ -306,6 +325,7 @@ class Number
     bool operator>=(const Number num2);
     bool operator<=(const Number num2);
     bool operator==(const Number num2);
+    bool operator!=(const Number num2);
     bool operator==(const double num2);
 
     //help for the constants stored in map_variables
@@ -314,6 +334,9 @@ class Number
 
 class ndArray
 {
+    friend class Complex_array;
+    friend class sim_eqn;
+    friend class Parser;
     private:
         //the vector stored as a map with the key as the index of the element
         //store in a vector
@@ -362,8 +385,104 @@ class ndArray
         //eval a function on all elements of an array and store the result
         //in output_array
         void evaluate(std::string function_name,std::string output_array_name);
+
+        //conversion functions from ndArrays to arrays and vice versa
+        void set2d(Number** A);
+        void set1d(Number* A);
+        void get1d(Number* A,unsigned long size);
 };
 
-//prints the help present in filename
-void help(std::string filename)
+//class of complex numbers
+class Complex
+{
+    private:
+        //internal representation i_
+        Number i_real;
+        Number i_img;
+    public:
+        //const j:sqrt(-1)
+        static const Complex j;
+
+        //constructors
+        Complex(): i_real(0.0),i_img(0.0){};
+        Complex(Number _real,Number _img): i_real(_real),i_img(_img){};
+        //real number
+        Complex(Number _real):i_real(_real),i_img(0.0){};
+
+        //assignment for a real number
+        Complex operator=(Number _real);
+
+        //return the real and imaginary parts respectively
+        Number real();
+        Number img();
+
+        //conjugate
+        //does not change the original complex number
+        Complex conjugate();
+
+        //the norm of the complex number
+        Number norm();
+
+        //the operators overloaded for members of the Complex class
+        Complex operator+(Complex c_num2);
+        Complex operator-(Complex c_num2);
+        Complex operator*(Complex c_num2);
+        Complex operator/(Complex c_num2);
+        Complex operator+=(Complex c_num2);
+        Complex operator-=(Complex c_num2);
+        Complex operator*=(Complex c_num2);
+        Complex operator/=(Complex c_num2);
+        bool operator==(Complex c_num2);
+        bool operator!=(Complex c_num2);
+        Complex operator-();
+};
+
+class Complex_array
+{
+    private:
+        unsigned long i_size;
+        Complex* c_array;
+    public:
+        unsigned long size();
+        void store_value(const Complex c_num,unsigned long index);
+        Complex return_value(unsigned long index);
+
+        //constructors
+        Complex_array();
+        Complex_array(ndArray array);
+        //arrays of complex numbers with zeros
+        Complex_array(unsigned long _size);
+
+        //subscripting operator
+        Complex operator[](unsigned long index);
+
+        //scale the array by a real number
+        void scale(Number scale);
+
+        //the fft function
+        void forward_fft(Complex_array c_array_fft);
+
+    private:
+        void rearrange();
+        void fft();
+};
+
+class sim_eqn
+{
+    private:
+        //coefficient matrix,the rhs and the array for the solution
+        Number **A,*B,*X;
+        long n;
+    public:
+        //constructors
+        sim_eqn();
+        sim_eqn(unsigned long m);
+
+        //the input and output functions for the arrays
+        Number* get();
+        void set(ndArray _A,ndArray _B);
+        void solve(long start);
+
+        ~sim_eqn();
+};
 #endif

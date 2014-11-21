@@ -1,0 +1,115 @@
+List of predefined functions:-
+
+All trigonometric and inverse trigonometric functions deal with radians
+Syntax: sin(number)
+Returns sine of number
+
+Syntax: cos(number)
+Returns cosine of number.
+
+Syntax: tan(number)
+Returns tangent of number.
+
+Syntax: sec(number)
+Returns secant of number.
+
+Syntax: csc(number)
+Returns cosecant of number.
+
+Syntax: cot(number)
+Returns cotangent of number.
+
+Syntax: asin(number)
+Returns sine inverse of number, magnitude of number must be <= 1.
+
+Syntax: acos(number)
+Returns cosine inverse of number, magnitude of number must be <= 1.
+
+Syntax: atan(number)
+Returns tangent inverse of number.
+
+Syntax: sinh(number)
+Returns hyperbolic sine of number.
+
+Syntax: cosh(number)
+Returns hyperbolic cosine of number.
+
+Syntax: tanh(number)
+Returns hyperbolic tangent of number.
+
+Syntax: sech(number)
+Returns hyperbolic secant of number.
+
+Syntax: csch(number)
+Returns hyperbolic cosecant of number.
+
+Syntax: coth(number)
+Returns hyperbolic cotangent of number.
+
+Syntax: asinh(number)
+Returns inverse hyperbolic sine of number.
+
+Syntax: acosh(number)
+Returns inverse hyperbolic cosine of number, number must be >= 1.
+
+Syntax: atanh(number)
+Returns inverse hyperbolic tangent of number.
+
+Syntax: atan2(ordinate, abscissa)
+Returns inverse tangent of the ordinate/abscissa with appropriate quadrant.
+
+Syntax: log1p(number)
+Returns natural logarithm of (1 + number), number must be >= -1.
+
+Syntax: expm1(number)
+Returns (e^number) - 1
+
+Syntax: eint(number)
+Returns the exponential integal of number, number must be non-negative.
+
+Synatx: li2(number)
+Returns the dilogarithm of number
+
+Syntax: gamma(number)
+Returns the gamma function of number, number must be non-negative
+
+Syntax: lngamma(number)
+Returns the natural logarithm of number, if number is negative, it must lie as such: -2k < n < -2k+1, where k is any positive integer.
+
+Syntax: digamma(number)
+Returns the Digamma (or Psi) function of number, number must be non-negative.
+
+Syntax: zeta(number)
+Returns the zeta function of number.
+
+Syntax: erf(number)
+Returns the error function of number.
+
+Syntax: erfc(number)
+Returns the complementary error function of number.
+
+Syntax: j0(number)
+Returns the first Bessel function of order 0.
+
+Syntax: j1(number)
+Returns the first Bessel function of order 1.
+
+Syntax: jn(number)
+Returns the first Bessel function of order n.
+
+Syntax: y0(number)
+Returns the second Bessel function of order 0.
+
+Syntax: y1(number)
+Returns the second Bessel function of order 1.
+
+Syntax: yn(number)
+Returns the second Bessel function of order n.
+
+Syntax: agm(number1, number2)
+Returns the arithmetic-geometric mean of number1 and number2, both arguments must be non-negative.
+
+Syntax: hypot(number1, number2)
+Returns the hypotenuse of the right angled triangle with other 2 sides as the magnitudes of number1 and number2.
+
+Syntax: ai(number)Returns the Airy function of number.

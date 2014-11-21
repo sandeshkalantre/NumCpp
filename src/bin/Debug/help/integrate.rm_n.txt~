@@ -1,0 +1,8 @@
+Riemann method, evaluation at midpoint with user defined accuracy
+___________________________________________________________
+Syntax: integrate.rm_n(left_limit, right_limit, num_divisions, function_name())
+___________________________________________________________
+This function will integrate the given function function_name(), which accepts one parameter, over the given interval x=left_limit to x=right_limit.
+It uses the same method as integrate.rm(), therefore refer to help(integrate.rm) for more.
+It approximates the area represented by the integral as a sum of infinitesimally narrow rectangles, the number of which is num_divisions.
+Therefore the greater num_divisions is, the more accurate it makes the integral, but it may also take visibly more time, due to the larger number of computations.

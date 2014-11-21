@@ -1,0 +1,30 @@
+List of routines:-
+
+integrate(left_limit, right_limit, function_name())
+
+integrate.rm(left_limit, right_limit, function_name())
+
+integrate.rm_n(left_limit, right_limit, num_divisions, function_name())
+
+integrate.rt(left_limit, right_limit, function_name())
+
+integrate.mc(left_limit, right_limit, function_name())
+
+integrate2d.rect(bot_limit, top_limit, l_limit(), r_limit(), function_name())
+
+integrate2d.type1(l_limit, r_limit, bot_limit(), top_limit(), function_name())
+
+integrate2d.type2(bot_limit, top_limit, l_limit(), r_limit(), function_name())
+
+integrate2d.line(left_limit, right_limit, x(), y(), function_name())
+
+integrate3d.cub(l_limit, r_limit, bot_limit, top_limit, front_limit, back_limit, function_name())
+
+integrate3d.line(left_limit, right_limit, x(), y(), z(), function_name())
+
+solve.n(guess, function_name)
+
+solve.b(left_end, right_end, function_name())
+
+
+

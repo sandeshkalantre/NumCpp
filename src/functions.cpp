@@ -34,7 +34,7 @@ namespace std_functions
         }
         catch(const char *str)
         {
-            std::cout<<"Domain Error: "<<str<<std::endl;
+            std::cout<<str<<std::endl;
             Number result;
             mpfr_set_nan(result.value);
             return result;
@@ -65,7 +65,7 @@ namespace std_functions
         }
         catch(const char *str)
         {
-            std::cout<<"Domain Error: "<<NEGATIVE_FACTORIAL<<std::endl;
+            std::cout<<NEGATIVE_FACTORIAL<<std::endl;
             Number result;
             mpfr_set_nan(result.value);
             return result;

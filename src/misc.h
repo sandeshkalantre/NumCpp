@@ -32,5 +32,6 @@ bool is_read(const std::string token);
 bool is_evaluate(const std::string token);
 bool is_help(const std::string token);
 bool is_fft(const std::string token);
+bool is_solve(const std::string token);
 
 #endif

@@ -1,0 +1,6 @@
+_______________________________________
+Syntax: solve.n(guess, function_name())
+_______________________________________
+This will take a guess of the root from the user, and use it to find the actual root of the given function function_name.
+It evaluates the point of intersection of the tangent to the function at x = guess with the x-axis, which is an improved guess.
+It then keeps iterating this method to improve its guess and eventually reaches the root.

@@ -63,7 +63,6 @@ int main(int argc,char** argv)
     "Use help(constants) for a list of stored constants.\n"
     "Use help(routines) for a list of routines and help(routine_name) for help on a specifc routine.\n"
     "Use exit() to exit the program.\n"
-
     <<std::endl;
 
     //the loop that runs the program

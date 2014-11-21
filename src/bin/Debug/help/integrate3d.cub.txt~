@@ -1,0 +1,7 @@
+Riemann integration over a cuboid
+__________________________________________________________________________________________________________
+Syntax: integrate3d.cub(l_limit, r_limit, bot_limit, top_limit, front_limit, back_limit, function_name())
+__________________________________________________________________________________________________________
+This function will integrate the given function function_name(), which accepts 3 parameters, over the given interval x=l_limit to x=r_limit, y=bot_limit to y=top_limit and z=back_limit to z=front_limit.
+It uses Riemann integration by dividing the cuboid into a large number of smaller cuboids.
+The integral is the sum of the product of the function value at the centre of each cuboid and the volume of the cuboid.
