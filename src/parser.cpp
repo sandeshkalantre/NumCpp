@@ -318,10 +318,17 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
             return it_expr;
         }
 
-        //checks whether the token is the keyword fft
+        //checks whether the token is the keyword solve
         if(is_solve(token))
         {
             token_type = SOLVE;
+            return it_expr;
+        }
+
+        //checks whether the token is the keyword sci
+        if(is_sci(token))
+        {
+            token_type = SCI;
             return it_expr;
         }
 
@@ -519,7 +526,7 @@ void Parser::parse(std::string expr)
                     return;
                 }
             }
-            std::reverse(array.dim_size.begin(),array.dim_size.end());
+            //std::reverse(array.dim_size.begin(),array.dim_size.end());
 
             //store the vector
 
@@ -705,10 +712,6 @@ void Parser::parse(std::string expr)
 
         try
         {
-            if(map_ndarrays.count(array_name) <= 0)
-            {
-                throw ARRAY_NOT_DEFINED;
-            }
             map_ndarrays[array_name].read_from_file(filename);
         }
         catch(const char *str)
@@ -732,6 +735,27 @@ void Parser::parse(std::string expr)
         std::string array_name = expr_rpn.front().token;
         expr_rpn.pop();
         std::string filename = expr_rpn.front().token;
+        expr_rpn.pop();
+        if(!expr_rpn.empty()  && expr_rpn.front().token == "csv")
+        {
+            ndArray array;
+            array.array_name = array_name;
+            try
+            {
+                if(map_ndarrays.count(array_name) <= 0)
+                {
+                    throw ARRAY_NOT_DEFINED;
+                }
+                map_ndarrays[array_name].write_to_file_csv(filename);
+            }
+            catch(const char *str)
+            {
+                std::cout<<str<<std::endl;
+                return;
+            }
+            return;
+        }
+
 
         ndArray array;
         array.array_name = array_name;
@@ -828,17 +852,37 @@ void Parser::parse(std::string expr)
     if(token.token_type == Token::FFT)
     {
         math_parse(expr,it_expr);
+        if(suppress_eval)
+        {
+            return;
+        }
         //the token must be an ndArray of dim 2 and size n*2
         if(expr_rpn.front().token_type == Token::NDARRAY)
         {
             try
             {
-                Complex_array c_array(map_ndarrays[expr_rpn.front().token]);
-                Complex_array c_array_fft(map_ndarrays[expr_rpn.front().token].dim_size[1]);
-                c_array.forward_fft(c_array_fft);
-                ndArray temp_array(c_array_fft);
+                //check whether the array size is a power of 2
+                if(map_ndarrays[expr_rpn.front().token].dim_size[0] & (map_ndarrays[expr_rpn.front().token].dim_size[0] - 1))
+                {
+                    throw DIM_MISMATCH;
+                }
+                ndArray temp_array;// = map_ndarrays[expr_rpn.front().token];
+                temp_array.dim = 2;
+                temp_array.dim_size = map_ndarrays[expr_rpn.front().token].dim_size;
+                Complex_array complex_array(map_ndarrays[expr_rpn.front().token]);
+                if(!expr_rpn.empty() && expr_rpn.front().token == "inv")
+                {
+                    complex_array.inverse_fft();
+                }
+                else
+                {
+                    complex_array.forward_fft();
+                }
+                temp_array.get_ndarray(complex_array);
+                temp_array.dim_size = map_ndarrays[expr_rpn.front().token].dim_size;
                 temp_array.array_name = "_";
                 map_ndarrays[temp_array.array_name] = temp_array;
+                //temp_array.show();
                 map_ndarrays[temp_array.array_name].show();
                 return;
             }
@@ -902,6 +946,31 @@ void Parser::parse(std::string expr)
         return;
     }
 
+    //evaluation in scientific notation
+    if(token.token_type == Token::SCI)
+    {
+        math_parse(expr, it_expr);
+        if(suppress_eval)
+        {
+            return;
+        }
+        try
+        {
+            Number result;
+            result = eval_rpn(expr_rpn);
+            map_variables["_"] = result;
+
+            if(!suppress_zero)
+            mpfr_printf("%.15Rg \n",result.value);
+        }
+        catch(const char *str)
+        {
+            std::cout<<str<<std::endl;
+        }
+        return;
+
+    }
+
     //EVALUATIONS
     //variable/function/routine evaluation
     it_expr = expr.begin();
@@ -960,11 +1029,19 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
             {
                 std::cout<<token.token<<" : "<<ARRAY_NOT_DEFINED<<std::endl;
                 suppress_zero = true;
+                suppress_eval = true;
                 return;
             }
             expr_rpn.push(token);
             //parse the slice
-            slice = slice_parse(map_ndarrays[token.token],expr,it_expr);
+            try
+            {
+                slice = slice_parse(map_ndarrays[token.token],expr,it_expr);
+            }
+            catch(const char *str)
+            {
+                return;
+            }
             continue;
 
         }
@@ -1617,6 +1694,11 @@ std::queue<int> Parser::slice_parse(ndArray array,std::string expr,std::string::
             break;
         }
         previous_token = token;
+        if(token.token_type == Token::UNKNOWN)
+        {
+            throw UNKNOWN_TOKEN;
+            break;
+        }
     }
     return slice;
 }
@@ -2073,21 +2155,26 @@ ndArray::ndArray()
     dim = 0;
     dim_size.reserve(DEFAULT_DIM);
 }
-//constructor to change a Complex_array in ndArray
-ndArray::ndArray(Complex_array c_array)
+//function to change a Complex_array in ndArray
+void ndArray::get_ndarray(Complex_array& c_array)
 {
-    dim = 2;
-    dim_size[0] = c_array.size();
-    dim_size[1] = 2;
+    ndArray temp;
+    temp.dim_size.reserve(2);
+    temp.dim = 2;
+    temp.dim_size[0] = c_array.size();
+    temp.dim_size[1] = 2;
     std::vector<int> index(2);
     for(int i = 0;i < dim_size[0];i++)
     {
         index[0] = i;
         index[1] = 0;
-        store_value(index,c_array[i].real());
+        temp.store_value(index,c_array[i].real());
         index[1] = 1;
-        store_value(index,c_array[i].img());
+        temp.store_value(index,c_array[i].img());
     }
+    //std::reverse(temp.dim_size.begin(),temp.dim_size.end());
+    *this = temp;
+    return;
 }
 
 void ndArray::store_value(std::vector<int> inp_index,Number value)
@@ -2152,8 +2239,8 @@ void ndArray::show_slice(std::queue<int> slice)
 }
 void ndArray::show()
 {
-    std::vector<int> dim_size_temp = dim_size;
-    std::reverse(dim_size.begin(),dim_size.end());
+    //std::vector<int> dim_size_temp = dim_size;
+    //std::reverse(dim_size.begin(),dim_size.end());
 
     int current_dim = -1;
     std::map<std::vector<int>,Number>::iterator it_array;
@@ -2208,7 +2295,7 @@ void ndArray::show()
 
     }
     std::cout<<std::endl;
-    dim_size = dim_size_temp;
+    //dim_size = dim_size_temp;
     return;
 }
 void ndArray::array_def_parse(std::string expr,std::string::iterator it_expr)
@@ -2329,8 +2416,8 @@ void ndArray::write_to_file(const std::string out_filename)
         throw FILE_OPEN_FAILED;
     }
 
-    std::vector<int>dim_size_temp = dim_size;
-    std::reverse(dim_size.begin(),dim_size.end());
+    //std::vector<int>dim_size_temp = dim_size;
+    //std::reverse(dim_size.begin(),dim_size.end());
 
     int current_dim = -1;
     std::map<std::vector<int>,Number>::iterator it_array;
@@ -2386,7 +2473,78 @@ void ndArray::write_to_file(const std::string out_filename)
 
     }
     fclose(out_file);
-    dim_size = dim_size_temp;
+    //dim_size = dim_size_temp;
+    return;
+
+}
+
+void ndArray::write_to_file_csv(const std::string out_filename)
+{
+    FILE* out_file;
+    out_file = fopen(out_filename.c_str(),"w");
+    if(out_file == NULL)
+    {
+        throw FILE_OPEN_FAILED;
+    }
+
+    //std::vector<int>dim_size_temp = dim_size;
+    //std::reverse(dim_size.begin(),dim_size.end());
+
+    int current_dim = -1;
+    std::map<std::vector<int>,Number>::iterator it_array;
+
+    for(it_array = array.begin();it_array != array.end();it_array++)
+    {
+        std::vector<int> index = it_array -> first;
+
+        if(current_dim == -1)
+        {
+            //fprintf(out_file," [ ");
+            current_dim++;
+        }
+        while(current_dim < dim && current_dim != dim - 1)
+        {
+
+            //fprintf(out_file," [ ");
+            if((current_dim + 1) < dim)
+            {
+                current_dim++;
+            }
+            else
+            {
+                break;
+            }
+        }
+        if(index[current_dim] == dim_size[current_dim] - 1)
+        {
+            mpfr_fprintf(out_file,"%Rf",return_value(it_array -> first).value);
+        }
+        else
+        {
+            mpfr_fprintf(out_file,"%Rf , ",return_value(it_array -> first).value);
+        }
+
+        while(index[current_dim] == dim_size[current_dim] - 1)
+        {
+            current_dim--;
+            if(current_dim == -1 || index[current_dim] == dim_size[current_dim] - 1)
+            {
+                fprintf(out_file,"\n");
+            }
+            else
+            {
+                fprintf(out_file,"\n");
+            }
+            if(current_dim == -1)
+            {
+                break;
+            }
+
+        }
+
+    }
+    fclose(out_file);
+    //dim_size = dim_size_temp;
     return;
 
 }

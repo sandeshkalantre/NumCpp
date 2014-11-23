@@ -136,23 +136,19 @@ void sim_eqn::solve(long start)
                     A[start][j] = A[start][j] + A[i][j];
                     A[i][j] = A[start][j] - A[i][j];
                     A[start][j] = A[start][j] - A[i][j];
-                    B[start] = B[start] + B[i];
-                    B[i] = B[start] - B[i];
-                    B[start] = B[start] - B[i];
                 }
-                break;
+             B[start] = B[start] + B[i];
+             B[i] = B[start] - B[i];
+             B[start] = B[start] - B[i];
             }
+            break;
+
         }
     }
-
-
-        //std::cout<<start<<std::endl;
-
-
     if(A[start][start] == Number(0.0))
     {
-        std::cout<<start<<" variable cannot be found."<<std::endl;
-        std::cout<<" Either Infinite solutions for "<< start<<" variable or no solution"<<std::endl;
+        std::cout<<"Variable "<<start<<" cannot be found."<<std::endl;
+        std::cout<<"Either Infinite solutions for "<< start<<" variable or no solution"<<std::endl;
         if (start == n-1)
         {
             return;
@@ -190,44 +186,24 @@ void sim_eqn::solve(long start)
     else
     {
 
-        for (k=0; k< n-1; k++)
+        for (k = start; k < n-1; k++)
         {
             for(i = k + 1; i < n; i++)
             {
-                temp= A[i][k];
-                if(temp == Number(0.0))
+                if(A[k][k] != 0)
                 {
-                        //row transformation so that A[0][0]!= 0
-                    for(int l = i + 1; l<n; l++)
+                    temp= A[i][k];
+                    for(j = 0; j <n; j++)
                     {
-                        if(A[l][k] == Number(0.0))
-                        {
-                            continue;
-                        }
-                        else
-                        {
-                            //exchange the ith and lth row of matrices A and B
-                            for(int j = 0; j < n; j++)
-                            {
-                                Number t1 = A[i][j];
-                                A[i][j] = A[l][j];
-                                A[l][j] = t1;
-                                Number t2 = B[i];
-                                B[i] = B[l];
-                                B[l] = t2;
-                            }
-                        }
-                        break;
+                        A[i][j] = A[i][j] - ( A[k][j] * ( temp / A[k][k]));
                     }
+                    B[i] = B[i] - (( temp / A[k][k] ) * B[k] ) ;
+                    //conversion to upper triangular matrix.
                 }
-                temp = A[i][k];
-
-                for(j = 0; j <n; j++)
+                else
                 {
-                    A[i][j] = A[i][j] - ( A[k][j] * ( temp / A[k][k]));
+                    solve(start + 1);
                 }
-                B[i] = B[i] - (( temp / A[k][k] ) * B[k] ) ;
-                //conversion to upper triangular matrix.
             }
         }
         /*
@@ -313,55 +289,30 @@ void sim_eqn::solve(long start)
             }
             else
             {
-                std::cout<< i<< " cannot be found out from these equations"<<std::endl;
+                std::cout<<"Variable "<< i<< " cannot be found out from these equations"<<std::endl;
                 std::cout<< "So even ";
                 for(j = 0; j < i; j++)
                 {
-                    std::cout<<j<<" , ";
+                    std::cout<<"variable "<<j<<" , ";
                 }
                 std::cout<<" cannot be found either."<< std::endl;
                 stopPos = i;
             }
 
         }
-        /*
-        for(int i = 0;i < n;i++)
-        {
-            for(int j= 0;j < n;j++)
-            {
-                mpfr_printf("%d %d %Rf \n",i,j,A[i][j].value);
-            }
-        }
-        for(int i = 0;i < n;i++)
-        {
-            mpfr_printf("%d %Rf",i,B[i].value);
-
-        }
-        */
 
         for (i = n-1; i > stopPos ; i--)
         {
-            //std::cout<<"YOLO";
-            //mpfr_printf("%Rf \n",X[i].value);
             X[i] = B[i];
             for (j = n-1; j > i; j--)
             {
             // These variables would be updated by the end of the loop.
             X[i] -= A[i][j]* X[j];
             }
-            //mpfr_printf("%Rf \n",X[i].value);
-            //cout<< charX[i]<< " = "<<X[i]<<endl;
             //now we'll just print out the values of the variables
         }
 
     }//end of else block
-    //std::cout<<"YOLO"<<std::endl;
-    /*
-    for(int i = 0;i < n;i++)
-    {
-        mpfr_printf("%Rf \n",X[i].value);
-    }
-    */
     return;
 }
 

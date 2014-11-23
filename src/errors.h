@@ -11,7 +11,7 @@ To make changes in the error messages the string must be changed here
 #define MISSING_PARENTHESES "Parsing Error: Parentheses missing in the given input"
 #define MISSING_EQUAL_SIGN "Parsing Error: Equal sign missing in the define expression."
 #define FUNCTION_NOT_DEFINED "Definition Error :The function has not been defined."
-#define FILE_OPEN_FAILED "File Error : The program failed to open the file.\nDo you have read/write permission in the current directory"
+#define FILE_OPEN_FAILED "File Error : The program failed to open the file.\nDo you have read/write permission in the current directory?"
 #define ARRAY_NOT_DEFINED "Definition Error : Array has not been defined"
 #define VARIABLE_NOT_DEFINED "Definition Error : Variable has not been defined."
 #define IMPROPER_EXPRESSION "Expression Error :The expression could not be parsed."

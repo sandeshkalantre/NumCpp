@@ -31,11 +31,12 @@ It also contains the classes Function,Routine and sim_eqn.
 //base of the number system
 #define BASE 10
 //rouding mode for mpfr
+//DEFAULT:ROUND TOWARDS ZERO
 #define RND_MODE MPFR_RNDZ
 //default precison
 #define DEFAULT_PRECISION 64
-//default dim and ndArray
-#define DEFAULT_DIM 3
+//default dim for ndArray
+#define DEFAULT_DIM 2
 
 typedef mpfr_t cppdouble;
 
@@ -114,6 +115,8 @@ class Token
             FFT,
             //solve for simultaneous equations
             SOLVE,
+            //sci for scientific notation
+            SCI,
             UNKNOWN
         };
 
@@ -346,7 +349,7 @@ class ndArray
         //constructors
         ndArray();
 
-        ndArray(const Complex_array c_array);
+        void get_ndarray(Complex_array& c_array);
 
         //name of the array
         std::string array_name;
@@ -378,9 +381,10 @@ class ndArray
 
         //store in a file
         void write_to_file(const std::string out_filename);
-
+        void write_to_file_csv(const std::string out_filename);
         //read from a file
         void read_from_file(const std::string in_filename);
+
 
         //eval a function on all elements of an array and store the result
         //in output_array
@@ -449,7 +453,7 @@ class Complex_array
 
         //constructors
         Complex_array();
-        Complex_array(ndArray array);
+        Complex_array(ndArray& array);
         //arrays of complex numbers with zeros
         Complex_array(unsigned long _size);
 
@@ -460,11 +464,12 @@ class Complex_array
         void scale(Number scale);
 
         //the fft function
-        void forward_fft(Complex_array c_array_fft);
+        void forward_fft();
+        void inverse_fft();
 
     private:
+        //internally required fot the fft
         void rearrange();
-        void fft();
 };
 
 class sim_eqn
@@ -481,6 +486,8 @@ class sim_eqn
         //the input and output functions for the arrays
         Number* get();
         void set(ndArray _A,ndArray _B);
+        //the solve function which solved the system using gaussian elimination
+        //to start using it start = 0
         void solve(long start);
 
         ~sim_eqn();

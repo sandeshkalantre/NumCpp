@@ -203,3 +203,16 @@ bool is_solve(const std::string token)
         return false;
     }
 }
+
+//checks whether the token is the keyword sci
+bool is_sci(const std::string token)
+{
+    if(token.compare("sci") == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}

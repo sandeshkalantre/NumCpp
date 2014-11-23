@@ -137,8 +137,10 @@ Complex_array::Complex_array(unsigned long _size)
     }
 }
 
-Complex_array::Complex_array(ndArray array)
+Complex_array::Complex_array(ndArray& array)
 {
+    //std::vector<int> temp_dim_size = array.dim_size;
+    //std::reverse(array.dim_size.begin(),array.dim_size.end());
     if(array.dim != 2)
     {
         throw DIM_MISMATCH;
@@ -148,18 +150,39 @@ Complex_array::Complex_array(ndArray array)
         throw DIM_MISMATCH;
     }
     i_size = array.dim_size[0];
-    Complex* c_array = new Complex [size()];
+
+    c_array = new Complex [i_size];
     if(c_array == NULL)
     {
         throw MALLOC_ERROR;
     }
-    unsigned long index = 0;
+    //unsigned long index = 0;
+    /*
     for(std::map<std::vector<int>,Number>::iterator it = array.array.begin();
         it != array.array.end();
         it++)
         {
-            c_array[index] = Complex(it-> second,(++it) -> second);
+            Number num1 = it -> second;
+            it++;
+            Number num2 = it -> second;
+            c_array[index] = Complex(num1,num2);
         }
+    */
+    std::vector<int> index(2);
+    //array.show();
+    for(int i = 0;i < array.dim_size[0];i++)
+    {
+        index[0] = i;
+        index[1] = 0;
+        Number num1 = array.array[index];
+        index[1] = 1;
+        Number num2 = array.array[index];
+        //mpfr_printf("%.15RF %.15RF \n",num1.value,num2.value);
+        store_value(Complex(num1,num2),i);
+
+    }
+
+    //array.dim_size = temp_dim_size;
 }
 
 unsigned long Complex_array::size()
@@ -180,7 +203,7 @@ Complex Complex_array::return_value(unsigned long index)
 
 Complex Complex_array::operator[](unsigned long index)
 {
-    return c_array[index];
+    return return_value(index);
 }
 
 void Complex_array::scale(Number scale)
@@ -205,19 +228,97 @@ void Complex_array::scale(Number scale)
 }
 
 
-void Complex_array::forward_fft(Complex_array c_array_fft)
+void Complex_array::forward_fft()
 {
+    rearrange();
+    Number pi(-3.1415926535897932);
+    //step is the level of the array we are working
+    for(unsigned long step = 1; step < size(); step <<= 1)
+    {
+        const unsigned long jump = step << 1;
 
+        Number n_step((int)step);
+        Number delta = pi / n_step;
+
+        Number sine = std_functions::sin(delta / Number(2));
+
+        Complex multiplier(-Number(2.0) * sine * sine,std_functions::sin(delta));
+
+        Complex factor(1.0);
+
+        for(unsigned long group = 0;group < step;group++)
+        {
+            for(unsigned long pair = group;pair < size();pair+=jump)
+            {
+                unsigned long match = pair + step;
+                Complex product = factor * c_array[match];
+                c_array[match] = c_array[pair] - product;
+                c_array[pair] += product;
+            }
+            factor = multiplier * factor + factor;
+        }
+    }
     return;
 }
 
+void Complex_array::inverse_fft()
+{
+    rearrange();
+    Number pi(3.1415926535897932);
+    //step is the level of the array we are working
+    for(unsigned long step = 1; step < size(); step <<= 1)
+    {
+        const unsigned long jump = step << 1;
 
+        Number n_step((int)step);
+        Number delta = pi / n_step;
 
+        Number sine = std_functions::sin(delta / Number(2));
 
+        Complex multiplier(-Number(2.0) * sine * sine,std_functions::sin(delta));
 
+        Complex factor(1.0);
+
+        for(unsigned long group = 0;group < step;group++)
+        {
+            for(unsigned long pair = group;pair < size();pair+=jump)
+            {
+                unsigned long match = pair + step;
+                Complex product = factor * c_array[match];
+                c_array[match] = c_array[pair] - product;
+                c_array[pair] += product;
+            }
+            factor = multiplier * factor + factor;
+        }
+    }
+    scale(Number((int)size()));
+    return;
+}
 //rearranges the array for implementation of the fft
 void Complex_array::rearrange()
 {
-    return;
+    //Swap position
+   unsigned int Target = 0;
+   //Process all positions of input signal
+   for (unsigned int Position = 0; Position < size(); ++Position)
+   {
+      //   Only for not yet swapped entries
+      if (Target > Position)
+      {
+         //   Swap entries
+         Complex Temp(c_array[Target]);
+         c_array[Target] = c_array[Position];
+         c_array[Position] = Temp;
+      }
+      //   Bit mask
+      unsigned int Mask = size();
+      //   While bit is set
+      while (Target & (Mask >>= 1))
+         //   Drop bit
+         Target &= ~Mask;
+      //   The current bit is 0 - set it
+      Target |= Mask;
+   }
+   return;
 
 }
