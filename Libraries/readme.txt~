@@ -1,0 +1,9 @@
+To install the libraries:
+
+>Extract the archives.
+>Open a terminal and run the following commands.
+./configure
+make
+make check
+make install
+
