@@ -25,11 +25,14 @@ namespace routines
     Number integrate2d_type1(std::string function_name, Number a, Number b, std::vector<std::string>aux_arguments);
     Number integrate2d_type2(std::string function_name, Number a, Number b, std::vector<std::string>aux_arguments);
     Number integrate2d_line(std::string function_name, Number a, Number b, std::vector<std::string>aux_arguments);
+    Number integrate3d_surf(std::string function_name, Number a, Number b, Number c, Number d, std::vector<std::string>aux_arguments);
     Number integrate3d_line(std::string function_name, Number a, Number b, std::vector<std::string>aux_arguments);
     Number integrate3d_cub(std::string function_name, Number a, Number b, Number c, Number d, Number e, Number f);
     Number newton(std::string function_name, Number a);
     Number bisection(std::string function_name, Number a, Number b);
     Number differentiate(std::string function_name, Number a);
+    Number partial_diff2d ( Number x_value, Number y_value , std::string function_name ,std::vector<std::string>aux_arguments);
+    Number partial_diff3d ( Number x_value, Number y_value , Number z_value, std::string function_name, std::vector<std::string>aux_arguments);
 }
 
 #endif

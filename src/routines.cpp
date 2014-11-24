@@ -44,7 +44,6 @@ namespace routines
         return integral;
     }
     //Riemann integration with evaluation at midpoint of the subinterval
-
     Number integrate_rm(std::string function_name, Number a, Number b)
     {
         return integrate_rm_n(function_name, a, b, 100000);
@@ -367,6 +366,67 @@ namespace routines
         integral *= (sign*h);
         return integral;
     }
+    Number integrate3d_surf(std::string function_name, Number a, Number b, Number c, Number d, std::vector<std::string>aux_arguments)
+    {
+        Number sign(1); Number temp;
+        if(b<a)
+        {
+            temp = b;
+            b = a;
+            a = temp;
+            sign = Number(-1);
+        }
+        if(d<c)
+        {
+            temp = c;
+            c = d;
+            d = temp;
+            sign=sign*Number(-1);
+        }
+        Number num_divisions(1000);
+        Number h1 ((b-a)/num_divisions);
+        Number h2 ((d-c)/num_divisions);
+        Number u(a + h1/Number(2));
+        Number integral(0.0);
+        Number v, norm, temp1, temp2, temp3;
+        std::string x_func = aux_arguments[0];
+        std::string y_func = aux_arguments[1];
+        std::string z_func = aux_arguments[2];
+        std::vector<Number> arguments(3);
+        std::vector<Number> parameters(2);
+        while(u<b)
+        {
+            v = c+ h2/Number(2);
+            while (v<d)
+            {
+                parameters[0] = u;
+                parameters[1] = v;
+                arguments[0] = map_functions[x_func].evaluate(parameters);
+                arguments[1] = map_functions[y_func].evaluate(parameters);
+                arguments[2] = map_functions[z_func].evaluate(parameters);
+                check_nan_flag();
+                //here axis-directions "x" and "y" actually refer to "u" and "v"
+
+                std::vector<std::string> x(1);
+                x[0] = "x";
+                std::vector<std::string> y(1);
+                y[0] = "y";
+                std::vector<std::string> z(1);
+                z[0] = "z";
+
+                temp1 = partial_diff2d( u,v,y_func, x)* partial_diff2d( u,v,z_func, y)- partial_diff2d( u,v,z_func, x)* partial_diff2d( u,v,y_func, y);
+                temp2 = partial_diff2d( u,v,z_func, x)* partial_diff2d( u,v,x_func, y)- partial_diff2d( u,v,x_func, x)* partial_diff2d( u,v,z_func, y);
+                temp3 = partial_diff2d( u,v,x_func, x)* partial_diff2d( u,v,y_func, y)- partial_diff2d( u,v,y_func, x)* partial_diff2d( u,v,x_func, y);
+                norm = std_functions::hypot(std_functions::hypot(temp1,temp2),temp3);
+                integral += map_functions[function_name].evaluate(arguments) * norm;
+                check_nan_flag();
+                v += h2;
+            }
+            u += h1;
+        }
+        integral*=(sign*h1*h2);
+        return integral;
+    }
     Number integrate3d_cub(std::string function_name, Number a, Number b, Number c, Number d, Number e, Number f)
     {
         Number sign(1); Number temp;
@@ -437,6 +497,95 @@ namespace routines
         return slope;
 
     }
+    Number partial_diff2d ( Number x_value, Number y_value , std::string function_name ,
+    std::vector<std::string>aux_arguments)
+    {
+        std::vector<Number> arg1 (2);
+        std::vector<Number> arg2 (2);
+        std::vector<Number> arg3 (2);
+        std::vector<Number> arg4 (2);
+        //h is a small distance
+        Number h(0.000001);
+        //making small adjustments in the coordinates to get all points required.
+        if( aux_arguments[0] == "x")
+        {
+            arg1[0] = x_value - (Number(2)* h);
+            arg2[0] = x_value - h;
+            arg3[0] = x_value + h;
+            arg4[0] = x_value + (Number(2)* h);
+            arg1[1] = arg2[1] = arg3[1] = arg4[1] = y_value;
+        }
+        else if( aux_arguments[0] == "y")
+        {
+            arg1[1] = y_value - (Number(2)* h);
+            arg2[1] = x_value - h;
+            arg3[1] = x_value + h;
+            arg4[1] = x_value + (Number(2)* h);
+            arg1[0] = arg2[0] = arg3[0] = arg4[0] = x_value;
+        }
+        else
+        {
+            throw ARGUMENT_ERROR;
+        }
+
+        //evaluate the value of the function at the points required
+        Number fx1= map_functions[function_name].evaluate(arg1);
+        Number fx2= map_functions[function_name].evaluate(arg2);
+        Number fx3= map_functions[function_name].evaluate(arg3);
+        Number fx4= map_functions[function_name].evaluate(arg4);
+        Number ans = ( fx1 - (Number(8)*fx2) + (Number(8)*fx3) - fx4 )/ (Number(12)*h) ;
+        return ans;
+    }
+
+    Number partial_diff3d ( Number x_value, Number y_value , Number z_value, std::string function_name , std::vector<std::string>aux_arguments)
+    {
+        std::vector<Number> arg1 (3);
+        std::vector<Number> arg2 (3);
+        std::vector<Number> arg3 (3);
+        std::vector<Number> arg4 (3);
+        //h is a small distance
+        Number h(0.000001);
+        //making small adjustments in the coordinates to get all points required.
+        if( aux_arguments[0] == "x")
+        {
+            arg1[0] = x_value - (Number(2)* h);
+            arg2[0] = x_value - h;
+            arg3[0] = x_value + h;
+            arg4[0] = x_value + (Number(2)* h);
+            arg1[1] = arg2[1] = arg3[1] = arg4[1] = y_value;
+            arg1[2] = arg2[2] = arg3[2] = arg4[2] = z_value;
+        }
+        else if( aux_arguments[0] == "y")
+        {
+            arg1[1] = y_value - (Number(2)* h);
+            arg2[1] = y_value - h;
+            arg3[1] = y_value + h;
+            arg4[1] = y_value + (Number(2)* h);
+            arg1[0] = arg2[0] = arg3[0] = arg4[0] = x_value;
+            arg1[2] = arg2[2] = arg3[2] = arg4[2] = z_value;
+        }
+        else if( aux_arguments[0] == "z")
+        {
+            arg1[2] = z_value - (Number(2)* h);
+            arg2[2] = z_value - h;
+            arg3[2] = z_value + h;
+            arg4[2] = z_value + (Number(2)* h);
+            arg1[0] = arg2[0] = arg3[0] = arg4[0] = x_value;
+            arg1[1] = arg2[1] = arg3[1] = arg4[1] = y_value;
+        }
+        else
+        {
+            throw ARGUMENT_ERROR;
+        }
+        //evaluate the value of the function at the points required
+        Number fx1= map_functions[function_name].evaluate(arg1);
+        Number fx2= map_functions[function_name].evaluate(arg2);
+        Number fx3= map_functions[function_name].evaluate(arg3);
+        Number fx4= map_functions[function_name].evaluate(arg4);
+        Number ans = ( fx1 - (Number(8)*fx2) + (Number(8)*fx3) - fx4 )/ (Number(12)*h) ;
+        return ans;
+
+}
     //Newton Raphson Method
     Number newton(std::string function_name, Number x)
     {
@@ -581,6 +730,12 @@ void def_routines()
     INTEGRATE2D_TYPE2.routine_help = "help/integrate2d.type2.txt";
     map_routines[INTEGRATE2D_TYPE2.routine_name] = INTEGRATE2D_TYPE2;
 
+    Routine INTEGRATE3D_SURF;
+    INTEGRATE3D_SURF.routine_name = "integrate3d.surf";
+    INTEGRATE3D_SURF.num_arguments = 4;
+    INTEGRATE3D_SURF.routine_help = "help/integrate3d.surf.txt";
+    map_routines[INTEGRATE3D_SURF.routine_name] = INTEGRATE3D_SURF;
+
     Routine INTEGRATE3D_LINE;
     INTEGRATE3D_LINE.routine_name = "integrate3d.line";
     INTEGRATE3D_LINE.num_arguments = 2;
@@ -591,10 +746,24 @@ void def_routines()
     INTEGRATE3D_CUB.routine_name = "integrate3d.cub";
     INTEGRATE3D_CUB.num_arguments = 6;
     INTEGRATE3D_CUB.routine_help = "help/integrate3d.cub.txt";
+    map_routines[INTEGRATE3D_CUB.routine_name] = INTEGRATE3D_CUB;
+
     Routine DIFFERENTIATE;
     DIFFERENTIATE.routine_name = "differentiate";
     DIFFERENTIATE.num_arguments = 1;
     map_routines[DIFFERENTIATE.routine_name] = DIFFERENTIATE;
+
+    Routine PARTIAL_DIFF2D;
+    PARTIAL_DIFF2D.routine_name = "partial.diff2d";
+    PARTIAL_DIFF2D.num_arguments = 3;
+    PARTIAL_DIFF2D.routine_help = "help/partial.diff2d.txt";
+    map_routines[PARTIAL_DIFF2D.routine_name] = PARTIAL_DIFF2D;
+
+    Routine PARTIAL_DIFF3D;
+    PARTIAL_DIFF3D.routine_name = "partial.diff3d";
+    PARTIAL_DIFF3D.num_arguments = 4;
+    PARTIAL_DIFF3D.routine_help = "help/partial.diff3d.txt";
+    map_routines[PARTIAL_DIFF3D.routine_name] = PARTIAL_DIFF3D;
 
     Routine NEWTON;
     NEWTON.routine_name = "solve.n";

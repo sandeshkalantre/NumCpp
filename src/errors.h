@@ -25,5 +25,6 @@ To make changes in the error messages the string must be changed here
 #define DOMAIN_ERROR "Domain erorr: The function is undefined in the given domain."
 #define INPUT_ERROR "Input Error : Given points must have function values of opposite sign for this method, but sadly they do not."
 #define MALLOC_ERROR "Memory Error : Failed to allocate memory on the heap."
+#define ARGUMENT_ERROR "Not a valid argument."
 
 #endif

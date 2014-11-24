@@ -2089,6 +2089,42 @@ Number Function::evaluate(std::vector<Number> d_arguments)
 
 Number Routine::evaluate(std::string function_name,std::vector<Number> arguments,std::vector<std::string> aux_arguments)
 {
+    if(routine_name.compare("differentiate") == 0)
+    {
+        return routines::differentiate(function_name,arguments[0]);
+    }
+    if(routine_name.compare("partial.diff2d") == 0)
+    {
+        if(arguments[2] == Number(0))
+        {
+            aux_arguments.push_back("x");
+        }
+        if(arguments[2] == Number(1))
+        {
+            aux_arguments.push_back("y");
+        }
+        return routines::partial_diff2d(arguments[0],arguments[1],function_name,aux_arguments);
+    }
+    if(routine_name.compare("partial.diff3d") == 0)
+    {
+        if(arguments[2] == Number(0))
+        {
+            aux_arguments.push_back("x");
+        }
+        if(arguments[2] == Number(1))
+        {
+            aux_arguments.push_back("y");
+        }
+        if(arguments[2] == Number(2))
+        {
+            aux_arguments.push_back("z");
+        }
+        else
+        {
+            throw ARGUMENT_ERROR;
+        }
+        return routines::partial_diff3d(arguments[0],arguments[1],arguments[2],function_name,aux_arguments);
+    }
     if(routine_name.compare("integrate") == 0)
     {
         return routines::integrate_rm(function_name,arguments[0],arguments[1]);
@@ -2133,9 +2169,9 @@ Number Routine::evaluate(std::string function_name,std::vector<Number> arguments
     {
         return routines::integrate3d_cub(function_name,arguments[0],arguments[1],arguments[2],arguments[3],arguments[4],arguments[5]);
     }
-    if(routine_name.compare("differentiate") == 0)
+    if(routine_name.compare("integrate3d.surf") == 0)
     {
-        return routines::differentiate(function_name,arguments[0]);
+        return routines::integrate3d_surf(function_name,arguments[0],arguments[1],arguments[2],arguments[3],aux_arguments);
     }
     if(routine_name.compare("solve.n") == 0)
     {

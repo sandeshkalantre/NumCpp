@@ -1,0 +1,9 @@
+Partial differentiation in 2D space
+__________________________________________________________________________
+Syntax: partial_diff2d( x_coord , y_coord , function_name, direction_axis)
+__________________________________________________________________________
+The x_coord and y_coord are the coordinates of a point at which the function must be
+partially differentiated and direction_axis gives us the direction in which it has
+to be differentiated i.e. either "x" (if it is to differentiated with respect to x,
+keeping y constant) or "y" (if it is to differentiated with respect to y, keeping x
+constant).
