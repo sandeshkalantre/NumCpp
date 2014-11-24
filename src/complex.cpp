@@ -266,6 +266,7 @@ void Complex_array::inverse_fft()
     rearrange();
     Number pi(3.1415926535897932);
     //step is the level of the array we are working
+    //the cooley-tuckey algorithm
     for(unsigned long step = 1; step < size(); step <<= 1)
     {
         const unsigned long jump = step << 1;

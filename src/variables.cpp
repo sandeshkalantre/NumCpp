@@ -2,6 +2,7 @@
 
 //16 decimal digits of mathematical constants are stored
 //for physical constants CODATA 2010 values were used
+//for a description of these constants see the help/constants.txt
 void def_variables()
 {
     Number e;

@@ -1,5 +1,5 @@
 all: NumCpp
-numcpp: main.o functions.o misc.o parser.o variables.o routines.o complex.o sim_eqn.o
+NumCpp: main.o functions.o misc.o parser.o variables.o routines.o complex.o sim_eqn.o
 	g++ main.o functions.o misc.o parser.o variables.o routines.o complex.o sim_eqn.o -lmpfr -lgmp -o NumCpp
 main.o: src/main.cpp
 	g++ -c src/main.cpp

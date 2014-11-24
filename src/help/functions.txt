@@ -112,4 +112,3 @@ Returns the arithmetic-geometric mean of number1 and number2, both arguments mus
 Syntax: hypot(number1, number2)
 Returns the hypotenuse of the right angled triangle with other 2 sides as the magnitudes of number1 and number2.
 
-Syntax: ai(number)Returns the Airy function of number.

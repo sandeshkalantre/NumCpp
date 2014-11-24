@@ -1,16 +1,12 @@
 #include "parser.hpp"
-#include "functions.h"
-#include "routines.h"
-#include "misc.h"
-#include "errors.h"
-#include "complex.h"
-#include "mpfr.h"
-#include <gmp.h>
 
+//the strings which store the location of the help files
 std::string Number::constants_help = "help/constants.txt";
 std::string Function::functions_help = "help/functions.txt";
 std::string Routine::routines_help = "help/routines.txt";
 
+//help function
+//prints the file given to it as an argument
 void help(std::string filename)
 {
     char c;
@@ -22,12 +18,14 @@ void help(std::string filename)
         {
             throw FILE_OPEN_FAILED;
         }
+        //print the entire file on stdout
         while((c = getc(fp)) != EOF)
         {
             putchar(c);
         }
         fclose(fp);
     }
+    //catch the file open failed error
     catch(const char* str)
     {
         std::cout<<str<<std::endl;
@@ -36,6 +34,7 @@ void help(std::string filename)
 
 //IMPLEMENTATION OF THE TOKEN CLASS
 //Token class constructor
+//sets the default values for the internal variables for a token
 Token::Token()
 {
     token_type = NIL;
@@ -69,6 +68,8 @@ enum Token::OPERATOR_ID Token::get_operator_id(const char c)
     {
         return MODULUS;
     }
+    //only capital E denotes scientific notation
+    //SMALL 'e' DOES NOT REPRESENT IT
     if(c == 'E')
     {
         return E;
@@ -84,6 +85,9 @@ enum Token::OPERATOR_ID Token::get_operator_id(const char c)
     return NOTANOPERATOR;
 }
 
+//returns the precedence of the operators
+//LEVEL 1 being lowest and LEVEL 3 highest
+//LEVEL 0 is the default value
 enum Token::OPERATOR_PRECEDENCE Token::get_operator_precedence(const char c)
 {
     if(c == '+' || c == '-')
@@ -101,12 +105,15 @@ enum Token::OPERATOR_PRECEDENCE Token::get_operator_precedence(const char c)
     return LEVEL0;
 }
 
+//returns the associativity of the operators
+//The power operator will be right associative
 enum Token::OPERATOR_ASSOCIATIVITY Token::get_operator_associativity(const char c)
 {
     if(c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '!' || c == 'e' || c == 'E')
     {
         return LEFT;
     }
+    //The power operator will be right associative
     if(c == '^')
     {
         return RIGHT;
@@ -114,6 +121,9 @@ enum Token::OPERATOR_ASSOCIATIVITY Token::get_operator_associativity(const char 
     return NONE;
 }
 
+//returns the iterator to the next character in the string
+//and also determines the token parameters such as their type,associativity and precedence
+//the token itself it stored as a string in private variable token in the Token class
 std::string::iterator Token::get_token(std::string expr,std::string::iterator it_expr)
 {
     //clear the token string
@@ -230,8 +240,10 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
         return it_expr;
     }
 
-     //checks whether the token is a name either of a variable or a function or a routine
+    //checks whether the token is a name either of a variable or a function or a routine
     //or is a keyword
+    //names can have letters,number,underscore or a .(dot)
+    //CASE SENSITIVE AND DONT START WITH NUMBERS
     if(std::isalpha(*it_expr) || *it_expr == '_' || *it_expr == '.')
     {
         while(std::isalnum(*it_expr) || *it_expr == '_' || *it_expr == '.')
@@ -262,6 +274,7 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
             token_type = ROUTINE;
             return it_expr;
         }
+
         //checks whether the token is the keyword linspace
         if(is_linspace(token))
         {
@@ -342,6 +355,7 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
         }
 
         //check if it is a function as a function will have  a left parentheses
+        //check if it is an ndArray as it will have a square lparen
         if(is_lparen(*it_expr))
         {
             token_type = FUNCTION;
@@ -359,23 +373,29 @@ std::string::iterator Token::get_token(std::string expr,std::string::iterator it
 
     //if no token type was matched
     token_type = UNKNOWN;
-    std::cout<<*it_expr<<" : "<<UNKNOWN_TOKEN<<std::endl;
     suppress_eval = true;
+    std::cout<<*it_expr<<" : "<<UNKNOWN_TOKEN<<std::endl;
     return it_expr;
 }
 
 //IMPLEMENTATION OF THE CLASS PARSER
 //constructor for the class Parser
+//doesn't do anything in the current version
 Parser::Parser()
 {
 }
 
+//the parse function which parses the expr given to it
+//the heart of the parser
 void Parser::parse(std::string expr)
 {
-    //set the supress eval flag
+    //set the supress eval flag to false by default
     suppress_eval = false;
+    //set the iterator to the start
     std::string::iterator it_expr = expr.begin();
+    //the token object stores the token as we move through the expr
     Token token;
+    //let the parsing begin
     it_expr = token.get_token(expr, it_expr);
 
     //return if the token is UNKNOWN
@@ -384,7 +404,7 @@ void Parser::parse(std::string expr)
         return;
     }
 
-    //DEFINITIONS
+    //DEFINITIONS OF VARIABLES,FUNCTIONS and NDARRAYS
     //store a variable or a function or an ndArray
     if(token.token_type == Token::DEFINE)
     {
@@ -393,6 +413,8 @@ void Parser::parse(std::string expr)
         //which can tell us whether the next token is a variable or a function
         //as function will have an LPAREN after it's name
         it_expr = token.get_token(expr, it_expr);
+
+        //store a variable
         if(token.token_type == Token::VARIABLE)
         {
             //store the variable name which will go in the map_varibales
@@ -404,13 +426,21 @@ void Parser::parse(std::string expr)
             it_expr = token.get_token(expr, it_expr);
             if(token.token_type == Token::EQUAL_SIGN)
             {
-                Parser math_parser;
-                //on the RHS of equal sign is an expression which must be stored as the value of the variable
-                math_parser.math_parse(expr, it_expr);
-                //the rpn is stored in math_parser.expr_prn
-                //use eval_rpn method to generate the value of the rpn and store as the
-                //value of the variable
-                value = math_parser.eval_rpn(math_parser.expr_rpn);
+                try
+                {
+                    Parser math_parser;
+                    //on the RHS of equal sign is an expression which must be stored as the value of the variable
+                    math_parser.math_parse(expr, it_expr);
+                    //the rpn is stored in math_parser.expr_prn
+                    //use eval_rpn method to generate the value of the rpn and store as the
+                    //value of the variable
+                    value = math_parser.eval_rpn(math_parser.expr_rpn);
+                }
+                catch(const char* str)
+                {
+                    std::cout<<str<<std::endl;
+                    return;
+                }
             }
             else
             {
@@ -429,6 +459,7 @@ void Parser::parse(std::string expr)
             //will store the function in map_functions
             Function function;
             function.function_name = token.token;
+            function.num_arguments = 0;
 
             //ignore the LPAREN
             it_expr = token.get_token(expr,it_expr);
@@ -440,7 +471,6 @@ void Parser::parse(std::string expr)
 
             while(token.token_type != Token::RPAREN)
             {
-                //token = Token();
                 it_expr = token.get_token(expr, it_expr);
                 if(token.token_type == Token::VARIABLE)
                 {
@@ -481,7 +511,7 @@ void Parser::parse(std::string expr)
             return;
         }
 
-        //define an ndArray
+        //store an ndArray
         if(token.token_type == Token::NDARRAY)
         {
             //will store the ndarray in map_ndarrays
@@ -527,8 +557,6 @@ void Parser::parse(std::string expr)
                 }
             }
             //std::reverse(array.dim_size.begin(),array.dim_size.end());
-
-            //store the vector
 
             //the next token is a equal
             it_expr = token.get_token(expr,it_expr);
@@ -613,6 +641,7 @@ void Parser::parse(std::string expr)
             {
                 try
                 {
+                    //check whether the array on rhs has been defined or not
                     if(map_ndarrays.count(token.token) <= 0)
                     {
                         throw token.token;
@@ -626,21 +655,20 @@ void Parser::parse(std::string expr)
                     return;
                 }
             }
-
-
+            //the array is defined element-wise
+            //get back
             else
             {
                 it_expr = it_expr_temp;
             }
 
-            //the array is defined element-wise
             try
             {
                 array.array_def_parse(expr,it_expr);
             }
             catch(const char *str)
             {
-                std::cout<<IMPROPER_EXPRESSION<<std::endl;
+                std::cout<<str<<std::endl;
                 return;
             }
             //store the array in the map
@@ -650,6 +678,7 @@ void Parser::parse(std::string expr)
     }
 
     //SHOW_RPN keyword
+    //prints the rpn of the argument
     if(token.token_type == Token::SHOW_RPN)
     {
         //if the argument is not a function then it is an expression
@@ -736,6 +765,7 @@ void Parser::parse(std::string expr)
         expr_rpn.pop();
         std::string filename = expr_rpn.front().token;
         expr_rpn.pop();
+        //csv support
         if(!expr_rpn.empty()  && expr_rpn.front().token == "csv")
         {
             ndArray array;
@@ -756,7 +786,7 @@ void Parser::parse(std::string expr)
             return;
         }
 
-
+        //not csv
         ndArray array;
         array.array_name = array_name;
         try
@@ -846,7 +876,6 @@ void Parser::parse(std::string expr)
             expr_rpn.pop();
         }
         return;
-
     }
 
     if(token.token_type == Token::FFT)
@@ -882,7 +911,6 @@ void Parser::parse(std::string expr)
                 temp_array.dim_size = map_ndarrays[expr_rpn.front().token].dim_size;
                 temp_array.array_name = "_";
                 map_ndarrays[temp_array.array_name] = temp_array;
-                //temp_array.show();
                 map_ndarrays[temp_array.array_name].show();
                 return;
             }
@@ -893,6 +921,7 @@ void Parser::parse(std::string expr)
             }
         }
     }
+
     //solve token for simultaneous equations
     if(token.token_type == Token::SOLVE)
     {
@@ -961,7 +990,7 @@ void Parser::parse(std::string expr)
             map_variables["_"] = result;
 
             if(!suppress_zero)
-            mpfr_printf("%.15Rg \n",result.value);
+            mpfr_printf("%Rg \n",result.value);
         }
         catch(const char *str)
         {
@@ -973,26 +1002,17 @@ void Parser::parse(std::string expr)
 
     //EVALUATIONS
     //variable/function/routine evaluation
-    it_expr = expr.begin();
-    math_parse(expr, it_expr);
-
-    //DEBUG:PRINT THE RPN AFTER PARSING
-    /*
-    while(!expr_rpn.empty())
-    {
-        std::cout<<expr_rpn.front().token;
-        expr_rpn.pop();
-    }
-    std::cout<<std::endl;
-    */
     try
     {
+        it_expr = expr.begin();
+        math_parse(expr, it_expr);
+
         Number result;
         result = eval_rpn(expr_rpn);
         map_variables["_"] = result;
 
         if(!suppress_zero)
-        mpfr_printf("%.15Rf \n",result.value);
+        mpfr_printf("%.*Rf \n",print_precision,result.value);
     }
     catch(const char *str)
     {
@@ -1023,6 +1043,7 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
             expr_rpn.push(token);
             continue;
         }
+
         if(token.token_type == Token::NDARRAY)
         {
             if(map_ndarrays.count(token.token) <= 0)
@@ -1043,7 +1064,6 @@ void Parser::math_parse(std::string expr,std::string::iterator it_expr)
                 return;
             }
             continue;
-
         }
 
         if(token.token_type == Token::FUNCTION)
@@ -1432,7 +1452,6 @@ std::stack<Number> Parser::eval_rpn_num_stack(std::queue<Token> expr_rpn)
     //auxillary arguments to a routine
     std::vector<std::string> routine_aux_arguments;
 
-
     while(!expr_rpn.empty())
     {
         if(expr_rpn.front().token_type == Token::NUMBER)
@@ -1546,9 +1565,7 @@ std::stack<Number> Parser::eval_rpn_num_stack(std::queue<Token> expr_rpn)
                     expr_rpn.pop();
                     continue;
                 }
-
             }
-
         }
 
         if(expr_rpn.front().token_type == Token::FUNCTION)
@@ -1627,6 +1644,7 @@ std::stack<Number> Parser::eval_rpn_num_stack(std::queue<Token> expr_rpn)
     }
     return number_stack;
 }
+
 //the slice is parsed using this function
 std::queue<int> Parser::slice_parse(ndArray array,std::string expr,std::string::iterator it_expr)
 {
@@ -1901,10 +1919,13 @@ Number Function::std_evaluate(std::vector<Number> d_arguments)
     {
         return std_functions::hypot(d_arguments[0],d_arguments[1]);
     }
+    /*
     if(function_name == "ai")
     {
         return std_functions::ai(d_arguments[0]);
     }
+    */
+
     //by deafult it returns zero
     return Number(0.0);
 }
@@ -1937,6 +1958,7 @@ Number Function::evaluate(std::vector<Number> d_arguments)
             mpfr_set_str(result.value,function_rpn.front().token.c_str(),BASE,MPFR_RNDN);
             number_stack.push(result);
             function_rpn.pop();
+            continue;
         }
         if(function_rpn.front().token_type == Token::VARIABLE)
         {
@@ -1957,10 +1979,11 @@ Number Function::evaluate(std::vector<Number> d_arguments)
                 suppress_zero = true;
                 return Number(0.0);
             }
+            continue;
         }
         if(function_rpn.front().token_type == Token::OPERATOR)
         {
-            //WRITE SOME ERROR HANDLING TO CHECK THAT THERE ATLEAST TWO ELEMENTS ON THE STACK
+            //ERROR HANDLING TO CHECK THAT THERE ATLEAST TWO ELEMENTS ON THE STACK
             if(function_rpn.front().operator_id != Token::FACTORIAL && function_rpn.front().operator_id != Token::UNARY_MINUS)
             {
                 //store the top two elements as compenets of a vector
@@ -2041,7 +2064,7 @@ Number Function::evaluate(std::vector<Number> d_arguments)
             //ERROR HANDLING TO ENSURE THAT THE FUNCTION EXISTS ON THE Map_functions
             if(map_functions.count(function_rpn.front().token) <= 0)
             {
-                std::cout<<"Definition Error : "<<function_rpn.front().token<<FUNCTION_NOT_DEFINED<<std::endl;
+                std::cout<<function_rpn.front().token<<FUNCTION_NOT_DEFINED<<std::endl;
                 suppress_zero = true;
                 return Number(0.0);
             }
@@ -2059,10 +2082,12 @@ Number Function::evaluate(std::vector<Number> d_arguments)
                 arguments.push_back(number_stack.top());
                 number_stack.pop();
             }
+            //the arguments must be reversed as they are stored in reverse order
+            std::reverse(arguments.begin(),arguments.end());
             number_stack.push(map_functions[function_rpn.front().token].evaluate(arguments));
 
             function_rpn.pop();
-
+            continue;
         }
     }
 
@@ -2095,27 +2120,31 @@ Number Routine::evaluate(std::string function_name,std::vector<Number> arguments
     }
     if(routine_name.compare("partial.diff2d") == 0)
     {
-        if(arguments[2] == Number(0))
+        if(arguments[2] == Number(0.0))
         {
             aux_arguments.push_back("x");
         }
-        if(arguments[2] == Number(1))
+        else if(arguments[2] == Number(1.0))
         {
             aux_arguments.push_back("y");
         }
-        return routines::partial_diff2d(arguments[0],arguments[1],function_name,aux_arguments);
+        else
+        {
+            throw ARGUMENT_ERROR;
+        }
+        return routines::partial_diff2d(function_name,arguments[0],arguments[1],aux_arguments);
     }
     if(routine_name.compare("partial.diff3d") == 0)
     {
-        if(arguments[2] == Number(0))
+        if(arguments[3] == Number(0))
         {
             aux_arguments.push_back("x");
         }
-        if(arguments[2] == Number(1))
+        else if(arguments[3] == Number(1))
         {
             aux_arguments.push_back("y");
         }
-        if(arguments[2] == Number(2))
+        else if(arguments[3] == Number(2))
         {
             aux_arguments.push_back("z");
         }
@@ -2123,7 +2152,7 @@ Number Routine::evaluate(std::string function_name,std::vector<Number> arguments
         {
             throw ARGUMENT_ERROR;
         }
-        return routines::partial_diff3d(arguments[0],arguments[1],arguments[2],function_name,aux_arguments);
+        return routines::partial_diff3d(function_name,arguments[0],arguments[1],arguments[2],aux_arguments);
     }
     if(routine_name.compare("integrate") == 0)
     {
@@ -2181,6 +2210,7 @@ Number Routine::evaluate(std::string function_name,std::vector<Number> arguments
     {
         return routines::bisection(function_name,arguments[0],arguments[1]);
     }
+
     //returns 0 as default
     return Number(0.0);
 }
@@ -2191,6 +2221,7 @@ ndArray::ndArray()
     dim = 0;
     dim_size.reserve(DEFAULT_DIM);
 }
+
 //function to change a Complex_array in ndArray
 void ndArray::get_ndarray(Complex_array& c_array)
 {
@@ -2235,7 +2266,7 @@ void ndArray::show_slice(std::queue<int> slice)
             start_index[current_dim] = slice.front();
             slice.pop();
         }
-        mpfr_printf("%.15Rf \n",return_value(start_index).value);
+        mpfr_printf("%.*Rf \n",print_precision,return_value(start_index).value);
         return;
     }
     else
@@ -2256,8 +2287,7 @@ void ndArray::show_slice(std::queue<int> slice)
             it_array != array.find(end_index);
             it_array--)
             {
-                mpfr_printf("%.15Rf \n",return_value(it_array -> first).value);
-
+                mpfr_printf("%.*Rf \n",print_precision,return_value(it_array -> first).value);
             }
             return;
         }
@@ -2266,7 +2296,7 @@ void ndArray::show_slice(std::queue<int> slice)
             it_array != array.find(end_index);
             it_array++)
         {
-            mpfr_printf("%.15Rf \n",return_value(it_array -> first).value);
+            mpfr_printf("%.*Rf \n",print_precision,return_value(it_array -> first).value);
 
         }
         return;
@@ -2305,11 +2335,11 @@ void ndArray::show()
         }
         if(index[current_dim] == dim_size[current_dim] - 1)
         {
-            mpfr_printf("%.15Rf",return_value(it_array -> first).value);
+            mpfr_printf("%.*Rf",print_precision,return_value(it_array -> first).value);
         }
         else
         {
-            mpfr_printf("%.15Rf , ",return_value(it_array -> first).value);
+            mpfr_printf("%.*Rf , ",print_precision,return_value(it_array -> first).value);
         }
 
         while(index[current_dim] == dim_size[current_dim] - 1)
@@ -2358,7 +2388,7 @@ void ndArray::array_def_parse(std::string expr,std::string::iterator it_expr)
             previous_token = token;
             continue;
         }
-        if(token.token_type == Token::OPERATOR && token.operator_id == Token::UNARY_MINUS)
+        if(token.token_type == Token::OPERATOR && token.operator_id == Token::MINUS)
         {
             previous_token = token;
             continue;
@@ -2454,7 +2484,6 @@ void ndArray::write_to_file(const std::string out_filename)
 
     //std::vector<int>dim_size_temp = dim_size;
     //std::reverse(dim_size.begin(),dim_size.end());
-
     int current_dim = -1;
     std::map<std::vector<int>,Number>::iterator it_array;
 
@@ -2482,11 +2511,11 @@ void ndArray::write_to_file(const std::string out_filename)
         }
         if(index[current_dim] == dim_size[current_dim] - 1)
         {
-            mpfr_fprintf(out_file,"%Rf",return_value(it_array -> first).value);
+            mpfr_fprintf(out_file,"%.*Rf",print_precision,return_value(it_array -> first).value);
         }
         else
         {
-            mpfr_fprintf(out_file,"%Rf , ",return_value(it_array -> first).value);
+            mpfr_fprintf(out_file,"%.*Rf , ",print_precision,return_value(it_array -> first).value);
         }
 
         while(index[current_dim] == dim_size[current_dim] - 1)
@@ -2553,11 +2582,11 @@ void ndArray::write_to_file_csv(const std::string out_filename)
         }
         if(index[current_dim] == dim_size[current_dim] - 1)
         {
-            mpfr_fprintf(out_file,"%Rf",return_value(it_array -> first).value);
+            mpfr_fprintf(out_file,"%.*Rf",print_precision,return_value(it_array -> first).value);
         }
         else
         {
-            mpfr_fprintf(out_file,"%Rf , ",return_value(it_array -> first).value);
+            mpfr_fprintf(out_file,"%.*Rf , ",print_precision,return_value(it_array -> first).value);
         }
 
         while(index[current_dim] == dim_size[current_dim] - 1)
@@ -2614,7 +2643,6 @@ void ndArray::evaluate(std::string function_name,std::string output_array_name)
     else
     {
         std::cout<<function_name<<" : "<<FUNCTION_NOT_DEFINED<<std::endl;
-
     }
     return;
 
@@ -2748,7 +2776,6 @@ Number Number::operator^(const Number num2)
     mpfr_pow(result.value,value,num2.value,MPFR_RNDN);
     return result;
 }
-
 Number Number::operator+=(const Number num2)
 {
     *this = *this + num2;
@@ -2792,7 +2819,6 @@ bool Number::operator>(const Number num2)
     }
     return false;
 }
-
 bool Number::operator<(const Number num2)
 {
     int result = mpfr_cmp(value,num2.value);
@@ -2833,7 +2859,6 @@ bool Number::operator!=(const Number num2)
 {
     return !(*this == num2);
 }
-
 bool Number::operator==(const double _num2)
 {
     Number num2(_num2);
@@ -2844,10 +2869,3 @@ bool Number::operator==(const double _num2)
     }
     return false;
 }
-
-
-
-
-
-
-

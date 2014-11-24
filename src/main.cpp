@@ -14,10 +14,16 @@ std::map<std::string, ndArray> map_ndarrays;
 bool suppress_zero = false;
 bool suppress_eval = false;
 
+//global unsigned long which stores the print precison
+unsigned long print_precision;
+
 int main(int argc,char** argv)
 {
     //default precision for the program
     mpfr_set_default_prec(DEFAULT_PRECISION);
+    //default print precision
+    print_precision = DEFAULT_PRINT_PRECISION;
+
     //command line arguments to the progran
     for(int i = 1; i < argc;i++)
     {
@@ -33,6 +39,17 @@ int main(int argc,char** argv)
                 mpfr_set_default_prec(prec);
                 i++;
             }
+            if(argv[i][0] == '-' && argv[i][1] == 'r')
+            {
+                unsigned long print_prec = (unsigned)std::atoi(argv[++i]);
+                if(print_prec < 6 || print_prec > 100000)
+                {
+                    throw WRONG_PRINT_PRECISION;
+                }
+                print_precision = print_prec;
+                i++;
+            }
+
         }
         catch(const char *str)
         {
@@ -78,9 +95,10 @@ int main(int argc,char** argv)
 
         //break if a single ; on a line is entered marking the end of the program
         //or if "exit()" is entered
-        if(expr == ";" || expr.compare("exit()") == 0 || cin.eof())
+        //even "exit" is allowed
+        if(expr == ";" || expr.compare("exit()") == 0 || cin.eof() || expr.compare("exit") == 0)
         {
-            cout<<"Bye.\n";
+            cout<<"Thank You.\n";
             return 0;
         }
 

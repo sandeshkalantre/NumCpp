@@ -312,12 +312,15 @@ namespace std_functions
         return result;
     }
     //Airy function,
+    //mpfr implementation is incorrect
+    /*
     Number ai(Number a)
     {
         Number result;
         mpfr_ai(result.value, a.value,RND_MODE);
         return result;
     }
+    */
 }
 
 //defines the standard functions and loads them in map_functions
@@ -600,9 +603,11 @@ void def_functions()
     HYPOT.standard = true;
     map_functions[HYPOT.function_name] = HYPOT;
 
+    /*
     Function AI;
     AI.function_name = "ai";
     AI.num_arguments = 1;
     map_functions[AI.function_name] = AI;
+    */
     return;
 }

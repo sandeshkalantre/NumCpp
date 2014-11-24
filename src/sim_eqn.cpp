@@ -1,9 +1,8 @@
+#include "parser.hpp"
 /*
 This file contains the implementation of the class sim_eqn
 which is used for solving simultaneous equations
 */
-
-#include "sim_eqn.hpp"
 
 //creating a constructor and destructor for the ojects of this class: 3 arrays, A,B,X.
 sim_eqn::sim_eqn(unsigned long m)
@@ -39,19 +38,8 @@ sim_eqn::sim_eqn(unsigned long m)
         for(long i=0; i < n; i++)
         {
             X[i] = Number(0.0);
-            //mpfr_printf("%Rf \n",X[i].value);
-            //std::cout<<"yolo";
         }
-            // BAD CHOICE!! HELP!!
     }
-    /*
-    for(int i = 0;i < n;i++)
-    {
-        mpfr_printf("%Rf \n",X[i].value);
-    }
-    */
-
-
     return;
 }
 
@@ -101,24 +89,9 @@ void sim_eqn::set(ndArray _A,ndArray _B)
 }
 void sim_eqn::solve(long start)
 {
-    /*
-    for(int i = 0;i < n;i++)
-    {
-        mpfr_printf("%R \n",X[i].value);
-    }
-    */
     long i, j, k;
     Number temp;
-    //std::cout<<"here";
-    /*
-    for(int i = 0;i < n;i++)
-    {
-        for(int j= 0;j < n;j++)
-        {
-            mpfr_printf("%Rf",A[i][j].value);
-        }
-    }
-    */
+
     if (A[start][start] == Number(0.0))
     {
         //row transformation so that A[0][0]!= 0
@@ -206,67 +179,10 @@ void sim_eqn::solve(long start)
                 }
             }
         }
-        /*
-        for(int i = 0;i < n;i++)
-        {
-            for(int j= 0;j < n;j++)
-            {
-                mpfr_printf("%d %d %Rf \n",i,j,A[i][j].value);
-            }
-        }
-        for(int i = 0;i < n;i++)
-        {
-            mpfr_printf("%d %Rf",i,B[i].value);
-
-        }
-        */
-
-        /*
-        for(int i = 1;i < n;i++)
-        {
-
-        }
-        */
-        /*
-        for(int i = 0;i < n;i++)
-        {
-            for(int j= 0;j < n;j++)
-            {
-                mpfr_printf("%d %d %Rf \n",i,j,A[i][j].value);
-            }
-        }
-        for(int i = 0;i < n;i++)
-        {
-            mpfr_printf("%d %Rf",i,B[i].value);
-
-        }
-        */
-
-
 
         Number Divisor = Number(0.0);
         long stopPos = start - 1;
         //-1 just helps us in the loop for printing values.
-        /*
-        for(int i = 0;i < n;i++)
-        {
-            for(int j= 0;j < n;j++)
-            {
-                mpfr_printf("%d %d %Rf \n",i,j,A[i][j].value);
-            }
-        }
-        for(int i = 0;i < n;i++)
-        {
-            mpfr_printf("%d %Rf\n",i,B[i].value);
-
-        }
-        */
-
-
-
-
-
-
         for(i = start;i < n;i++)
         {
             if ( A[i][i] != Number(0.0))

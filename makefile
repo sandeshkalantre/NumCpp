@@ -11,8 +11,8 @@ parser.o: src/parser.cpp src/parser.hpp
 	g++ -c src/parser.cpp src/complex.cpp src/sim_eqn.cpp src/parser.hpp -lmpfr -lgmp
 variables.o: src/variables.cpp src/variables.h src/parser.hpp
 	g++ -c src/variables.cpp src/variables.h src/parser.hpp -lmpfr -lgmp
-routines.o: src/routines.cpp src/routines.h src/parser.hpp
-	g++ -c src/routines.cpp src/routines.h src/parser.hpp -lmpfr -lgmp
+routines.o: src/routines.cpp src/routines.h src/parser.hpp src/errors.h
+	g++ -c src/routines.cpp src/routines.h src/parser.hpp src/errors.h -lmpfr -lgmp
 complex.o: src/complex.cpp src/parser.hpp -lmpfr -lgmp
 	g++ -c src/complex.cpp src/parser.hpp -lmpfr -lgmp
 sim_eqn.o: src/sim_eqn.cpp src/parser.hpp -lmpfr -lgmp

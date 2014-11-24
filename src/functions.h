@@ -68,7 +68,7 @@ namespace std_functions
     Number yn(Number a,Number b);
     Number agm(Number a, Number b);
     Number hypot(Number a, Number b);
-    Number ai(Number a);
+    //Number ai(Number a);
 }
 
 #endif

@@ -1,0 +1,11 @@
+Differentiation
+______________________________________________
+Syntax: differentiate(point,function_name )
+______________________________________________
+This will accept the value of one point and differentiates the function about that
+point by taking a values to the right and very close to it. It only requires the
+function and the point about which it has to be differentiated.
+
+
+
+

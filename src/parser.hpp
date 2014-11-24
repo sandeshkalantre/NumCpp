@@ -37,6 +37,8 @@ It also contains the classes Function,Routine and sim_eqn.
 #define DEFAULT_PRECISION 64
 //default dim for ndArray
 #define DEFAULT_DIM 2
+//default print precison
+#define DEFAULT_PRINT_PRECISION 6
 
 typedef mpfr_t cppdouble;
 
@@ -59,6 +61,9 @@ extern std::map<std::string, ndArray> map_ndarrays;
 //the global bools which are used when parsing fails
 extern bool suppress_zero;
 extern bool suppress_eval;
+
+//global unsigned long which stores the print precison
+extern unsigned long print_precision;
 
 //prints the help present in filename
 void help(std::string filename);
@@ -155,7 +160,7 @@ class Token
         };
 
     //data
-    public:
+    private:
         //string storing the token
         std::string token;
 
@@ -194,7 +199,7 @@ class Parser
     public:
         Parser();
 
-    public:
+    private:
         //the parsed expression in RPN form as a vector of tokens
         std::queue<Token> expr_rpn;
         //the parsed form of the slice stored as a queue of integers
@@ -231,7 +236,8 @@ class Function
 {
     friend class Routine;
     friend class Parser;
-
+    friend class ndArray;
+    friend void def_functions();
     //data
     public:
         //name of the function
@@ -349,6 +355,7 @@ class ndArray
         //constructors
         ndArray();
 
+        //convert a Complex_array to ndarray
         void get_ndarray(Complex_array& c_array);
 
         //name of the array
@@ -492,4 +499,5 @@ class sim_eqn
 
         ~sim_eqn();
 };
+
 #endif

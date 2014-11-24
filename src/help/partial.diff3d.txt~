@@ -1,0 +1,10 @@
+Partial differentiation in 3D space
+___________________________________________________________________________________
+Syntax: partial_diff3d( x_coord , y_coord , z_coord, function_name, direction_axis)
+___________________________________________________________________________________
+The x_coord, y_coord and z_coord are the coordinates of a point at which the
+function must be partially differentiated and direction_axis gives us the direction
+in which it has to be differentiated i.e. either "x" (if it is to differentiated
+with respect to x, keeping y and z constant) or "y" (if it is to differentiated with
+respect to y, keeping x and z constant) or "z" (if it to be differentiated with
+respect to z, keeping x and y constant).

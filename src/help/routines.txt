@@ -1,5 +1,11 @@
 List of routines:-
 
+differentiate(x_value,function_name())
+
+partial.diff2d(x_value,y_value,axis,function_name())
+
+partial.diff3d(x_value,y_value,z_value,axis,function_name())
+
 integrate(left_limit, right_limit, function_name())
 
 integrate.rm(left_limit, right_limit, function_name())
@@ -22,9 +28,9 @@ integrate3d.cub(l_limit, r_limit, bot_limit, top_limit, front_limit, back_limit,
 
 integrate3d.line(left_limit, right_limit, x(), y(), z(), function_name())
 
+integrate3d.surf(l_limit,r_limit,bot_limit,top_right_limit,x(),y(),z(),f())
+
 solve.n(guess, function_name)
 
 solve.b(left_end, right_end, function_name())
-
-
 

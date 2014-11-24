@@ -1,5 +1,7 @@
 #include "routines.h"
 
+//check whether the nan flag from mpfr is set
+//this occurs when the function returns a nan
 void check_nan_flag()
 {
     if(mpfr_nanflag_p() != 0)
@@ -16,8 +18,12 @@ namespace routines
 
     Number integrate_rm_n(std::string function_name, Number a, Number b, Number n)
     {
+        if(map_functions[function_name].num_arguments != 1)
+        {
+            throw ARGUMENT_ERROR;
+        }
         Number sign(1); Number temp;
-        if(b<a)
+        if(b < a)
         {
             temp = b;
             b = a;
@@ -32,53 +38,33 @@ namespace routines
         Number integral(0.0);
         std::vector<Number> arguments(1);
 
-
-        while(x<b)
+        //loop over the interval a to b
+        while(x < b)
         {
             arguments[0] = x;
             integral += map_functions[function_name].evaluate(arguments);
             check_nan_flag();
             x += h;
         }
-        integral *= (sign*h);
+        integral *= (sign * h);
         return integral;
     }
+
     //Riemann integration with evaluation at midpoint of the subinterval
     Number integrate_rm(std::string function_name, Number a, Number b)
     {
         return integrate_rm_n(function_name, a, b, 100000);
-        /*Number sign(1); Number temp;
-        if(b<a)
-        {
-            temp = b;
-            b = a;
-            a = temp;
-            sign = Number(-1);
-        }
-        Number num_divisions(100000);
-        //h is the width of the subinterval
-        Number h((b-a)/num_divisions);
-        //x starts at the midpoint of the first subinterval (a, a+h)
-        Number x = a + h/Number(2) ;
-        Number integral(0.0);
-        std::vector<Number> arguments(1);
-
-
-        while(x<b)
-        {
-            arguments[0] = x;
-            integral += map_functions[function_name].evaluate(arguments);
-            x += h;
-        }
-        integral *= (sign*h);
-        return integral;
-        */
     }
+
     //Riemann integration with evaluation at random tags in the subinterval
     Number integrate_rt(std::string function_name, Number a, Number b)
     {
+        if(map_functions[function_name].num_arguments != 1)
+        {
+            throw ARGUMENT_ERROR;
+        }
         Number sign (1.0); Number temp;
-        if(b<a)
+        if(b < a)
         {
             temp = b;
             b = a;
@@ -93,9 +79,11 @@ namespace routines
         Number t;
         std::vector<Number> arguments(1);
         srand(time(NULL));
-        while(x<b)
+        while(x < b)
         {
             // t is a Number from 0 to h
+            //random number is generated from 0 to RAND_MAX
+            //which is used to determine a tag t in 0 to h
             t = h*((Number)rand()/(Number)RAND_MAX);
 
             arguments[0] = x + t;
@@ -103,14 +91,19 @@ namespace routines
             check_nan_flag();
             x += h;
         }
-        integral *= sign*h;
+        integral *= sign * h;
         return integral;
     }
+
     //Monte Carlo method
     Number integrate_mc(std::string function_name, Number a, Number b)
     {
+        if(map_functions[function_name].num_arguments != 1)
+        {
+            throw ARGUMENT_ERROR;
+        }
         Number sign (1.0); Number temp;
-        if(b<a)
+        if(b < a)
         {
             temp = b;
             b = a;
@@ -129,7 +122,7 @@ namespace routines
         Number minimum = map_functions[function_name].evaluate(arguments);
         check_nan_flag();
         //finding maximum and minimum value of f in the given interval
-        while(x<=b)
+        while(x<b)
         {
             arguments[0] = x;
             function_value = map_functions[function_name].evaluate(arguments);
@@ -146,32 +139,39 @@ namespace routines
         Number inside_pts (0.0);
         Number height (maximum - minimum);
         Number total_pts = Number(100000)*width*height;
-        while( (i+=1) < total_pts )
+        while( ++i < total_pts )
         {
             x = Number(1.0*rand()/RAND_MAX);
             y = Number(1.0*rand()/RAND_MAX);
             arguments[0] = x;
             function_value = map_functions[function_name].evaluate(arguments);
             check_nan_flag();
+            //the points are plotted randomly
+            //they are checked whether they contribute to positive or neg area
             if(function_value > y && y > 0 )
-                inside_pts+=1;
+                ++inside_pts;
             else if(function_value < y && y < 0)
-                inside_pts-=1;
+                --inside_pts;
         }
         Number integral = sign*width*height*inside_pts/total_pts;
         return integral;
     }
+
     Number integrate2d_rect(std::string function_name, Number a, Number b, Number c, Number d)
     {
+        if(map_functions[function_name].num_arguments != 2)
+        {
+            throw ARGUMENT_ERROR;
+        }
         Number sign(1); Number temp;
-        if(b<a)
+        if(b < a)
         {
             temp = a;
             a = b;
             b = temp;
             sign=sign*Number(-1);
         }
-        if(d<c)
+        if(d < c)
         {
             temp = c;
             c = d;
@@ -200,10 +200,15 @@ namespace routines
         integral*=(sign*h1*h2);
         return integral;
     }
+
     Number integrate2d_type1(std::string function_name, Number a, Number b, std::vector<std::string>aux_arguments)
     {
+        if(map_functions[function_name].num_arguments != 2)
+        {
+            throw ARGUMENT_ERROR;
+        }
         Number sign1(1); Number temp;
-        if(b<a)
+        if(b < a)
         {
             temp = a;
             a = b;
@@ -221,7 +226,7 @@ namespace routines
         std::vector<Number> limits(1);
         std::vector<Number> arguments(2);
         Number c, d;
-        while(x<b)
+        while(x < b)
         {
             arguments[0] = x;
             limits[0] = x;
@@ -237,7 +242,7 @@ namespace routines
             }
             h2 = (d-c)/num_divisions;
             y = c+ h2/Number(2);
-            while (y<d)
+            while (y < d)
             {
                 arguments[1] = y;
                 integral += (h2*sign2*map_functions[function_name].evaluate(arguments));
@@ -250,8 +255,13 @@ namespace routines
         integral*=(sign1*h1);
         return integral;
     }
+
     Number integrate2d_type2(std::string function_name, Number a, Number b, std::vector<std::string>aux_arguments)
     {
+        if(map_functions[function_name].num_arguments != 2)
+        {
+            throw ARGUMENT_ERROR;
+        }
         Number sign1(1); Number temp;
         if(b<a)
         {
@@ -287,7 +297,7 @@ namespace routines
             }
             h2 = (d-c)/num_divisions;
             x = c+ h2/Number(2);
-            while (x<d)
+            while (x < d)
             {
                 arguments[0] = x;
                 integral += (h2*sign2*map_functions[function_name].evaluate(arguments));
@@ -300,8 +310,13 @@ namespace routines
         integral*=(sign1*h1);
         return integral;
     }
+
     Number integrate2d_line(std::string function_name, Number a, Number b, std::vector<std::string>aux_arguments)
     {
+        if(map_functions[function_name].num_arguments != 2)
+        {
+            throw ARGUMENT_ERROR;
+        }
         Number sign(1); Number temp;
         if(b<a)
         {
@@ -332,8 +347,13 @@ namespace routines
         integral *= (sign*h);
         return integral;
     }
+
     Number integrate3d_line(std::string function_name, Number a, Number b, std::vector<std::string>aux_arguments)
     {
+        if(map_functions[function_name].num_arguments != 3)
+        {
+            throw ARGUMENT_ERROR;
+        }
         Number sign(1); Number temp;
         if(b<a)
         {
@@ -366,8 +386,13 @@ namespace routines
         integral *= (sign*h);
         return integral;
     }
+
     Number integrate3d_surf(std::string function_name, Number a, Number b, Number c, Number d, std::vector<std::string>aux_arguments)
     {
+        if(map_functions[function_name].num_arguments != 3)
+        {
+            throw ARGUMENT_ERROR;
+        }
         Number sign(1); Number temp;
         if(b<a)
         {
@@ -383,7 +408,7 @@ namespace routines
             d = temp;
             sign=sign*Number(-1);
         }
-        Number num_divisions(1000);
+        Number num_divisions(100);
         Number h1 ((b-a)/num_divisions);
         Number h2 ((d-c)/num_divisions);
         Number u(a + h1/Number(2));
@@ -392,43 +417,47 @@ namespace routines
         std::string x_func = aux_arguments[0];
         std::string y_func = aux_arguments[1];
         std::string z_func = aux_arguments[2];
+        std::vector<std::string> u_aux(1);
+        u_aux[0] = "x";
+        std::vector<std::string> v_aux(1);
+        v_aux[0] = "y";
         std::vector<Number> arguments(3);
         std::vector<Number> parameters(2);
+        int count = 0;
         while(u<b)
         {
+            parameters[0] = u;
             v = c+ h2/Number(2);
             while (v<d)
             {
-                parameters[0] = u;
                 parameters[1] = v;
                 arguments[0] = map_functions[x_func].evaluate(parameters);
                 arguments[1] = map_functions[y_func].evaluate(parameters);
                 arguments[2] = map_functions[z_func].evaluate(parameters);
                 check_nan_flag();
                 //here axis-directions "x" and "y" actually refer to "u" and "v"
-
-                std::vector<std::string> x(1);
-                x[0] = "x";
-                std::vector<std::string> y(1);
-                y[0] = "y";
-                std::vector<std::string> z(1);
-                z[0] = "z";
-
-                temp1 = partial_diff2d( u,v,y_func, x)* partial_diff2d( u,v,z_func, y)- partial_diff2d( u,v,z_func, x)* partial_diff2d( u,v,y_func, y);
-                temp2 = partial_diff2d( u,v,z_func, x)* partial_diff2d( u,v,x_func, y)- partial_diff2d( u,v,x_func, x)* partial_diff2d( u,v,z_func, y);
-                temp3 = partial_diff2d( u,v,x_func, x)* partial_diff2d( u,v,y_func, y)- partial_diff2d( u,v,y_func, x)* partial_diff2d( u,v,x_func, y);
+                temp1 = partial_diff2d(y_func, u,v, u_aux)* partial_diff2d(z_func, u,v, v_aux)- partial_diff2d(z_func, u,v, u_aux)* partial_diff2d(y_func, u,v, v_aux);
+                temp2 = partial_diff2d( z_func, u,v, u_aux)* partial_diff2d(x_func, u,v, v_aux)- partial_diff2d(x_func, u,v, u_aux)* partial_diff2d(z_func, u,v,v_aux);
+                temp3 = partial_diff2d(x_func, u,v, u_aux)* partial_diff2d(y_func, u,v, v_aux)- partial_diff2d(y_func, u,v, u_aux)* partial_diff2d(x_func, u,v, v_aux);
                 norm = std_functions::hypot(std_functions::hypot(temp1,temp2),temp3);
-                integral += map_functions[function_name].evaluate(arguments) * norm;
+                integral += (map_functions[function_name].evaluate(arguments) * norm);
                 check_nan_flag();
                 v += h2;
+                count++;
             }
             u += h1;
         }
+
         integral*=(sign*h1*h2);
         return integral;
     }
+
     Number integrate3d_cub(std::string function_name, Number a, Number b, Number c, Number d, Number e, Number f)
     {
+        if(map_functions[function_name].num_arguments != 3)
+        {
+            throw ARGUMENT_ERROR;
+        }
         Number sign(1); Number temp;
         if(b<a)
         {
@@ -481,8 +510,13 @@ namespace routines
         integral*=(sign*h1*h2*h3);
         return integral;
     }
+
     Number differentiate(std::string function_name, Number a)
     {
+        if(map_functions[function_name].num_arguments != 1)
+        {
+            throw ARGUMENT_ERROR;
+        }
         std::vector<Number> arguments (1);
         arguments[0] = a;
     	//IS THIS A GOOD VALUE?
@@ -497,9 +531,13 @@ namespace routines
         return slope;
 
     }
-    Number partial_diff2d ( Number x_value, Number y_value , std::string function_name ,
-    std::vector<std::string>aux_arguments)
+
+    Number partial_diff2d (std::string function_name, Number x_value, Number y_value , std::vector<std::string>aux_arguments)
     {
+        if(map_functions[function_name].num_arguments != 2)
+        {
+            throw ARGUMENT_ERROR;
+        }
         std::vector<Number> arg1 (2);
         std::vector<Number> arg2 (2);
         std::vector<Number> arg3 (2);
@@ -518,27 +556,30 @@ namespace routines
         else if( aux_arguments[0] == "y")
         {
             arg1[1] = y_value - (Number(2)* h);
-            arg2[1] = x_value - h;
-            arg3[1] = x_value + h;
-            arg4[1] = x_value + (Number(2)* h);
+            arg2[1] = y_value - h;
+            arg3[1] = y_value + h;
+            arg4[1] = y_value + (Number(2)* h);
             arg1[0] = arg2[0] = arg3[0] = arg4[0] = x_value;
         }
         else
         {
             throw ARGUMENT_ERROR;
         }
-
         //evaluate the value of the function at the points required
-        Number fx1= map_functions[function_name].evaluate(arg1);
-        Number fx2= map_functions[function_name].evaluate(arg2);
-        Number fx3= map_functions[function_name].evaluate(arg3);
-        Number fx4= map_functions[function_name].evaluate(arg4);
-        Number ans = ( fx1 - (Number(8)*fx2) + (Number(8)*fx3) - fx4 )/ (Number(12)*h) ;
+        Number f1= map_functions[function_name].evaluate(arg1);
+        Number f2= map_functions[function_name].evaluate(arg2);
+        Number f3= map_functions[function_name].evaluate(arg3);
+        Number f4= map_functions[function_name].evaluate(arg4);
+        Number ans = ( f1 - (Number(8)*f2) + (Number(8)*f3) - f4 )/ (Number(12)*h) ;
         return ans;
     }
 
-    Number partial_diff3d ( Number x_value, Number y_value , Number z_value, std::string function_name , std::vector<std::string>aux_arguments)
+    Number partial_diff3d ( std::string function_name, Number x_value, Number y_value , Number z_value,  std::vector<std::string>aux_arguments)
     {
+        if(map_functions[function_name].num_arguments != 3)
+        {
+            throw ARGUMENT_ERROR;
+        }
         std::vector<Number> arg1 (3);
         std::vector<Number> arg2 (3);
         std::vector<Number> arg3 (3);
@@ -570,25 +611,28 @@ namespace routines
             arg2[2] = z_value - h;
             arg3[2] = z_value + h;
             arg4[2] = z_value + (Number(2)* h);
-            arg1[0] = arg2[0] = arg3[0] = arg4[0] = x_value;
             arg1[1] = arg2[1] = arg3[1] = arg4[1] = y_value;
+            arg1[0] = arg2[0] = arg3[0] = arg4[0] = x_value;
         }
         else
-        {
+            //cout<<"Wrong input"<<endl;
             throw ARGUMENT_ERROR;
-        }
         //evaluate the value of the function at the points required
-        Number fx1= map_functions[function_name].evaluate(arg1);
-        Number fx2= map_functions[function_name].evaluate(arg2);
-        Number fx3= map_functions[function_name].evaluate(arg3);
-        Number fx4= map_functions[function_name].evaluate(arg4);
-        Number ans = ( fx1 - (Number(8)*fx2) + (Number(8)*fx3) - fx4 )/ (Number(12)*h) ;
+        Number f1= map_functions[function_name].evaluate(arg1);
+        Number f2= map_functions[function_name].evaluate(arg2);
+        Number f3= map_functions[function_name].evaluate(arg3);
+        Number f4= map_functions[function_name].evaluate(arg4);
+        Number ans = ( f1 - (Number(8)*f2) + (Number(8)*f3) - f4 )/ (Number(12)*h) ;
         return ans;
 
 }
     //Newton Raphson Method
     Number newton(std::string function_name, Number x)
     {
+        if(map_functions[function_name].num_arguments != 1)
+        {
+            throw ARGUMENT_ERROR;
+        }
         std::vector<Number> arguments(1);
         //x is the initial guess of the root given by the user
         arguments[0] = x;
@@ -615,6 +659,10 @@ namespace routines
     //Bisection Method
     Number bisection (std::string function_name, Number a, Number b)
     {
+        if(map_functions[function_name].num_arguments != 1)
+        {
+            throw ARGUMENT_ERROR;
+        }
         std::vector<Number> arguments(1);
         arguments[0] = a;
         Number func_a = map_functions[function_name].evaluate(arguments);
@@ -670,8 +718,6 @@ namespace routines
     }
 
 }
-
-
 
 void def_routines()
 {
@@ -751,6 +797,7 @@ void def_routines()
     Routine DIFFERENTIATE;
     DIFFERENTIATE.routine_name = "differentiate";
     DIFFERENTIATE.num_arguments = 1;
+    DIFFERENTIATE.routine_help = "help/differentiate.txt";
     map_routines[DIFFERENTIATE.routine_name] = DIFFERENTIATE;
 
     Routine PARTIAL_DIFF2D;
@@ -761,7 +808,7 @@ void def_routines()
 
     Routine PARTIAL_DIFF3D;
     PARTIAL_DIFF3D.routine_name = "partial.diff3d";
-    PARTIAL_DIFF3D.num_arguments = 4;
+    PARTIAL_DIFF3D.num_arguments = 3;
     PARTIAL_DIFF3D.routine_help = "help/partial.diff3d.txt";
     map_routines[PARTIAL_DIFF3D.routine_name] = PARTIAL_DIFF3D;
 
@@ -788,5 +835,4 @@ void def_ndarrays()
     map_ndarrays[array_test.array_name] = array_test;
 
     return;
-
 }

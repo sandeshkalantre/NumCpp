@@ -14,7 +14,10 @@ class Number;
 void def_routines();
 //defines the arrays
 void def_ndarrays();
+//check whether the nan flag from mpfr is set
+//this occurs when the function returns a nan
 void check_nan_flag();
+
 namespace routines
 {
     Number integrate_rm(std::string function_name, Number a, Number b);
@@ -31,8 +34,8 @@ namespace routines
     Number newton(std::string function_name, Number a);
     Number bisection(std::string function_name, Number a, Number b);
     Number differentiate(std::string function_name, Number a);
-    Number partial_diff2d ( Number x_value, Number y_value , std::string function_name ,std::vector<std::string>aux_arguments);
-    Number partial_diff3d ( Number x_value, Number y_value , Number z_value, std::string function_name, std::vector<std::string>aux_arguments);
+    Number partial_diff2d (std::string function_name , Number x_value, Number y_value , std::vector<std::string>aux_arguments);
+    Number partial_diff3d (std::string function_name,  Number x_value, Number y_value , Number z_value, std::vector<std::string>aux_arguments);
 }
 
 #endif
